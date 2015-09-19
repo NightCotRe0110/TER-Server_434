@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='npc_sassy_handwrench' WHERE `entry`='37680';
