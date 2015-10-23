@@ -143,11 +143,10 @@ bool BattlefieldTB::SetupBattlefield()
                 HideNpc(creature);
 
     // Spawning battle npcs
-    for(uint8 i = 0; i<TB_MAX_KEEP_NPC; i++)
+	for (uint8 i = 0; i<TB_MAX_WAR_NPC; i++)
     {
         // Horde npc
-        if (Creature* creature = SpawnCreature(TBWarNPC[i].entryh, TBWarNPC[i].x, TBWarNPC[i].y, TBWarNPC[i].z, TBWarNPC[i].o, TEAM_HORDE))
-            WarCreature[TEAM_HORDE].insert(creature->GetGUID());
+		if (Creature* creature = SpawnCreature(TBWarNPC[i].entryh, TBWarNPC[i].x, TBWarNPC[i].y, TBWarNPC[i].z, TBWarNPC[i].o, TEAM_HORDE))
         // Alliance npc
         if (Creature* creature = SpawnCreature(TBWarNPC[i].entrya, TBWarNPC[i].x, TBWarNPC[i].y, TBWarNPC[i].z, TBWarNPC[i].o, TEAM_ALLIANCE))
             WarCreature[TEAM_ALLIANCE].insert(creature->GetGUID());
