@@ -3941,23 +3941,26 @@ void SpellMgr::LoadSpellInfoCorrections()
 			case 56092: 
 			case 57090: 
 			case 57143: 
-			spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+				spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+			break;
+			case 63934:
+				spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
 			break;
 			case 49462: 
 			case 49461:
-			case 49345: 
-			spellInfo->Effect[1] = 0;
-			break;
             case 40055: // Introspection
             case 40165: // Introspection
             case 40166: // Introspection
             case 40167: // Introspection
-                spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+				spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
                 break;
             case 2378: // Minor Fortitude
                 spellInfo->ManaCost = 0;
                 spellInfo->ManaPerSecond = 0;
                 break;
+			case 95284:
+			case 95285: 
+				spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
             // Halls Of Origination spells
             // Temple Guardian Anhuur
             case 76606: // Disable Beacon Beams L
