@@ -3935,6 +3935,19 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF RUBY SANCTUM SPELLS
             //
+			case 57473: 
+			case 57430: 
+			case 56091:
+			case 56092: 
+			case 57090: 
+			case 57143: 
+			spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+			break;
+			case 49462: 
+			case 49461:
+			case 49345: 
+			spellInfo->Effect[1] = 0;
+			break;
             case 40055: // Introspection
             case 40165: // Introspection
             case 40166: // Introspection
@@ -3944,13 +3957,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 2378: // Minor Fortitude
                 spellInfo->ManaCost = 0;
                 spellInfo->ManaPerSecond = 0;
-                break;
-            // OCULUS SPELLS
-            // The spells below are here, because their effect 1 is giving warning, because the triggered spell is not found in dbc and is missing from encounter sniff.
-            case 49462: // Call Ruby Drake
-            case 49461: // Call Amber Drake
-            case 49345: // Call Emerald Drake
-                spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
             // Halls Of Origination spells
             // Temple Guardian Anhuur
