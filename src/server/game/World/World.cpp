@@ -504,7 +504,7 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_AUCTION_TIME]  = ConfigMgr::GetFloatDefault("Rate.Auction.Time_ter", 1.0f);
     rate_values[RATE_AUCTION_DEPOSIT] = ConfigMgr::GetFloatDefault("Rate.Auction.Deposit_ter", 1.0f);
     rate_values[RATE_AUCTION_CUT] = ConfigMgr::GetFloatDefault("Rate.Auction.Cut_ter", 1.0f);
-    rate_values[RATE_HONOR] = ConfigMgr::GetFloatDefault("Rate.Honor_ter", 1.0f);
+    rate_values[RATE_HONOR] = ConfigMgr::GetFloatDefault("Rate.Honor", 1.0f);
     rate_values[RATE_MINING_AMOUNT] = ConfigMgr::GetFloatDefault("Rate.Mining.Amount_ter", 1.0f);
     rate_values[RATE_MINING_NEXT]   = ConfigMgr::GetFloatDefault("Rate.Mining.Next_ter", 1.0f);
     rate_values[RATE_ARCHAEOLOGY_AMOUNT]   = ConfigMgr::GetFloatDefault("Rate.Archaeology.Amount_ter", 1.0f);
@@ -747,19 +747,19 @@ void World::LoadConfigSettings(bool reload)
             sLog->outError(LOG_FILTER_SERVER_LOADING, "MaxPlayerLevel option can't be changed at config reload, using current value (%u).", m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
     }
     else
-        m_int_configs[CONFIG_MAX_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("MaxPlayerLevel_ter", DEFAULT_MAX_LEVEL);
+        m_int_configs[CONFIG_MAX_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("Max_Player_Level", DEFAULT_MAX_LEVEL);
 
-    if (m_int_configs[CONFIG_MAX_PLAYER_LEVEL] > MAX_LEVEL)
+    if (m_int_configs[CONFIG_MAX_PLAYER_LEVEL] > 255)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MaxPlayerLevel (%i) must be in range 1..%u. Set to %u.", m_int_configs[CONFIG_MAX_PLAYER_LEVEL], MAX_LEVEL, MAX_LEVEL);
-        m_int_configs[CONFIG_MAX_PLAYER_LEVEL] = MAX_LEVEL;
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Max_Player_Level (%i) must be in range 1..%u. Set to %u.", m_int_configs[CONFIG_MAX_PLAYER_LEVEL], MAX_LEVEL, MAX_LEVEL);
+        m_int_configs[CONFIG_MAX_PLAYER_LEVEL] = 85;
     }
 
 
-    m_int_configs[CONFIG_START_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("StartPlayerLevel_ter", 1);
+    m_int_configs[CONFIG_START_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("Start_Player_Level", 1);
     if (m_int_configs[CONFIG_START_PLAYER_LEVEL] < 1)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 1.", m_int_configs[CONFIG_START_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Start_Player_Level (%i) must be in range 1..MaxPlayerLevel(%u). Set to 1.", m_int_configs[CONFIG_START_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_PLAYER_LEVEL] = 1;
     }
     else if (m_int_configs[CONFIG_START_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
@@ -768,25 +768,25 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
-    m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("StartHeroicPlayerLevel_ter", 55);
+    m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("Start_Heroic_Level", 55);
     if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] < 1)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Start_Heroic_Level (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
             m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = 55;
     }
     else if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Start_Heroic_Level (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
             m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
-    m_int_configs[CONFIG_START_PLAYER_MONEY] = ConfigMgr::GetIntDefault("StartPlayerMoney_ter", 100);
+    m_int_configs[CONFIG_START_PLAYER_MONEY] = ConfigMgr::GetIntDefault("Start_Player_Money", 25);
     if (int32(m_int_configs[CONFIG_START_PLAYER_MONEY]) < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartPlayerMoney (%i) must be in range 0.." UI64FMTD ". Set to %u.", m_int_configs[CONFIG_START_PLAYER_MONEY], uint64(MAX_MONEY_AMOUNT), 0);
-        m_int_configs[CONFIG_START_PLAYER_MONEY] = 0;
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Start_Player_Money (%i) must be in range 0.." UI64FMTD ". Set to %u.", m_int_configs[CONFIG_START_PLAYER_MONEY], uint64(MAX_MONEY_AMOUNT), 0);
+        m_int_configs[CONFIG_START_PLAYER_MONEY] = 25;
     }
     else if (m_int_configs[CONFIG_START_PLAYER_MONEY] > 0x7FFFFFFF-1) // TODO: (See MAX_MONEY_AMOUNT)
     {
@@ -887,11 +887,11 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CAST_UNSTUCK] = ConfigMgr::GetBoolDefault("CastUnstuck", true);
     m_int_configs[CONFIG_INSTANCE_RESET_TIME_HOUR]  = ConfigMgr::GetIntDefault("Instance.ResetTimeHour", 4);
     m_int_configs[CONFIG_INSTANCE_UNLOAD_DELAY] = ConfigMgr::GetIntDefault("Instance.UnloadDelay", 30 * MINUTE * IN_MILLISECONDS);
-	m_int_configs[CONFIG_MIN_PETITION_SIGNS] = ConfigMgr::GetIntDefault("MinPetitionSigns", 0);
+	m_int_configs[CONFIG_MIN_PETITION_SIGNS] = ConfigMgr::GetIntDefault("Min_Petition_Guild", 0);
     if (m_int_configs[CONFIG_MIN_PETITION_SIGNS] > 9)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MinPetitionSigns (%i) must be in range 0..9. Set to 9.", m_int_configs[CONFIG_MIN_PETITION_SIGNS]);
-        m_int_configs[CONFIG_MIN_PETITION_SIGNS] = 9;
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "Min_Petition_Guild (%i) must be in range 0..9. Set to 9.", m_int_configs[CONFIG_MIN_PETITION_SIGNS]);
+        m_int_configs[CONFIG_MIN_PETITION_SIGNS] = 0;
     }
 
     m_int_configs[CONFIG_GM_LOGIN_STATE]        = ConfigMgr::GetIntDefault("GM.LoginState", 2);
@@ -951,10 +951,10 @@ void World::LoadConfigSettings(bool reload)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Will clear `logs` table of entries older than %i seconds every %u minutes.",
         m_int_configs[CONFIG_LOGDB_CLEARTIME], m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]);
 
-    m_int_configs[CONFIG_SKILL_CHANCE_ORANGE] = ConfigMgr::GetIntDefault("SkillChance.Orange_ter", 100);
-    m_int_configs[CONFIG_SKILL_CHANCE_YELLOW] = ConfigMgr::GetIntDefault("SkillChance.Yellow_ter", 75);
-    m_int_configs[CONFIG_SKILL_CHANCE_GREEN]  = ConfigMgr::GetIntDefault("SkillChance.Green_ter", 35);
-    m_int_configs[CONFIG_SKILL_CHANCE_GREY]   = ConfigMgr::GetIntDefault("SkillChance.Grey_ter", 1);
+    m_int_configs[CONFIG_SKILL_CHANCE_ORANGE] = ConfigMgr::GetIntDefault("SkillChance.Orange", 100);
+    m_int_configs[CONFIG_SKILL_CHANCE_YELLOW] = ConfigMgr::GetIntDefault("SkillChance.Yellow", 75);
+    m_int_configs[CONFIG_SKILL_CHANCE_GREEN]  = ConfigMgr::GetIntDefault("SkillChance.Green", 35);
+    m_int_configs[CONFIG_SKILL_CHANCE_GREY]   = ConfigMgr::GetIntDefault("SkillChance.Grey", 1);
 
     m_int_configs[CONFIG_SKILL_CHANCE_MINING_STEPS]  = ConfigMgr::GetIntDefault("SkillChance.MiningSteps", 75);
     m_int_configs[CONFIG_SKILL_CHANCE_ARCHAEOLOGY_STEPS]  = ConfigMgr::GetIntDefault("SkillChance.ArchaeologySteps", 75);
@@ -982,18 +982,18 @@ void World::LoadConfigSettings(bool reload)
 
     if (reload)
     {
-        uint32 val = ConfigMgr::GetIntDefault("Expansion", 1);
+        uint32 val = ConfigMgr::GetIntDefault("Expansion", 3);
         if (val != m_int_configs[CONFIG_EXPANSION])
             sLog->outError(LOG_FILTER_SERVER_LOADING, "Expansion option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_EXPANSION]);
     }
     else
-        m_int_configs[CONFIG_EXPANSION] = ConfigMgr::GetIntDefault("Expansion", 1);
+        m_int_configs[CONFIG_EXPANSION] = ConfigMgr::GetIntDefault("Expansion", 3);
 
     m_int_configs[CONFIG_CHATFLOOD_MESSAGE_COUNT] = ConfigMgr::GetIntDefault("ChatFlood.MessageCount", 10);
     m_int_configs[CONFIG_CHATFLOOD_MESSAGE_DELAY] = ConfigMgr::GetIntDefault("ChatFlood.MessageDelay", 1);
     m_int_configs[CONFIG_CHATFLOOD_MUTE_TIME]     = ConfigMgr::GetIntDefault("ChatFlood.MuteTime", 10);
 
-    m_int_configs[CONFIG_EVENT_ANNOUNCE] = ConfigMgr::GetIntDefault("Event.Announce", 0);
+    m_int_configs[CONFIG_EVENT_ANNOUNCE] = ConfigMgr::GetIntDefault("Event.Announce", 1);
 
     m_float_configs[CONFIG_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS] = ConfigMgr::GetFloatDefault("CreatureFamilyFleeAssistanceRadius", 30.0f);
     m_float_configs[CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS] = ConfigMgr::GetFloatDefault("CreatureFamilyAssistanceRadius", 10.0f);
@@ -1190,7 +1190,7 @@ void World::LoadConfigSettings(bool reload)
     ///- Load the CharDelete related config options
     m_int_configs[CONFIG_CHARDELETE_METHOD] = ConfigMgr::GetIntDefault("CharDelete.Method", 0);
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = ConfigMgr::GetIntDefault("CharDelete.MinLevel", 0);
-    m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = ConfigMgr::GetIntDefault("CharDelete.KeepDays", 30);
+    m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = ConfigMgr::GetIntDefault("CharDelete.KeepDays", 0);
 
     //HP Gold Synch
     m_bool_configs[CONFIG_HPGOLD_REFRESH_ENABLED] = ConfigMgr::GetBoolDefault("HPGold.Refresh.Enabled", true);
@@ -1245,7 +1245,7 @@ void World::LoadConfigSettings(bool reload)
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Using DataDir %s", m_dataPath.c_str());
     }
 
-    m_bool_configs[CONFIG_ENABLE_MMAPS] = ConfigMgr::GetBoolDefault("mmap.enablePathFinding", false);
+	m_bool_configs[CONFIG_ENABLE_MMAPS] = ConfigMgr::GetBoolDefault("mmap.enablePathFinding", true);
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "WORLD: MMap data directory is: %smmaps", m_dataPath.c_str());
 
     m_bool_configs[CONFIG_VMAP_INDOOR_CHECK] = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", 0);
@@ -1254,12 +1254,12 @@ void World::LoadConfigSettings(bool reload)
     bool enableHeight = ConfigMgr::GetBoolDefault("vmap.enableHeight", true);
 
     if (!enableHeight)
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "VMap проверка отключена! Существа, движения, рыбалка и разные другие вещи будут некоректно работать!");
 
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap support included. LineOfSight: %i, getHeight: %i, indoorCheck: %i", enableLOS, enableHeight, enableIndoor);
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap data directory is: %svmaps", m_dataPath.c_str());
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap файлы в каталоге: %svmaps", m_dataPath.c_str());
 
     m_int_configs[CONFIG_MAX_WHO] = ConfigMgr::GetIntDefault("MaxWhoListReturns", 49);
     m_bool_configs[CONFIG_START_ALL_SPELLS] = ConfigMgr::GetBoolDefault("PlayerStart.AllSpells", false);
@@ -1323,7 +1323,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MAX_INSTANCES_PER_HOUR] = ConfigMgr::GetIntDefault("AccountInstancesPerHour", 5);
 
     // AutoBroadcast
-    m_bool_configs[CONFIG_AUTOBROADCAST] = ConfigMgr::GetBoolDefault("AutoBroadcast.On", false);
+    m_bool_configs[CONFIG_AUTOBROADCAST] = ConfigMgr::GetBoolDefault("AutoBroadcast.On", true);
     m_int_configs[CONFIG_AUTOBROADCAST_CENTER] = ConfigMgr::GetIntDefault("AutoBroadcast.Center", 0);
     m_int_configs[CONFIG_AUTOBROADCAST_INTERVAL] = ConfigMgr::GetIntDefault("AutoBroadcast.Timer", 120000);
     if (reload)
@@ -1335,7 +1335,7 @@ void World::LoadConfigSettings(bool reload)
 	//GM Login
 	m_bool_configs[CONFIG_GMLOGIN_ENABLED] = ConfigMgr::GetBoolDefault("Gm.Login.Enable", true);
 
-	m_bool_configs[CONFIG_FAST_EN_TER884] = ConfigMgr::GetBoolDefault("TER-Server.fast-enchant", false);
+	m_bool_configs[CONFIG_FAST_EN_TER884] = ConfigMgr::GetBoolDefault("TER-Server.fast-enchant", true);
 
 	m_int_configs[CONFIG_DISABLE_FATIGUE] = ConfigMgr::GetIntDefault("TER-Server.DisableFatigue", SEC_CONSOLE);
 
@@ -1343,12 +1343,12 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_DB_PING_INTERVAL] = ConfigMgr::GetIntDefault("MaxPingTime", 30);
 
 	// External Mail
-	m_bool_configs[CONFIG_EXTERNAL_MAIL_ENABLE] = ConfigMgr::GetBoolDefault("External.Mail.Enable", false);
+	m_bool_configs[CONFIG_EXTERNAL_MAIL_ENABLE] = ConfigMgr::GetBoolDefault("External.Mail.Enable", true);
 	m_int_configs[CONFIG_EXTERNAL_MAIL_INTERVAL] = ConfigMgr::GetIntDefault("External.Mail.Interval", 1);
 
     // Guild save interval
     m_bool_configs[CONFIG_GUILD_LEVELING_ENABLED] = ConfigMgr::GetBoolDefault("Guild.LevelingEnabled", true);
-    m_int_configs[CONFIG_GUILD_SAVE_INTERVAL] = ConfigMgr::GetIntDefault("Guild.SaveInterval", 15);
+    m_int_configs[CONFIG_GUILD_SAVE_INTERVAL] = ConfigMgr::GetIntDefault("Guild.SaveInterval", 10);
     m_int_configs[CONFIG_GUILD_MAX_LEVEL] = ConfigMgr::GetIntDefault("Guild.MaxLevel", 25);
     m_int_configs[CONFIG_GUILD_UNDELETABLE_LEVEL] = ConfigMgr::GetIntDefault("Guild.UndeletableLevel", 4);
     rate_values[RATE_XP_QUEST_GUILD_MODIFIER] = ConfigMgr::GetFloatDefault("Guild.XPQuestModifier", 0.25f);
@@ -1360,15 +1360,15 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_GUILD_REPUTATION_QUEST_DIVIDER] = ConfigMgr::GetIntDefault("Guild.ReputationQuestDivider", 450);
     m_int_configs[CONFIG_GUILD_DAILY_XP_CAP] = ConfigMgr::GetIntDefault("Guild.DailyXPCap", 7807500);
     m_int_configs[CONFIG_GUILD_WEEKLY_REP_CAP] = ConfigMgr::GetIntDefault("Guild.WeeklyReputationCap", 4375);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_XP] = ConfigMgr::GetIntDefault("Guild.Challenge.DungeonXP", 300000);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_GOLD] = ConfigMgr::GetIntDefault("Guild.Challenge.DungeonGold", 125);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_NEEDED] = ConfigMgr::GetIntDefault("Guild.Challenge.DungeonNedeed", 7);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_XP] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidXP", 3000000);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_GOLD] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidGold", 500);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_NEEDED] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidNedeed", 1);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_XP] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidXP", 1500000);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_GOLD] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidGold", 250);
-    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_NEEDED] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidNedeed", 3);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_XP] = ConfigMgr::GetIntDefault("Guild.Challenge.DungeonXP", 3000);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_GOLD] = ConfigMgr::GetIntDefault("Guild.Challenge.DungeonGold", 75);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_DUNGEON_NEEDED] = ConfigMgr::GetIntDefault("Guild.Challenge.DungeonNedeed", 10);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_XP] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidXP", 30000);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_GOLD] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidGold", 100);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RAID_NEEDED] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidNedeed", 3);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_XP] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidXP", 15000);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_GOLD] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidGold", 75);
+    m_int_configs[CONFIG_GUILD_CHALLENGE_RATEDBG_NEEDED] = ConfigMgr::GetIntDefault("Guild.Challenge.RaidNedeed", 5);
 
 
 	m_int_configs[VAS_VasDebug] = ConfigMgr::GetIntDefault("VAS.AutoBalance.Debug", 1);
