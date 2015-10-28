@@ -1,23 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
-/* Script Data Start
-SDName: Boss Malygos
-Script Data End */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -1590,9 +1574,12 @@ public:
         {
         }
 
-        void IsSummonedBy(Unit* summoner)
-        {
-            _summoner = NULL;
+		void Reset()
+		{
+			_summoner = NULL;
+		}
+		void IsSummonedBy(Unit* summoner) 
+		{
             if (Player* player = summoner->ToPlayer())
             {
                 _summoner = player;
@@ -1610,7 +1597,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CAST_RIDE_SPELL:
-                        me->CastSpell(_summoner, SPELL_RIDE_RED_DRAGON_TRIGGERED, true);
+						if (_summoner)
+							me->CastSpell(_summoner, SPELL_RIDE_RED_DRAGON_TRIGGERED, true);
                         break;
                 }
             }

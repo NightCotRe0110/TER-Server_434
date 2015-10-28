@@ -104,87 +104,6 @@ public:
     }
 };
 
-//item 71949
-class item_tome_of_burning_jewels : public ItemScript 
-{
-public:
-	item_tome_of_burning_jewels() : ItemScript("item_tome_of_burning_jewels") { }
-
-	bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
-	{
-		if (player->HasSkill(755) && ((int)player->GetSkillValue(755) == 525)){
-			uint32 count = 1;
-
-			int number = rand() % (71);
-
-			if (number >= 0 && number < 6){ //items from 71805 to 71810
-				player->AddItem(71805 + number, count);
-			}
-			else if (number == 6){ //item 71821
-				player->AddItem(71821, count);
-			}
-			else if (number > 6){ //items from 71884 to 71948
-				number -= 6;
-				player->AddItem(71884 + number, count);
-			}
-			player->DestroyItemCount(item, count, true);
-		}
-		return false;
-	}
-};
-
-class item_adventurers_journal : public ItemScript
-{
-public:
-	item_adventurers_journal() : ItemScript("item_adventurers_journal") { }
-
-	bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
-	{
-		if (player->getLevel() < 85){
-			int number = rand() % 10;
-			uint32 count = 1;
-
-			player->DestroyItemCount(item, count, true);
-			switch (number)
-			{
-			case 0:
-				player->CastSpell(player, 86972, true);
-				break;
-			case 1:
-				player->CastSpell(player, 86963, true);
-				break;
-			case 2:
-				player->CastSpell(player, 86988, true);
-				break;
-			case 3:
-				player->CastSpell(player, 86977, true);
-				break;
-			case 4:
-				player->CastSpell(player, 86992, true);
-				break;
-			case 5:
-				player->CastSpell(player, 86980, true);
-				break;
-			case 6:
-				player->CastSpell(player, 86975, true);
-				break;
-			case 7:
-				player->CastSpell(player, 86983, true);
-				break;
-			case 8:
-				player->CastSpell(player, 86976, true);
-				break;
-			case 9:
-				player->CastSpell(player, 86982, true);
-				break;
-			default:
-				break;
-			}
-		}
-		return false;
-	}
-};
-
 /*#####
 # item_gor_dreks_ointment
 #####*/
@@ -504,6 +423,4 @@ void AddSC_item_scripts()
     new item_dehta_trap_smasher();
     new item_trident_of_nazjan();
     new item_captured_frog();
-	new item_adventurers_journal();
-	new item_tome_of_burning_jewels();
 }

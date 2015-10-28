@@ -1,27 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: Boss_Supremus
-SD%Complete: 95
-SDComment: Need to implement molten punch
-SDCategory: Black Temple
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -272,9 +251,12 @@ public:
         return new npc_volcanoAI (creature);
     }
 
-    struct npc_volcanoAI : public Scripted_NoMovementAI
+	struct npc_volcanoAI : public ScriptedAI
     {
-        npc_volcanoAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+		npc_volcanoAI(Creature* creature) : ScriptedAI(creature)
+			 {
+			SetCombatMovement(false);
+			}
 
         void Reset()
         {

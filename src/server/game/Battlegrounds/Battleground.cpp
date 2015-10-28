@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
@@ -326,7 +312,7 @@ inline void Battleground::_CheckSafePositions(uint32 diff)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             {
                 player->GetPosition(&pos);
-                GetTeamStartLoc(player->GetBGTeam(), x, y, z, o);
+                GetTeamStartLoc(player->GetTeam(), x, y, z, o);
                 if (pos.GetExactDistSq(x, y, z) > maxDist)
                 {
                     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Sending %s back to start location (map: %u) (possible exploit)", player->GetName().c_str(), GetMapId());
@@ -522,6 +508,10 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         // First start warning - 2 or 1 minute
         SendMessageToAll(StartMessageIds[BG_STARTING_EVENT_FIRST], CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
+	// 1v1 Arena - Start arena after 15s, when all players are in arena
+	if (GetArenaType() == ARENA_TYPE_5v5 && GetStartDelayTime() > StartDelayTimes[BG_STARTING_EVENT_THIRD] && (m_PlayersCount[0] + m_PlayersCount[1]) == 2)
+	 SetStartDelayTime(StartDelayTimes[BG_STARTING_EVENT_THIRD]);
+	
     // After 1 minute or 30 seconds, warning is signaled
     else if (GetStartDelayTime() <= StartDelayTimes[BG_STARTING_EVENT_SECOND] && !(m_Events & BG_STARTING_EVENT_2))
     {
@@ -560,7 +550,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     player->GetSession()->SendPacket(&status);
 
                     // Correctly display EnemyUnitFrame
-                    player->SetByteValue(PLAYER_BYTES_3, 3, player->GetBGTeam());
+                    player->SetByteValue(PLAYER_BYTES_3, 3, player->GetTeam());
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     player->ResetAllPowers();
@@ -763,12 +753,32 @@ void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
             UpdatePlayerScore(player, SCORE_BONUS_HONOR, Honor);
 }
 
-void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID)
+void Battleground::RewardReputationToTeam(uint32 a_faction_id, uint32 h_faction_id, uint32 Reputation, uint32 teamId)
 {
-    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id))
-        for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-            if (Player* player = _GetPlayerForTeam(TeamID, itr, "RewardReputationToTeam"))
-                player->GetReputationMgr().ModifyReputation(factionEntry, Reputation);
+    FactionEntry const* a_factionEntry = sFactionStore.LookupEntry(a_faction_id);
+    FactionEntry const* h_factionEntry = sFactionStore.LookupEntry(h_faction_id);
+
+    if (!a_factionEntry || !h_factionEntry)
+        return;
+
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (itr->second.OfflineRemoveTime)
+            continue;
+
+        Player* plr = ObjectAccessor::FindPlayer(itr->first);
+
+        if (!plr)
+        {
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattleGround:RewardReputationToTeam: %u not found!", itr->first);
+            continue;
+        }
+
+        uint32 team = plr->GetTeam();
+
+        if (team == teamId)
+            plr->GetReputationMgr().ModifyReputation(plr->GetOTeam() == ALLIANCE ? a_factionEntry : h_factionEntry, Reputation);
+    }
 }
 
 void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
@@ -991,12 +1001,12 @@ void Battleground::EndBattleground(uint32 winner)
                     if (!player->GetRandomWinner())
                     {
                         // 100cp awarded for the first random battleground won each day
-						player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, BG_REWARD_WINNER_CONQUEST_FIRST, true, true);
+                        player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RBG, BG_REWARD_WINNER_CONQUEST_FIRST, true, true);
                         player->SetRandomWinner(true);
                     }
                 }
                 else // 50cp awarded for each non-rated battleground won
-					player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, BG_REWARD_WINNER_CONQUEST_LAST, true, true);
+                    player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_RBG, BG_REWARD_WINNER_CONQUEST_LAST, true, true);
             }
 
             // Modify the guild reputation and xp - 167 rep on win, 75k guild xp. Only if group is guild group.
@@ -1179,11 +1189,13 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         sBattlegroundMgr->BuildPlayerLeftBattlegroundPacket(&data, guid);
         SendPacketToTeam(team, &data, player, false);
     }
-
+	else // try to resurrect the offline player. If he is alive nothing will happen
+		 sObjectAccessor->ConvertCorpseForPlayer(guid);
     RemovePlayer(player, guid, team);                           // BG subclass specific code
 
     if (player)
     {
+        player->FitPlayerInTeam(false, this);
         // Do next only if found in battleground
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
@@ -1261,7 +1273,7 @@ void Battleground::AddPlayer(Player* player)
     // score struct must be created in inherited class
 
     uint64 guid = player->GetGUID();
-    uint32 team = player->GetBGTeam();
+    uint32 team = player->GetTeam();
 
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
@@ -1343,6 +1355,8 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+
+    player->FitPlayerInTeam(true, this);
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1412,8 +1426,8 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())
-            if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
-                EndBattleground(GetOtherTeam(player->GetBGTeam()));
+            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
+                EndBattleground(GetOtherTeam(player->GetTeam()));
     }
 }
 
@@ -1921,7 +1935,9 @@ void Battleground::HandleTriggerBuff(uint64 go_guid)
 void Battleground::HandleKillPlayer(Player* victim, Player* killer)
 {
     // Keep in mind that for arena this will have to be changed a bit
-
+	// Don't reward credit for killing ourselves, like fall damage of hellfire
+if (victim && killer && killer == victim)
+		 return;
     // Add +1 deaths
     UpdatePlayerScore(victim, SCORE_DEATHS, 1);
     // Add +1 kills to group and +1 killing_blows to killer

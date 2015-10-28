@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
 #include "ScriptMgr.h"
@@ -24,14 +11,6 @@
 #include "ScriptedCreature.h"
 #include "ruby_sanctum.h"
 #include "Player.h"
-
-/* ScriptData
-SDName: ruby_sanctum
-SDAuthors: Kaelima, Warpten
-SD%Complete: 90%
-SDComment: Based on Kaelima's initial work (half of it). Corporeality handling is a pure guess, we lack info.
-SDCategory: Chamber of Aspects
-EndScriptData */
 
 enum Texts
 {
@@ -972,11 +951,14 @@ class npc_meteor_strike_initial : public CreatureScript
     public:
         npc_meteor_strike_initial() : CreatureScript("npc_meteor_strike_initial") { }
 
-        struct npc_meteor_strike_initialAI : public Scripted_NoMovementAI
+		struct npc_meteor_strike_initialAI : public ScriptedAI
         {
-            npc_meteor_strike_initialAI(Creature* creature) : Scripted_NoMovementAI(creature),
+			npc_meteor_strike_initialAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
-            { }
+			{
+				SetCombatMovement(false);
+				
+			}
 
             void DoAction(int32 const action)
             {
@@ -1044,13 +1026,15 @@ class npc_meteor_strike : public CreatureScript
     public:
         npc_meteor_strike() : CreatureScript("npc_meteor_strike") { }
 
-        struct npc_meteor_strikeAI : public Scripted_NoMovementAI
+		struct npc_meteor_strikeAI : public ScriptedAI
         {
-            npc_meteor_strikeAI(Creature* creature) : Scripted_NoMovementAI(creature),
+			npc_meteor_strikeAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
                 _range = 5.0f;
                 _spawnCount = 0;
+
+				SetCombatMovement(false);
             }
 
             void DoAction(int32 const action)
@@ -1113,11 +1097,13 @@ class npc_combustion_consumption : public CreatureScript
     public:
         npc_combustion_consumption() : CreatureScript("npc_combustion_consumption") { }
 
-        struct npc_combustion_consumptionAI : public Scripted_NoMovementAI
+		struct npc_combustion_consumptionAI : public ScriptedAI
         {
-            npc_combustion_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
+			npc_combustion_consumptionAI(Creature* creature) : ScriptedAI(creature),
                    _instance(creature->GetInstanceScript()), _summonerGuid(0)
             {
+				SetCombatMovement(false);
+
                 switch (me->GetEntry())
                 {
                     case NPC_COMBUSTION:

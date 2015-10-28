@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include <ace/Message_Block.h>
 #include <ace/OS_NS_string.h>
@@ -385,9 +371,9 @@ int WorldSocket::handle_output_queue (GuardType& g)
     const size_t send_len = mblk->length();
 
 #ifdef MSG_NOSIGNAL
-    ssize_t n = peer().send (mblk->rd_ptr(), send_len, MSG_NOSIGNAL);
+	ssize_t n = peer().send(mblk->rd_ptr(), send_len, MSG_NOSIGNAL);
 #else
-    ssize_t n = peer().send (mblk->rd_ptr(), send_len);
+	ssize_t n = peer().send(mblk->rd_ptr(), send_len);
 #endif // MSG_NOSIGNAL
 
     if (n == 0)
@@ -806,7 +792,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     uint32 addonSize;
     LocaleConstant locale;
     std::string account;
-	uint8 m_viplevel;
     SHA1Hash sha;
     BigNumber k;
     WorldPacket addonsData;
@@ -857,7 +842,9 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     // Get the account information from the realmd database
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+	//         0           1        2       3          4         5       6          7   8
+    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
+	PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
 
     stmt->setString(0, account);
 
@@ -873,14 +860,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     Field* fields = result->Fetch();
 
-    uint8 expansion = fields[6].GetUInt8();
+	uint8 expansion = fields[4].GetUInt8();
     uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
     if (expansion > world_expansion)
         expansion = world_expansion;
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: (s, v) check s: %s v: %s",
-        fields[5].GetCString(),
-        fields[4].GetCString());
 
     ///- Re-check ip locking (same check as in realmd).
     if (fields[3].GetUInt8() == 1) // if ip is locked
@@ -897,13 +880,13 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     k.SetHexStr(fields[1].GetCString());
 
-    int64 mutetime = fields[7].GetInt64();
+	int64 mutetime = fields[5].GetInt64();
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
         mutetime = time(NULL) + llabs(mutetime);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+		PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
 
         stmt->setInt64(0, mutetime);
         stmt->setUInt32(1, id);
@@ -911,12 +894,12 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         LoginDatabase.Execute(stmt);
     }
 
-    locale = LocaleConstant (fields[8].GetUInt8());
+	locale = LocaleConstant(fields[6].GetUInt8());
     if (locale >= TOTAL_LOCALES)
         locale = LOCALE_enUS;
 
-    uint32 recruiter = fields[9].GetUInt32();
-    std::string os = fields[10].GetString();
+	uint32 recruiter = fields[7].GetUInt32();
+	std::string os = fields[8].GetString();
 
     // Must be done before WorldSession is created
     /*
@@ -957,9 +940,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         return -1;
     }
-
-     QueryResult VipInfo = LoginDatabase.PQuery("SELECT `type` FROM `vip_accounts` WHERE `id`='%u' AND `active`='1'", id);
-     m_viplevel = VipInfo ? VipInfo->Fetch()->GetUInt8() : 0;
 
     // Check locked state for server
     AccountTypes allowedAccountType = sWorld->GetPlayerSecurityLimit();
@@ -1016,13 +996,14 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, m_viplevel, mutetime, locale, recruiter, isRecruiter), -1);
+    ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
     m_Crypt.Init(&k);
 
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
     m_Session->ReadAddonsInfo(addonsData);
+	m_Session->LoadPermissions();
 
     // Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
@@ -1065,7 +1046,7 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
             {
                 ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);
 
-                if (m_Session && AccountMgr::IsPlayerAccount(m_Session->GetSecurity()))
+				if (m_Session && !m_Session->HasPermission(RBAC_PERM_SKIP_CHECK_OVERSPEED_PING))
                 {
                     sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
                         m_Session->GetPlayerInfo().c_str(), GetRemoteAddress().c_str());

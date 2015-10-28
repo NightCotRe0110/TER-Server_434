@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Common.h"
 #include "ObjectMgr.h"
@@ -299,7 +285,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteBit(bgGuid[7]);
             data->WriteBit(bgGuid[1]);
             data->WriteBit(playerGuid[5]);
-            data->WriteBit(player->GetBGTeam() == HORDE ? 0 : 1);
+            data->WriteBit(player->GetTeam() == HORDE ? 0 : 1);
             data->WriteBit(bgGuid[0]);
             data->WriteBit(playerGuid[1]);
             data->WriteBit(bgGuid[3]);
@@ -906,7 +892,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
                 maxPlayersPerTeam = 3;
                 break;
             case ARENA_TYPE_5v5:
-                maxPlayersPerTeam = 5;
+                maxPlayersPerTeam = 1;
                 break;
         }
 
@@ -1159,7 +1145,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->WriteBit(guidBytes[3]);
     data->WriteBit(0);                                      // unk
     data->WriteBit(guidBytes[5]);
-    data->WriteBit(0);                                      // unk
+	data->WriteBit(player->getLevel() != 10 ? 1 : 0);       // hide battleground list window, show only in level 10
 
     data->FlushBits();
 
@@ -1190,7 +1176,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     {
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
-        uint32 team = player->GetBGTeam();
+        uint32 team = player->GetTeam();
 
         bg->GetTeamStartLoc(team, x, y, z, O);
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);

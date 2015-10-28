@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
 #include "ScriptMgr.h"
@@ -80,7 +67,7 @@ public:
 
         /// @todo this should be handled in map, maybe add a summon function in map
         // There is no other way afaik...
-        void SpawnGameObject(uint32 entry, Position& pos)
+		void SpawnGameObject(uint32 entry, Position const& pos)
         {
             GameObject* go = new GameObject;
             if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, instance,
@@ -101,31 +88,22 @@ public:
                 case GO_NEXUS_RAID_PLATFORM:
                     platformGUID = go->GetGUID();
                     break;
-                case GO_FOCUSING_IRIS_10:
-                    if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-                    {
-                        irisGUID = go->GetGUID();
-                        go->GetPosition(&focusingIrisPosition);
-                    }
-                    break;
+				case GO_FOCUSING_IRIS_10:
                 case GO_FOCUSING_IRIS_25:
-                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                    {
                         irisGUID = go->GetGUID();
                         go->GetPosition(&focusingIrisPosition);
-                    }
+                    
                     break;
                 case GO_EXIT_PORTAL:
                     exitPortalGUID = go->GetGUID();
                     go->GetPosition(&exitPortalPosition);
                     break;
                 case GO_HEART_OF_MAGIC_10:
-                    if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-                        heartOfMagicGUID = go->GetGUID();
                     break;
                 case GO_HEART_OF_MAGIC_25:
-                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                        heartOfMagicGUID = go->GetGUID();
+					heartOfMagicGUID = go->GetGUID();
+					break;
+					default:
                     break;
             }
         }
@@ -170,10 +148,10 @@ public:
             if (eventId == EVENT_FOCUSING_IRIS)
             {
                 if (Creature* alexstraszaBunny = instance->GetCreature(alexstraszaBunnyGUID))
-                {
+                
                     alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
-                    instance->GetGameObject(irisGUID)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                }
+				if (GameObject* iris = instance->GetGameObject(irisGUID))
+					 iris->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
 
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
                     malygos->AI()->DoAction(0); // ACTION_LAND_ENCOUNTER_START

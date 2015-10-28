@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Common.h"
 #include "ObjectMgr.h"
@@ -122,8 +108,28 @@ const char *ChatHandler::GetTrinityString(int32 entry) const
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
-    // check security level only for simple  command (without child commands)
-    return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
+	uint32 permission = 0;
+	
+		    ///@Workaround:: Fast adaptation to RBAC system till all commands are moved to permissions
+		switch (AccountTypes(cmd.SecurityLevel))
+		 {
+	case SEC_ADMINISTRATOR:
+			permission = RBAC_PERM_ADMINISTRATOR_COMMANDS;
+			break;
+			case SEC_GAMEMASTER:
+				permission = RBAC_PERM_GAMEMASTER_COMMANDS;
+				break;
+				case SEC_MODERATOR:
+					permission = RBAC_PERM_MODERATOR_COMMANDS;
+					break;
+					case SEC_PLAYER:
+							permission = RBAC_PERM_PLAYER_COMMANDS;
+							break;
+					default: // Allow custom security levels for commands
+						return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
+							}
+	
+		return m_session->HasPermission(permission);
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)
@@ -155,8 +161,8 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
         return false;
 
     // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-    if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
-        return false;
+	if (m_session->HasPermission(RBAC_PERM_CHECK_FOR_LOWER_SECURITY) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
+		return false;
 
     if (target)
         target_sec = target->GetSecurity();
@@ -341,6 +347,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         // table[i].Name == "" is special case: send original command to handler
         if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
         {
+			// FIXME: When Command system is moved to RBAC this check must be changed
             if (!AccountMgr::IsPlayerAccount(table[i].SecurityLevel))
             {
                 // chat case
@@ -348,8 +355,19 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                 {
                     Player* p = m_session->GetPlayer();
                     uint64 sel_guid = p->GetSelection();
-                    sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
-                        fullcmd.c_str(), p->GetName().c_str(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
+					uint32 areaId = p->GetAreaId();
+					std::string areaName = "Unknown";
+					std::string zoneName = "Unknown";
+					if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
+						 {
+						int locale = GetSessionDbcLocale();
+						areaName = area->area_name[locale];
+						if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
+							 zoneName = zone->area_name[locale];
+						}
+					
+						sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
+						fullcmd.c_str(), p->GetName().c_str(), GUID_LOPART(p->GetGUID()), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(), p->GetMap() ? p->GetMap()->GetMapName() : "Unknown", areaId, areaName.c_str(), zoneName.c_str(),
                         GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
                 }
             }
@@ -431,8 +449,8 @@ bool ChatHandler::ParseCommands(char const* text)
 
     std::string fullcmd = text;
 
-    if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS))
-       return false;
+	if (m_session && !m_session->HasPermission(RBAC_PERM_PLAYER_COMMANDS))
+		return false;
 
     /// chat case (.command or !command format)
     if (m_session)
@@ -456,7 +474,7 @@ bool ChatHandler::ParseCommands(char const* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
+		if (m_session && !m_session->HasPermission(RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
             return false;
 
         SendSysMessage(LANG_NO_CMD);

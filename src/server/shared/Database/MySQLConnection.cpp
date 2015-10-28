@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
+TER-Server
+*/
 
 #include "Common.h"
 
@@ -124,9 +110,10 @@ bool MySQLConnection::Open()
         {
             sLog->outInfo(LOG_FILTER_SQL, "MySQL client library: %s", mysql_get_client_info());
             sLog->outInfo(LOG_FILTER_SQL, "MySQL server ver: %s ", mysql_get_server_info(m_Mysql));
-            if (mysql_get_server_version(m_Mysql) != mysql_get_client_version())
-                sLog->outInfo(LOG_FILTER_SQL, "[WARNING] MySQL client/server version mismatch; may conflict with behaviour of prepared statements.");
-        }
+			// MySQL version above 5.1 IS required in both client and server and there is no known issue with different versions above 5.1
+		            // if (mysql_get_server_version(m_Mysql) != mysql_get_client_version())
+			            //     sLog->outInfo(LOG_FILTER_SQL, "[WARNING] MySQL client/server version mismatch; may conflict with behaviour of prepared statements.");
+		}
 
         sLog->outInfo(LOG_FILTER_SQL, "Connected to MySQL database at %s", m_connectionInfo.host.c_str());
         mysql_autocommit(m_Mysql, 1);

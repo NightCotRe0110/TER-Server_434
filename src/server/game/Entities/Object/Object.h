@@ -1,26 +1,12 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
 #include "Common.h"
-#include "UpdateFields.h"
+#include "UpdateMask.h"
 #include "UpdateData.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
@@ -109,7 +95,6 @@ class ByteBuffer;
 class WorldSession;
 class Creature;
 class Player;
-class UpdateMask;
 class InstanceScript;
 class GameObject;
 class TempSummon;
@@ -216,7 +201,7 @@ class Object
 
         uint32 GetUInt32Value(uint16 index) const
         {
-			ASSERT(index < m_valuesCount || PrintIndexError(index, false));
+            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
             return m_uint32Values[index];
         }
 
@@ -401,9 +386,7 @@ class Object
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);
 
-        void GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOwner, bool& isItemOwner, bool& hasSpecialInfo, bool& isPartyMember) const;
-
-        bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
+		uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
 
         void _SetUpdateBits(UpdateMask* updateMask, Player* target) const;
         void _SetCreateBits(UpdateMask* updateMask, Player* target) const;
@@ -422,7 +405,7 @@ class Object
             float  *m_floatValues;
         };
 
-        bool* _changedFields;
+		UpdateMask _changesMask;
 
         uint16 m_valuesCount;
 

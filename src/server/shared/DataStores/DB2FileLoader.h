@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef DB2_FILE_LOADER_H
 #define DB2_FILE_LOADER_H
@@ -25,8 +12,8 @@
 class DB2FileLoader
 {
     public:
-        DB2FileLoader();
-        ~DB2FileLoader();
+		DB2FileLoader();
+		~DB2FileLoader();
 
     bool Load(const char *filename, const char *fmt);
 
@@ -76,6 +63,7 @@ class DB2FileLoader
     uint32 GetNumRows() const { return recordCount;}
     uint32 GetCols() const { return fieldCount; }
     uint32 GetOffset(size_t id) const { return (fieldsOffset != NULL && id < fieldCount) ? fieldsOffset[id] : 0; }
+	uint32 GetHash() const { return tableHash; }
     bool IsLoaded() const { return (data != NULL); }
     char* AutoProduceData(const char* fmt, uint32& count, char**& indexTable);
     char* AutoProduceStringsArrayHolders(const char* fmt, char* dataTable);
@@ -97,7 +85,7 @@ private:
     uint32 build;        // WDB2
 
     int unk1;            // WDB2 (Unix time in WCH2)
-    int unk2;            // WDB2
+	int minIndex;        // WDB2
     int maxIndex;        // WDB2 (index table)
     int locale;          // WDB2
     int unk5;            // WDB2

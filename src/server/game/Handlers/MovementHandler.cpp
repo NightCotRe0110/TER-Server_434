@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "AnticheatMgr.h"
 #include "Common.h"
@@ -74,8 +60,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (GetPlayer()->IsInWorld())
     {
 		if (sLog != NULL && oldMap != NULL && oldMap->GetId() != NULL && newMap != NULL && newMap->GetMapName() != NULL
-			&& loc.GetMapId() != NULL)
-		{
+			&& loc.GetMapId() != NULL){
 			sLog->outError(LOG_FILTER_NETWORKIO, "%u is still in world when teleported from map %u to new map %u",
 				oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
 			oldMap->RemovePlayerFromMap(GetPlayer(), false);
@@ -178,7 +163,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
     GetPlayer()->UpdateZone(newzone, newarea);
 
-    if (GetPlayer()->pvpInfo.inHostileArea)
+	if (GetPlayer()->pvpInfo.IsHostile)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true); // honorless target
     else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
         GetPlayer()->UpdatePvP(false, false);
@@ -242,7 +227,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     if (old_zone != newzone)
     {
-        if (plMover->pvpInfo.inHostileArea)
+		if (plMover->pvpInfo.IsHostile)
             plMover->CastSpell(plMover, 2479, true); // honorless target
         else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
             plMover->UpdatePvP(false, false);
@@ -682,6 +667,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvPacket)
 {
 	sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_HOVER_ACK");
+
 
 	MovementInfo info;
 	info.ReadFromPacket(recvPacket);

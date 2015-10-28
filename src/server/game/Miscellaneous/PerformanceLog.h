@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #ifndef _PERFORMANCE_LOG_H_
 #define _PERFORMANCE_LOG_H_
 

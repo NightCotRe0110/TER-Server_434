@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #ifndef SC_ACDATA_H
 #define SC_ACDATA_H
 

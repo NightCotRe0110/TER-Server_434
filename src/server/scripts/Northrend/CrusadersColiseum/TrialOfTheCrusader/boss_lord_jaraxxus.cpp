@@ -1,19 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
 #include "ScriptMgr.h"
@@ -223,10 +209,11 @@ class mob_legion_flame : public CreatureScript
     public:
         mob_legion_flame() : CreatureScript("mob_legion_flame") { }
 
-        struct mob_legion_flameAI : public Scripted_NoMovementAI
+		struct mob_legion_flameAI : public ScriptedAI
         {
-            mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
+			mob_legion_flameAI(Creature* creature) : ScriptedAI(creature)
             {
+				SetCombatMovement(false);
                 _instance = creature->GetInstanceScript();
             }
 
@@ -258,10 +245,11 @@ class mob_infernal_volcano : public CreatureScript
     public:
         mob_infernal_volcano() : CreatureScript("mob_infernal_volcano") { }
 
-        struct mob_infernal_volcanoAI : public Scripted_NoMovementAI
+		struct mob_infernal_volcanoAI : public ScriptedAI
         {
-            mob_infernal_volcanoAI(Creature* creature) : Scripted_NoMovementAI(creature), _summons(me)
+			mob_infernal_volcanoAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
+				SetCombatMovement(false);
             }
 
             void Reset()

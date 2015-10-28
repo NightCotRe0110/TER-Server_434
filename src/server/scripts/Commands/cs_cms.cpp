@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "MapManager.h"

@@ -1,2 +1,0 @@
-DELETE FROM creature WHERE id=52055;
-DELETE FROM creature WHERE id=52054;

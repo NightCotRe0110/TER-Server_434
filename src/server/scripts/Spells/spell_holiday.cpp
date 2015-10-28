@@ -1,25 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
-/*
- * Spells used in holidays/game events that do not fit any other category.
- * Ordered alphabetically using scriptname.
- * Scriptnames in this file should be prefixed with "spell_#holidayname_".
- */
 
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -368,7 +350,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
                         if (target->HasAura(spells[i]))
                             return;
 
-                    GetCaster()->CastSpell(target, spells[urand(0, 3)], true);
+					target->CastSpell(target, spells[urand(0, 3)], true);
                 }
             }
 
@@ -386,6 +368,59 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
             return new spell_winter_veil_px_238_winter_wondervolt_SpellScript();
         }
 };
+enum TorchSpells
+	 {
+	SPELL_TORCH_TOSSING_TRAINING = 45716,
+		SPELL_TORCH_TOSSING_PRACTICE = 46630,
+		SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE = 45719,
+		SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE = 46651,
+		SPELL_BRAZIERS_HIT = 45724
+		 };
+
+// 45724 - Braziers Hit!
+class spell_midsummer_braziers_hit : public SpellScriptLoader
+ {
+	public:
+		spell_midsummer_braziers_hit() : SpellScriptLoader("spell_midsummer_braziers_hit") { }
+		
+			class spell_midsummer_braziers_hit_AuraScript : public AuraScript
+			 {
+			PrepareAuraScript(spell_midsummer_braziers_hit_AuraScript);
+			
+				bool Validate(SpellInfo const* /*spellInfo*/) override
+				 {
+				if (!sSpellMgr->GetSpellInfo(SPELL_TORCH_TOSSING_TRAINING) || !sSpellMgr->GetSpellInfo(SPELL_TORCH_TOSSING_PRACTICE))
+					 return false;
+				return true;
+				}
+			
+				void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+				 {
+				Player* player = GetTarget()->ToPlayer();
+				if (!player)
+					 return;
+				
+					if ((player->HasAura(SPELL_TORCH_TOSSING_TRAINING) && GetStackAmount() == 8) || (player->HasAura(SPELL_TORCH_TOSSING_PRACTICE) && GetStackAmount() == 20))
+					 {
+					if (player->GetTeam() == ALLIANCE)
+					 player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE, true);
+					else if (player->GetTeam() == HORDE)
+					 player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE, true);
+					Remove();
+					}
+				}
+			
+				void Register() override
+				 {
+				AfterEffectApply += AuraEffectApplyFn(spell_midsummer_braziers_hit_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAPPLY));
+				}
+			};
+		
+			AuraScript* GetAuraScript() const override
+			 {
+			return new spell_midsummer_braziers_hit_AuraScript();
+			}
+		};
 
 void AddSC_holiday_spell_scripts()
 {
@@ -398,4 +433,6 @@ void AddSC_holiday_spell_scripts()
     // Winter Veil
     new spell_winter_veil_mistletoe();
     new spell_winter_veil_px_238_winter_wondervolt();
+	// Midsummer Fire Festival
+	new spell_midsummer_braziers_hit();
 }

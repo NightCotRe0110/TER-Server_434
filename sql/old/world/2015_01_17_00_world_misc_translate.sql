@@ -1,1 +1,0 @@
--- download here http://www.mediafire.com/download/hkd6y1x13h6z864/TRANSLATE+LANGUGES+434.zip

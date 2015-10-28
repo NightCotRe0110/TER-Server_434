@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "BattlegroundWS.h"
 #include "Creature.h"
@@ -220,7 +206,7 @@ void BattlegroundWS::AddPlayer(Player* player)
     BattlegroundWGScore* sc = new BattlegroundWGScore;
 
     PlayerScores[player->GetGUID()] = sc;
-    sc->BgTeam = player->GetBGTeam();
+    sc->BgTeam = player->GetTeam();
     sc->TalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 }
 
@@ -300,7 +286,6 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* Source)
         if (GetTeamScore(TEAM_ALLIANCE) < BG_WS_MAX_TEAM_SCORE)
             AddPoint(ALLIANCE, 1);
         PlaySoundToAll(BG_WS_SOUND_FLAG_CAPTURED_ALLIANCE);
-        RewardReputationToTeam(890, m_ReputationCapture, ALLIANCE);
     }
     else
     {
@@ -318,8 +303,8 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* Source)
         if (GetTeamScore(TEAM_HORDE) < BG_WS_MAX_TEAM_SCORE)
             AddPoint(HORDE, 1);
         PlaySoundToAll(BG_WS_SOUND_FLAG_CAPTURED_HORDE);
-        RewardReputationToTeam(889, m_ReputationCapture, HORDE);
     }
+    RewardReputationToTeam(890, 889, m_ReputationCapture, Source->GetTeam());
     //for flag capture is reward 2 honorable kills
     RewardHonorToTeam(GetBonusHonorFromKill(2), Source->GetTeam());
 

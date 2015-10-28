@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef BATTLEFIELD_WG_
 #define BATTLEFIELD_WG_
@@ -171,13 +158,13 @@ enum WGGraveyardId
 
 enum WGGossipText
 {
-    BATTLEFIELD_WG_GOSSIPTEXT_GY_NE              = -1850501,
-    BATTLEFIELD_WG_GOSSIPTEXT_GY_NW              = -1850502,
-    BATTLEFIELD_WG_GOSSIPTEXT_GY_SE              = -1850504,
-    BATTLEFIELD_WG_GOSSIPTEXT_GY_SW              = -1850503,
-    BATTLEFIELD_WG_GOSSIPTEXT_GY_KEEP            = -1850500,
-    BATTLEFIELD_WG_GOSSIPTEXT_GY_HORDE           = -1850505,
-    BATTLEFIELD_WG_GOSSIPTEXT_GY_ALLIANCE        = -1850506
+	BATTLEFIELD_WG_GOSSIPTEXT_GY_NE = 20071,
+	BATTLEFIELD_WG_GOSSIPTEXT_GY_NW = 20072,
+	BATTLEFIELD_WG_GOSSIPTEXT_GY_SE = 20074,
+	BATTLEFIELD_WG_GOSSIPTEXT_GY_SW = 20073,
+	BATTLEFIELD_WG_GOSSIPTEXT_GY_KEEP = 20070,
+	BATTLEFIELD_WG_GOSSIPTEXT_GY_HORDE = 20075,
+	BATTLEFIELD_WG_GOSSIPTEXT_GY_ALLIANCE = 20076
 };
 
 enum WintergraspNpcs
@@ -1127,7 +1114,7 @@ struct BfWGGameObjectBuilding
                 build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
                 if (build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
                     if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
-                        go->EnableCollision(true);
+						go->SetGoState(GO_STATE_READY);
 
                 // Update worldstate
                 m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
@@ -1183,8 +1170,8 @@ struct BfWGGameObjectBuilding
                 break;
             case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
                 if (GameObject* build = m_WG->GetGameObject(m_BuildGUID))
-                    if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 10.0f))
-                        go->EnableCollision(false);
+					if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
+						 go->SetGoState(GO_STATE_ACTIVE);
                 m_WG->SetRelicInteractible(true);
                 if (m_WG->GetRelic())
                     m_WG->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
@@ -1481,6 +1468,7 @@ struct WGWorkshop
 
         bf = _bf;
         workshopId = _workshopId;
+		teamControl = BATTLEFIELD_WG_TEAM_NEUTRAL;
     }
 
     void GiveControlTo(uint8 team, bool init /* for first call in setup*/)

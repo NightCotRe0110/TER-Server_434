@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "AccountMgr.h"
 #include "CalendarMgr.h"
@@ -1104,13 +1090,16 @@ void Guild::BankMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData* 
 void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
 {
     MoveItemData::LogAction(pFrom);
-    if (!pFrom->IsBank() && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) && !AccountMgr::IsPlayerAccount(m_pPlayer->GetSession()->GetSecurity()))       // TODO: move to scripts
-        sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(),
-            "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
-            m_pPlayer->GetName().c_str(), m_pPlayer->GetSession()->GetAccountId(),
+	if (!pFrom->IsBank() && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) &&
+		m_pPlayer->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
+		 {  
+			 sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(),
+		"GM %s (Guid: %u) (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank named: %s (Guild ID: %u)",
+		 m_pPlayer->GetName().c_str(), m_pPlayer->GetGUIDLow(), m_pPlayer->GetSession()->GetAccountId(),
             pFrom->GetItem()->GetTemplate()->Name1.c_str(), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(),
-            m_pGuild->GetId());
+			m_pGuild->GetName().c_str(), m_pGuild->GetId());
 }
+	}
 
 Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const
 {
@@ -1311,17 +1300,17 @@ uint32 Guild::ChallengesMgr::GetTotalCountFor(uint8 typeId)
         }
         case CHALLENGE_TYPE_DUNGEON:
         {
-            count = 7;
+            count = 10;
             break;
         }
         case CHALLENGE_TYPE_RAID:
         {
-            count = 1;
+            count = 3;
             break;
         }
         case CHALLENGE_TYPE_RATEDBG:
         {
-            count  = 3;
+            count  = 5;
             break;
         }
     }
@@ -1359,7 +1348,7 @@ void Guild::ChallengesMgr::CheckChallenge(Group* grp, uint32 challengeId)
     {
         case CHALLENGE_TYPE_DUNGEON:
         {
-            if (memberCount <= 2 && guildMembersInGroup == 1 || memberCount >= 3 && guildMembersInGroup >= 3)
+            if (memberCount <= 0 && guildMembersInGroup == 0 || memberCount >= 1 && guildMembersInGroup >= 1)
                 giveReward = true;
             break;
         }
@@ -1369,12 +1358,12 @@ void Guild::ChallengesMgr::CheckChallenge(Group* grp, uint32 challengeId)
             {
                 if((grp->GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL || grp->GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_HEROIC))
                 {
-                    if (memberCount <= 2 && guildMembersInGroup == 1 || memberCount >= 8 && guildMembersInGroup >= 8)
+                    if (memberCount <= 0 && guildMembersInGroup == 0 || memberCount >= 1 && guildMembersInGroup >= 1)
                         giveReward = true;
 				}
                 else if((grp->GetRaidDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL || grp->GetRaidDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC))
                 {
-                    if (memberCount <= 2 && guildMembersInGroup == 1 || memberCount >= 20 && guildMembersInGroup >= 20)
+                    if (memberCount <= 0 && guildMembersInGroup == 0 || memberCount >= 1 && guildMembersInGroup >= 1)
                         giveReward = true;
 				}
             }
@@ -1385,7 +1374,7 @@ void Guild::ChallengesMgr::CheckChallenge(Group* grp, uint32 challengeId)
             if(grp->isBGGroup())
                 if (Player* groupLeader = ObjectAccessor::FindPlayer(grp->GetLeaderGUID()))
                     if (Battleground* bg = groupLeader->GetBattleground())
-                        if (bg->isRated() && guildMembersInGroup >= uint32(bg->GetMaxPlayers() * 0.8f))
+                        if (bg->isRated() && guildMembersInGroup >= uint32(bg->GetMinPlayers() * 0.8f))
                             giveReward = true;
             break;
         }
@@ -1870,6 +1859,19 @@ void Guild::OnPlayerStatusChange(Player* player, uint32 flag, bool state)
         else member->RemFlag(flag);
     }
 }
+
+bool Guild::SetName(std::string const& name)
+ {
+	if (m_name == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+		return false;
+	
+	m_name = name;
+	PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_NAME);
+	stmt->setString(0, m_name);
+	stmt->setUInt32(1, GetId());
+	CharacterDatabase.Execute(stmt);
+	return true;
+	}
 
 void Guild::HandleRoster(WorldSession* session /*= NULL*/)
 {
@@ -2665,16 +2667,20 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool
     //sScriptMgr->OnGuildMemberWitdrawMoney(this, player, ammount, repair);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    // Update remaining money amount
-    member->UpdateBankWithdrawValue(trans, GUILD_BANK_MAX_TABS, amount);
-    // Remove money from bank
-    _ModifyBankMoney(trans, amount, false);
     // Add money to player (if required)
     if (!repair)
     {
-        player->ModifyMoney(amount);
+		if (!player->ModifyMoney(amount))
+			 return false;
+
         player->SaveGoldToDB(trans);
     }
+
+	// Update remaining money amount
+	member->UpdateBankWithdrawValue(trans, GUILD_BANK_MAX_TABS, amount);
+	    // Remove money from bank
+		_ModifyBankMoney(trans, amount, false);
+
     // Log guild bank event
     _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);
@@ -4436,95 +4442,76 @@ void Guild::GiveReputation(uint32 rep, Player* source)
 
 void Guild::GiveXP(uint32 xp, Player* source, bool challenge)
 {
-	if (!sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
-		return;
+    if (!sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
+        return;
 
-	if (_todayExperience == sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP))
-		return;
+    if (_todayExperience == sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP))
+        return;
 
-	if (GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
-	{
-		xp = 0; // SMSG_GUILD_XP_GAIN is always sent, even for no gains
-	}
-	else if (GetLevel() < GUILD_EXPERIENCE_UNCAPPED_LEVEL && uint32(_todayExperience) > sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP))
-	{
-		uint64 newXp = sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP) - uint64(_todayExperience);
-		sLog->outInfo(LOG_FILTER_GUILD, "Guild (guid:%u) gets %u experience but todayExperience is %u. Experence was set to %u", GetGUID(), xp, _todayExperience, newXp);
-		xp = 0; //Set XP to 0 for while debugging...
-	}
+    if (GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
+        xp = 0; // SMSG_GUILD_XP_GAIN is always sent, even for no gains
+    else if (GetLevel() < GUILD_EXPERIENCE_UNCAPPED_LEVEL && uint32(_todayExperience) > sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP)) {
+        uint32 newXp = sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP) - uint32(_todayExperience);
+        sLog->outInfo(LOG_FILTER_GUILD, "Guild (guid:%u) gets %u experience but todayExperience is %u. Experence was set to %u", GetGUID(), xp, _todayExperience, newXp);
+        xp = 0; //Set XP to 0 for while debugging...
+    }
 
-	uint64 _todayCap = sWorld->getIntConfig(CONFIG_GUILD_DAILY_XP_CAP);
+    _experience += xp;
 
-	if (_todayExperience + xp >= _todayCap && _todayExperience < _todayCap)
-	{
-		_experience += (_todayCap - _todayExperience);
-	}
-	else if (_todayExperience < _todayCap)
-	{
-		_experience += xp;
-	}
+    if (!challenge)
+    {
+        _todayExperience += xp;
 
-	if (!challenge)
-	{
-		if (_todayExperience + xp >= _todayCap && _todayExperience < _todayCap)
-		{
-			_todayExperience += (_todayCap - _todayExperience);
-		}
-		else if (_todayExperience < _todayCap)
-		{
-			_todayExperience += xp;
-		}
+        if(source)
+        {
+            WorldPacket data(SMSG_GUILD_XP_GAIN, 8);
+            data << uint64(xp);
+            source->GetSession()->SendPacket(&data);
 
-		if (source)
-		{
-			WorldPacket data(SMSG_GUILD_XP_GAIN, 8);
-			data << uint64(xp);
-			source->GetSession()->SendPacket(&data);
+            if (Member* member = GetMember(source->GetGUID()))
+                member->AddActivity(xp);
+        }
+    }
 
-			if (Member* member = GetMember(source->GetGUID()))
-				member->AddActivity(xp);
-		}
-	}
+    if (!xp)
+        return;
 
-	if (!xp)
-		return;
+    uint32 oldLevel = GetLevel();
 
-	uint32 oldLevel = GetLevel();
+    // Ding, mon!
+    while (GetExperience() >= sGuildMgr->GetXPForGuildLevel(GetLevel()) && GetLevel() < sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
+    {
+        _experience -= sGuildMgr->GetXPForGuildLevel(GetLevel());
+        ++_level;
 
-	// Ding, mon!
-	while (GetExperience() >= sGuildMgr->GetXPForGuildLevel(GetLevel()) && GetLevel() < sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
-	{
-		_experience -= sGuildMgr->GetXPForGuildLevel(GetLevel());
-		++_level;
+        // Find all guild perks to learn
+        std::vector<uint32> perksToLearn;
+        for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
+            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
+                if (entry->Level > oldLevel && entry->Level <= GetLevel())
+                    perksToLearn.push_back(entry->SpellId);
 
-		// Find all guild perks to learn
-		std::vector<uint32> perksToLearn;
-		for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-			if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-				if (entry->Level > oldLevel && entry->Level <= GetLevel())
-					perksToLearn.push_back(entry->SpellId);
+        // Notify all online players that guild level changed and learn perks
+        for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+        {
+            if (Player* player = itr->second->FindPlayer())
+            {
+                player->SetGuildLevel(GetLevel());
+                for (size_t i = 0; i < perksToLearn.size(); ++i)
+                    player->learnSpell(perksToLearn[i], true);
+            }
+        }
 
-		// Notify all online players that guild level changed and learn perks
-		for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-		{
-			if (Player* player = itr->second->FindPlayer())
-			{
-				player->SetGuildLevel(GetLevel());
-				for (size_t i = 0; i < perksToLearn.size(); ++i)
-					player->learnSpell(perksToLearn[i], true);
-			}
-		}
+        AddGuildNews(GUILD_NEWS_LEVEL_UP, 0, 0, _level);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, 0, NULL, source);
 
-		AddGuildNews(GUILD_NEWS_LEVEL_UP, 0, 0, _level);
-		UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, 0, NULL, source);
+        ++oldLevel;
+    }
 
-		++oldLevel;
-	}
-
-	if (source)
-		SendGuildXP(source->GetSession()); //this is needed, to display correct update on gain.
-	else
-		SendGuildXP();
+    if(source)
+        SendGuildXP(source->GetSession()); //this is needed, to display correct update on gain.
+    else
+        SendGuildXP();
 }
 
 void Guild::SendGuildXP(WorldSession* session) const
@@ -4546,9 +4533,10 @@ void Guild::SendGuildXP(WorldSession* session) const
 
 void Guild::ResetDailyExperience()
 {
-	_todayExperience = 0;
-	CharacterDatabase.Execute("UPDATE `guild` SET `todayExperience` = 0");
-	SendGuildXP();
+    _todayExperience = 0;
+    CharacterDatabase.Execute("UPDATE `guild` SET `todayExperience` = 0");
+
+    SendGuildXP(NULL);
 }
 
 void Guild::ResetTimes(bool weekly)

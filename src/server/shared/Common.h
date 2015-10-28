@@ -1,27 +1,10 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
 #ifndef TRINITYCORE_COMMON_H
 #define TRINITYCORE_COMMON_H
 
-// config.h needs to be included 1st
-// TODO this thingy looks like hack, but its not, need to
-// make separate header however, because It makes mess here.
 #ifdef HAVE_CONFIG_H
 // Remove Some things that we will define
 // This is in case including another config.h
@@ -170,7 +153,7 @@ enum LocaleConstant
 };
 
 const uint8 TOTAL_LOCALES = 9;
-const LocaleConstant DEFAULT_LOCALE = LOCALE_enUS;
+#define DEFAULT_LOCALE LOCALE_enUS
 
 #define MAX_LOCALES 8
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8

@@ -1,27 +1,8 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
-/* ScriptData
-Name: reload_commandscript
-%Complete: 100
-Comment: All reload related commands
-Category: commandscripts
-EndScriptData */
-
+#include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
@@ -83,7 +64,8 @@ public:
             { "creature_loot_template",       SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
             { "creature_onkill_reward",       SEC_ADMINISTRATOR, true,  &HandleReloadOnKillRewardCommand,               "", NULL },
             { "creature_questrelation",       SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestRelationsCommand,     "", NULL },
-            { "creature_template",            SEC_ADMINISTRATOR, true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
+			{ "creature_summon_groups",       SEC_ADMINISTRATOR, true,  &HandleReloadCreatureSummonGroupsCommand, "", NULL },
+			{ "creature_template",            SEC_ADMINISTRATOR, true,  &HandleReloadCreatureTemplateCommand, "", NULL },
             //{ "db_script_string",             SEC_ADMINISTRATOR, true,  &HandleReloadDbScriptStringCommand,            "", NULL },
             { "disables",                     SEC_ADMINISTRATOR, true,  &HandleReloadDisablesCommand,                   "", NULL },
             { "disenchant_loot_template",     SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesDisenchantCommand,    "", NULL },
@@ -123,7 +105,8 @@ public:
             { "prospecting_loot_template",    SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesProspectingCommand,   "", NULL },
             { "quest_poi",                    SEC_ADMINISTRATOR, true,  &HandleReloadQuestPOICommand,                   "", NULL },
             { "quest_template",               SEC_ADMINISTRATOR, true,  &HandleReloadQuestTemplateCommand,              "", NULL },
-            { "reference_loot_template",      SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesReferenceCommand,     "", NULL },
+			{ "rbac",                         SEC_ADMINISTRATOR, true, &HandleReloadRBACCommand, "", NULL },
+			{ "reference_loot_template", SEC_ADMINISTRATOR, true, &HandleReloadLootTemplatesReferenceCommand, "", NULL },
             { "reserved_name",                SEC_ADMINISTRATOR, true,  &HandleReloadReservedNameCommand,               "", NULL },
             { "reputation_reward_rate",       SEC_ADMINISTRATOR, true,  &HandleReloadReputationRewardRateCommand,       "", NULL },
             { "reputation_spillover_template", SEC_ADMINISTRATOR, true,  &HandleReloadReputationRewardRateCommand,       "", NULL },
@@ -146,7 +129,7 @@ public:
             { "spell_target_position",        SEC_ADMINISTRATOR, true,  &HandleReloadSpellTargetPositionCommand,        "", NULL },
             { "spell_threats",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellThreatsCommand,               "", NULL },
             { "spell_group_stack_rules",      SEC_ADMINISTRATOR, true,  &HandleReloadSpellGroupStackRulesCommand,       "", NULL },
-            { "trinity_string",               SEC_ADMINISTRATOR, true,  &HandleReloadTrinityStringCommand,              "", NULL },
+            { "ter_string",                   SEC_ADMINISTRATOR, true,  &HandleReloadTrinityStringCommand,              "", NULL },
             { "warden_action",                SEC_ADMINISTRATOR, true,  &HandleReloadWardenactionCommand,               "", NULL },
             { "waypoint_scripts",             SEC_ADMINISTRATOR, true,  &HandleReloadWpScriptsCommand,                  "", NULL },
             { "waypoint_data",                SEC_ADMINISTRATOR, true,  &HandleReloadWpCommand,                         "", NULL },
@@ -190,6 +173,8 @@ public:
         HandleReloadReservedNameCommand(handler, "");
         HandleReloadTrinityStringCommand(handler, "");
         HandleReloadGameTeleCommand(handler, "");
+
+		HandleReloadCreatureSummonGroupsCommand(handler, "");
 
         HandleReloadVehicleAccessoryCommand(handler, "");
         HandleReloadVehicleTemplateAccessoryCommand(handler, "");
@@ -385,6 +370,15 @@ public:
         handler->SendGlobalGMSysMessage("DB table `creature_onkill_reward` reloaded.");
         return true;
     }
+
+	static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler, const char* /*args*/)
+		 {
+		sLog->outInfo(LOG_FILTER_GENERAL, "Reloading creature summon groups...");
+		sObjectMgr->LoadTempSummons();
+		handler->SendGlobalGMSysMessage("DB table `creature_summon_groups` reloaded.");
+		return true;
+		}
+
 
     static bool HandleReloadCreatureTemplateCommand(ChatHandler* handler, const char* args)
     {
@@ -710,9 +704,9 @@ public:
 
     static bool HandleReloadTrinityStringCommand(ChatHandler* handler, const char* /*args*/)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading trinity_string Table!");
+        sLog->outInfo(LOG_FILTER_GENERAL, "перезагрузка ter_string таблицы!");
         sObjectMgr->LoadTrinityStrings();
-        handler->SendGlobalGMSysMessage("DB table `trinity_string` reloaded.");
+        handler->SendGlobalGMSysMessage("“аблица `ter_string` перезагружена.");
         return true;
     }
 
@@ -1206,6 +1200,15 @@ public:
         handler->SendGlobalGMSysMessage("PerformanceLog config reloaded");
         return true;
     }
+
+	static bool HandleReloadRBACCommand(ChatHandler* handler, const char* /*args*/)
+		{
+		sLog->outInfo(LOG_FILTER_GENERAL, "Reloading RBAC tables...");
+		sAccountMgr->LoadRBAC();
+	sWorld->ReloadRBAC();
+		handler->SendGlobalGMSysMessage("RBAC data reloaded.");
+		return true;
+		}
 };
 
 void AddSC_reload_commandscript()

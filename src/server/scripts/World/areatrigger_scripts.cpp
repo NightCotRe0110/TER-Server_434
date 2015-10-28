@@ -1,39 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: Areatrigger_Scripts
-SD%Complete: 100
-SDComment: Scripts for areatriggers
-SDCategory: Areatrigger
-EndScriptData */
-
-/* ContentData
-at_coilfang_waterfall           4591
-at_legion_teleporter            4560 Teleporter TO Invasion Point: Cataclysm
-at_stormwright_shelf            q12741
-at_last_rites                   q12019
-at_sholazar_waygate             q12548
-at_nats_landing                 q11209
-at_bring_your_orphan_to         q910 q910 q1800 q1479 q1687 q1558 q10951 q10952
-at_brewfest
-at_area_52_entrance
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -363,6 +330,70 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
         std::map<uint32, time_t> _triggerTimes;
 };
 
+
+/*######
+  ## at_frostgrips_hollow
+  ######*/
+ 
+ enum FrostgripsHollow
+  {
+	QUEST_THE_LONESOME_WATCHER = 12877,
+		
+		NPC_STORMFORGED_MONITOR = 29862,
+		NPC_STORMFORGED_ERADICTOR = 29861,
+		
+		TYPE_WAYPOINT = 0,
+		DATA_START = 0
+		 };
+
+Position const stormforgedMonitorPosition = { 6963.95f, 45.65f, 818.71f, 4.948f };
+Position const stormforgedEradictorPosition = { 6983.18f, 7.15f, 806.33f, 2.228f };
+
+class AreaTrigger_at_frostgrips_hollow : public AreaTriggerScript
+ {
+	public:
+		AreaTrigger_at_frostgrips_hollow() : AreaTriggerScript("at_frostgrips_hollow")
+			 {
+			stormforgedMonitorGUID = 0;
+			stormforgedEradictorGUID = 0;
+			}
+		
+			bool OnTrigger(Player* player, AreaTriggerEntry const* /* trigger */)
+			 {
+			if (player->GetQuestStatus(QUEST_THE_LONESOME_WATCHER) != QUEST_STATUS_INCOMPLETE)
+				 return false;
+			
+				Creature* stormforgedMonitor = Creature::GetCreature(*player, stormforgedMonitorGUID);
+			if (stormforgedMonitor)
+				return false;
+			
+				Creature* stormforgedEradictor = Creature::GetCreature(*player, stormforgedEradictorGUID);
+			if (stormforgedEradictor)
+				return false;
+			
+				if ((stormforgedMonitor = player->SummonCreature(NPC_STORMFORGED_MONITOR, stormforgedMonitorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000)))
+				 {
+				stormforgedMonitorGUID = stormforgedMonitor->GetGUID();
+				stormforgedMonitor->SetWalk(false);
+				            /// The npc would search an alternative way to get to the last waypoint without this unit state.
+				stormforgedMonitor->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+				stormforgedMonitor->GetMotionMaster()->MovePath(NPC_STORMFORGED_MONITOR * 100, false);
+				}
+			
+				if ((stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000)))
+				 {
+				stormforgedEradictorGUID = stormforgedEradictor->GetGUID();
+				stormforgedEradictor->GetMotionMaster()->MovePath(NPC_STORMFORGED_ERADICTOR * 100, false);
+				}
+			
+				return true;
+			}
+		
+			private:
+				uint64 stormforgedMonitorGUID;
+				uint64 stormforgedEradictorGUID;
+				};
+
 /*######
 ## at_area_52_entrance
 ######*/
@@ -443,4 +474,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_nats_landing();
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
+	new AreaTrigger_at_frostgrips_hollow();
 }

@@ -1,6 +1,6 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+/*
+TER-Server
+*/
 
 #ifndef SC_ESCORTAI_H
 #define SC_ESCORTAI_H
@@ -90,6 +90,8 @@ struct npc_escortAI : public ScriptedAI
         bool GetAttack() { return m_bIsActiveAttacker; }//used in EnterEvadeMode override
         void SetCanAttack(bool attack) { m_bIsActiveAttacker = attack; }
         uint64 GetEventStarterGUID() { return m_uiPlayerGUID; }
+		void SetSpeedXY(float speed){ speedXY = speed; }
+		void SetSpeedZ(float speed){ speedZ = speed; }
 
     protected:
         Player* GetPlayerForEscort() { return (Player*)Unit::GetUnit(*me, m_uiPlayerGUID); }
@@ -107,6 +109,8 @@ struct npc_escortAI : public ScriptedAI
         uint32 m_uiPlayerCheckTimer;
         uint32 m_uiEscortState;
         float MaxPlayerDistance;
+		float speedXY;
+		float speedZ;
 
         Quest const* m_pQuestForEscort;                     //generally passed in Start() when regular escort script.
 

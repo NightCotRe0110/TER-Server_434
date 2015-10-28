@@ -477,10 +477,13 @@ public:
         return new npc_helix_crewAI(creature);
     }
 
-    struct npc_helix_crewAI : public Scripted_NoMovementAI
+    struct npc_helix_crewAI : public ScriptedAI
     {
-        npc_helix_crewAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) { }
-
+		npc_helix_crewAI(Creature* pCreature) : ScriptedAI(pCreature) 
+		{
+			SetCombatMovement(false);
+		}
+		
         uint32 ThrowBombTimer;
 
         void Reset()

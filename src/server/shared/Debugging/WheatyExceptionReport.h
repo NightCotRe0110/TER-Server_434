@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 

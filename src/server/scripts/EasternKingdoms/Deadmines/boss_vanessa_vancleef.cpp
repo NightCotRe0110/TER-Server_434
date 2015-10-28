@@ -1510,10 +1510,11 @@ public:
         return new npc_icycle_dmAI(creature);
     }
 
-    struct npc_icycle_dmAI : public Scripted_NoMovementAI
+    struct npc_icycle_dmAI : public ScriptedAI
     {
-        npc_icycle_dmAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_icycle_dmAI(Creature* creature) : ScriptedAI(creature)
         {
+			SetCombatMovement(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
             me->SetDisplayId(28470);
@@ -1872,9 +1873,12 @@ public:
         return new npc_lightning_orbsAI(creature);
     }
 
-    struct npc_lightning_orbsAI : public Scripted_NoMovementAI
+    struct npc_lightning_orbsAI : public ScriptedAI
     {
-        npc_lightning_orbsAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
+        npc_lightning_orbsAI(Creature* creature) : ScriptedAI(creature) 
+		{
+			SetCombatMovement(false);
+		}
 
         void Reset()
         {

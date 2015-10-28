@@ -1,26 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
-/* ScriptData
-Name: account_commandscript
-%Complete: 100
-Comment: All account related commands
-Category: commandscripts
-EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
@@ -42,13 +23,19 @@ public:
             { "password",       SEC_CONSOLE,        true,  &HandleAccountSetPasswordCommand,  "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
         };
+		static ChatCommand accountLockCommandTable[] =
+			{
+			{ "country", SEC_PLAYER, true, &HandleAccountLockCountryCommand, "", NULL },
+				{ "ip", SEC_PLAYER, true, &HandleAccountLockIpCommand, "", NULL },
+				{ NULL, SEC_PLAYER, false, NULL, "", NULL },
+				};
         static ChatCommand accountCommandTable[] =
         {
             { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,        "", NULL },
             { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
             { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
             { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },
-            { "lock",           SEC_PLAYER,         false, &HandleAccountLockCommand,         "", NULL },
+			{ "lock",           SEC_PLAYER,         false, NULL, "", accountLockCommandTable },
             { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
             { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,     "", NULL },
             { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
@@ -106,7 +93,8 @@ public:
         if (!accountName || !password)
             return false;
 
-        AccountOpResult result = AccountMgr::CreateAccount(std::string(accountName), std::string(password));
+		AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password));
+
         switch (result)
         {
             case AOR_OK:
@@ -245,7 +233,57 @@ public:
         return true;
     }
 
-    static bool HandleAccountLockCommand(ChatHandler* handler, char const* args)
+	static bool HandleAccountLockCountryCommand(ChatHandler* handler, char const* args)
+		 {
+		if (!*args)
+			 {
+			handler->SendSysMessage(LANG_USE_BOL);
+			handler->SetSentErrorMessage(true);
+			return false;
+			}
+		std::string param = (char*)args;
+		
+			if (!param.empty())
+			 {
+			if (param == "on")
+				 {
+				PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
+				uint32 ip = inet_addr(handler->GetSession()->GetRemoteAddress().c_str());
+				EndianConvertReverse(ip);
+				stmt->setUInt32(0, ip);
+				PreparedQueryResult result = LoginDatabase.Query(stmt);
+			if (result)
+					{
+					Field* fields = result->Fetch();
+					std::string country = fields[0].GetString();
+					stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_CONTRY);
+					stmt->setString(0, country);
+					stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+					LoginDatabase.Execute(stmt);
+					handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
+					}
+				else
+					 {
+					handler->PSendSysMessage("[IP2NATION] Table empty");
+					sLog->outDebug(LOG_FILTER_AUTHSERVER, "[IP2NATION] Table empty");
+					}
+				}
+			else if (param == "off")
+				 {
+				PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_CONTRY);
+				stmt->setString(0, "00");
+				stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+				LoginDatabase.Execute(stmt);
+				handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+				}
+			return true;
+			}
+		handler->SendSysMessage(LANG_USE_BOL);
+		handler->SetSentErrorMessage(true);
+		return false;
+		}
+	
+		static bool HandleAccountLockIpCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
         {
@@ -503,36 +541,8 @@ public:
             return false;
         }
 
-        // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
-        PreparedStatement* stmt;
-
-        if (gmRealmID == -1)
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
-
-            stmt->setUInt32(0, targetAccountId);
-        }
-        else
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
-
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt32(1, realmID);
-        }
-
-        LoginDatabase.Execute(stmt);
-
-        if (gm != 0)
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
-
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt8(1, uint8(gm));
-            stmt->setInt32(2, gmRealmID);
-
-            LoginDatabase.Execute(stmt);
-        }
-
+		RBACData* rbac = isAccountNameGiven ? NULL : handler->getSelectedPlayer()->GetSession()->GetRBACData();
+		sAccountMgr->UpdateAccountAccess(rbac, targetAccountId, uint8(gm), gmRealmID);
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;

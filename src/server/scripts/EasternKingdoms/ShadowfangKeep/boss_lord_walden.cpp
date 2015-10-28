@@ -51,16 +51,11 @@ class boss_lord_walden : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-				if (Player* p = me->FindNearestPlayer(10.0f, true)){
-
-					_EnterCombat();
-					Talk(SAY_AGGRO);
-					events.ScheduleEvent(EVENT_CONJURE_POISONOUS_MIXTURE, 5000);
-					events.ScheduleEvent(EVENT_CONJURE_FROST_MIXTURE, urand(10000, 20000));
-					events.ScheduleEvent(EVENT_CONJURE_MYSTERY_TOXIN, 25000);
-				}
-				else
-					EnterEvadeMode();
+                _EnterCombat();
+                Talk(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_CONJURE_POISONOUS_MIXTURE, 5000);
+                events.ScheduleEvent(EVENT_CONJURE_FROST_MIXTURE, urand(10000, 20000));
+                events.ScheduleEvent(EVENT_CONJURE_MYSTERY_TOXIN,  25000);
             }
 
             void JustDied(Unit* /*killer*/)

@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "UnitAI.h"
 #include "Player.h"
@@ -111,8 +97,7 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->AddAura(spellid, unit);
         }
-    }else
-        return;
+    }
 }
 
 void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
@@ -126,8 +111,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->CastSpell(unit, spellid, triggered);
         }
-    }else
-        return;
+    }
 }
 
 void UnitAI::DoCast(uint32 spellId)
@@ -156,8 +140,7 @@ void UnitAI::DoCast(uint32 spellId)
             float range = spellInfo->GetMaxRange(false);
 
             DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
-            if (!(spellInfo->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE)
-                && !(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
+			if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
                 && targetSelector(me->GetVictim()))
                 target = me->GetVictim();
             else
@@ -279,7 +262,10 @@ void UnitAI::FillAISpellInfo()
 }
 
 //Enable PlayerAI when charmed
-void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
+void PlayerAI::OnCharmed(bool apply)
+ {
+	me->IsAIEnabled = apply;
+	}
 
 void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
 {

@@ -1,19 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
+
 
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
@@ -56,8 +44,8 @@ class DatabaseWorkerPool
             _connections.resize(IDX_SIZE);
 
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
-            WPFatal (mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
-        }
+			WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
+		}
 
         ~DatabaseWorkerPool()
         {
@@ -222,7 +210,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        QueryResult Query(const char* sql, MySQLConnection* conn = NULL)
+		QueryResult Query(const char* sql, T* conn = NULL)
         {
             if (!conn)
                 conn = GetFreeConnection();
@@ -241,7 +229,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        QueryResult PQuery(const char* sql, MySQLConnection* conn, ...)
+		QueryResult PQuery(const char* sql, T* conn, ...)
         {
             if (!sql)
                 return QueryResult(NULL);
@@ -380,7 +368,7 @@ class DatabaseWorkerPool
         //! were appended to the transaction will be respected during execution.
         void DirectCommitTransaction(SQLTransaction& transaction)
         {
-            MySQLConnection* con = GetFreeConnection();
+			T* con = GetFreeConnection();
             if (con->ExecuteTransaction(transaction))
             {
                 con->Unlock();      // OK, operation succesful
@@ -490,17 +478,17 @@ class DatabaseWorkerPool
         {
             uint8 i = 0;
             size_t num_cons = _connectionCount[IDX_SYNCH];
+			T* t = NULL;
             //! Block forever until a connection is free
             for (;;)
             {
-                T* t = _connections[IDX_SYNCH][++i % num_cons];
+				t = _connections[IDX_SYNCH][++i % num_cons];
                 //! Must be matched with t->Unlock() or you will get deadlocks
                 if (t->LockIfReady())
-                    return t;
+					break;
             }
 
-            //! This will be called when Celine Dion learns to sing
-            return NULL;
+			return t;
         }
 
         char const* GetDatabaseName() const

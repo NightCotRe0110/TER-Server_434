@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
 #ifndef _CHARACTERDATABASE_H
@@ -136,6 +123,8 @@ enum CharacterDatabaseStatements
     CHAR_UPD_MAIL_RETURNED,
     CHAR_UPD_MAIL_ITEM_RECEIVER,
     CHAR_UPD_ITEM_OWNER,
+	CHAR_GET_EXTERNAL_MAIL,
+	CHAR_DEL_EXTERNAL_MAIL,
     CHAR_SEL_ITEM_REFUNDS,
     CHAR_SEL_ITEM_BOP_TRADE,
     CHAR_DEL_ITEM_BOP_TRADE,
@@ -159,11 +148,13 @@ enum CharacterDatabaseStatements
     CHAR_SEL_MATCH_MAKER_RATING,
     CHAR_SEL_CHARACTER_COUNT,
     CHAR_UPD_NAME,
+	CHAR_UPD_NAME_BY_GUID,
     CHAR_DEL_DECLINED_NAME,
     CHAR_SEL_CHARACTER_DATA_BY_GUID,
 
     CHAR_INS_GUILD,
     CHAR_DEL_GUILD,
+	CHAR_UPD_GUILD_NAME,
     CHAR_INS_GUILD_MEMBER,
     CHAR_DEL_GUILD_MEMBER,
     CHAR_DEL_GUILD_MEMBERS,
@@ -225,7 +216,6 @@ enum CharacterDatabaseStatements
     CHAR_UPD_GUILD_CHALLENGE,
     CHAR_UPD_GUILD_RESET_CHALLENGE,
     CHAR_INS_GUILD_NEWS,
-    CHAR_UPD_GUILD_NAME,
     CHAR_SEL_GUILD_CHALLENGES_COMPLETED,
     CHAR_SEL_FIRST_GUILD_CHALLENGE_COMPLETED_DATE,
     CHAR_INS_GUILD_CHALLENGE_DONE,
@@ -294,6 +284,7 @@ enum CharacterDatabaseStatements
     CHAR_UPD_ARENA_TEAM_MEMBER,
     CHAR_REP_CHARACTER_ARENA_STATS,
     CHAR_SEL_PLAYER_ARENA_TEAMS,
+	CHAR_UPD_ARENA_TEAM_NAME,
 
     CHAR_SEL_PETITION,
     CHAR_SEL_PETITION_SIGNATURE,

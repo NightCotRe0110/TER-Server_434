@@ -1,23 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-// TODO: Implement proper support for vehicle+player teleportation
-// TODO: Use spell victory/defeat in wg instead of RewardMarkOfHonor() && RewardHonor
-// TODO: Add proper implement of achievement
+TER-Server
+*/
 
 #include "BattlefieldWG.h"
 #include "AchievementMgr.h"
@@ -51,10 +34,10 @@ bool BattlefieldWG::SetupBattlefield()
 {
     InitStalker(BATTLEFIELD_WG_NPC_STALKER, WintergraspStalkerPos[0], WintergraspStalkerPos[1], WintergraspStalkerPos[2], WintergraspStalkerPos[3]);
 
-	m_TypeId = BATTLEFIELD_WG;                              // See enum BattlefieldTypes
-	m_BattleId = BATTLEFIELD_BATTLEID_WG;
-	m_ZoneId = BATTLEFIELD_WG_ZONEID;
-	m_MapId = BATTLEFIELD_WG_MAPID;
+    m_TypeId = BATTLEFIELD_WG;                              // See enum BattlefieldTypes
+    m_BattleId = BATTLEFIELD_BATTLEID_WG;
+    m_ZoneId = BATTLEFIELD_WG_ZONEID;
+    m_MapId = BATTLEFIELD_WG_MAPID;
     m_Map = sMapMgr->FindMap(m_MapId, 0);
 
     m_MaxPlayer = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MAX);
@@ -824,7 +807,7 @@ void BattlefieldWG::FillInitialWorldStates(WorldPacket& data)
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_ATTACKER) << uint32(GetAttackerTeam());
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_DEFENDER) << uint32(GetDefenderTeam());
     data << uint32(BATTLEFIELD_WG_WORLD_STATE_ACTIVE) << uint32(IsWarTime() ? 0 : 1); // Note: cleanup these two, their names look awkward
-	data << uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE) << uint32(IsWarTime() ? 1 : 0);
+    data << uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE) << uint32(IsWarTime() ? 1 : 0);
 
     for (uint32 i = 0; i < 2; ++i)
         data << ClockWorldState[i] << uint32(time(NULL) + (m_Timer / 1000));

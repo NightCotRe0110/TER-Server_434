@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Unit.h"
 #include "Player.h"
@@ -346,7 +332,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     SetInt32Value(index_mod, (uint32)attPowerMod); // UNIT_FIELD_(RANGED)_ATTACK_POWER_MODS field
     SetFloatValue(index_mult, attPowerMultiplier); // UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
 
-    Pet* pet = GetPet();                                //update pet's AP
+    Pet* pet = GetPet();  
+	Guardian* guardian = GetGuardianPet();
     //automatically update weapon damage after attack power modification
     if (ranged)
         UpdateDamagePhysical(RANGED_ATTACK);
@@ -357,6 +344,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             UpdateDamagePhysical(OFF_ATTACK);
         if (getClass() == CLASS_SHAMAN || getClass() == CLASS_PALADIN)                      // mental quickness
             UpdateSpellDamageAndHealingBonus();
+
+		if (pet && pet->IsPetGhoul()) // At melee attack power change for DK pet
+			pet->UpdateAttackPowerAndDamage();
+		
+			if (guardian && guardian->IsSpiritWolf()) // At melee attack power change for Shaman feral spirit
+			 guardian->UpdateAttackPowerAndDamage();
     }
 
     RecalculatePetsScalingAttackPower();
@@ -1079,28 +1072,74 @@ void Guardian::UpdateMaxPower(Powers power)
 
 void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 {
-    if (ranged)
-        return;
+	if (ranged)
+		return;
 
-    float val = GetStat(STAT_STRENGTH) - 20.0f;
-    float bonusAP = 0.0f;
-    UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
+	float val = 0.0f;
+	float bonusAP = 0.0f;
+	UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
 
-    uint32 entry = isHunterPet() ? 1 : GetEntry();
-    if (PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(entry, getLevel()))
-        val += pInfo->attackpower;
+	if (GetEntry() == ENTRY_IMP)                                   // imp's attack power
+		val = GetStat(STAT_STRENGTH) - 10.0f;
+	else
+		val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val);
+	Unit* owner = GetOwner();
+	if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+	{
+		if (isHunterPet())                      //hunter pets benefit from owner's attack power
+		{
+			float mod = 1.0f;                                                 //Hunter contribution modifier
+			bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
+			int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod);
+		}
+		else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
+		{
+			bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
+			int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f);
+		}
+		else if (IsSpiritWolf()) //wolf benefit from shaman's attack power
+		{
+			float dmg_multiplier = 0.31f;
+			if (m_owner->GetAuraEffect(63271, 0)) // Glyph of Feral Spirit
+				dmg_multiplier = 0.61f;
+			bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier;
+			int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier);
+		}
+		//demons benefit from warlocks shadow or fire damage
+		else if (isPet())
+		{
+			int32 fire = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
+			int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
+			int32 maximum = (fire > shadow) ? fire : shadow;
+			if (maximum < 0)
+				maximum = 0;
+			int32(maximum * 0.15f);
+			bonusAP = maximum * 0.57f;
+		}
+		//water elementals benefit from mage's frost damage
+		else if (GetEntry() == ENTRY_WATER_ELEMENTAL)
+		{
+			int32 frost = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST)) + owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FROST);
+			if (frost < 0)
+				frost = 0;
+			int32(frost * 0.4f);
+		}
+	}
 
-    float base_attPower  = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
-    float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
-    float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
+	SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);
 
-    SetInt32Value(UNIT_FIELD_ATTACK_POWER, (int32)base_attPower);
-    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_POS, (int32)attPowerMod);
-    SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, attPowerMultiplier);
+	//in BASE_VALUE of UNIT_MOD_ATTACK_POWER for creatures we store data of meleeattackpower field in DB
+	float base_attPower = GetModifierValue(unitMod, BASE_VALUE) * GetModifierValue(unitMod, BASE_PCT);
+	float attPowerMultiplier = GetModifierValue(unitMod, TOTAL_PCT) - 1.0f;
 
-    UpdateDamagePhysical(BASE_ATTACK);    //automatically update weapon damage after attack power modification
+	//UNIT_FIELD_(RANGED)_ATTACK_POWER field
+	SetInt32Value(UNIT_FIELD_ATTACK_POWER, (int32)base_attPower);
+	//UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
+	SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, attPowerMultiplier);
+
+	//automatically update weapon damage after attack power modification
+	UpdateDamagePhysical(BASE_ATTACK);
 }
 
 void Guardian::UpdateDamagePhysical(WeaponAttackType attType)

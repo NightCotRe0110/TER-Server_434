@@ -1,25 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
-/*
- * Scripts for spells with SPELLFAMILY_ROGUE and SPELLFAMILY_GENERIC spells used by rogue players.
- * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_rog_".
- */
 
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -42,6 +24,7 @@ enum RogueSpells
     SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
+	SPELL_ROGUE_BACKSTAB                            = 53,
 };
 
 enum RogueSpellIcons
@@ -1464,6 +1447,40 @@ class spell_rog_overkill : public SpellScriptLoader
         }
 };
 
+//73981 - Redirect
+class spell_rog_redirect : public SpellScriptLoader
+ {
+	public:
+		spell_rog_redirect() : SpellScriptLoader("spell_rog_redirect") { }
+		
+			class spell_rog_redirect_SpellScript : public SpellScript
+			 {
+			PrepareSpellScript(spell_rog_redirect_SpellScript)
+				
+				void HandleRedirect(SpellEffIndex /*effIndex*/)
+				{
+				if (Player* caster = GetCaster()->m_movedPlayer)
+					 {
+					if (Unit* unitTarget = GetHitUnit())
+						 {
+						if (caster->GetComboPoints() > 0 && caster->GetComboTarget())
+						 caster->AddComboPoints(unitTarget, caster->GetComboPoints());
+						}
+					}
+				}
+			
+				void Register()
+				 {
+				OnEffectHitTarget += SpellEffectFn(spell_rog_redirect_SpellScript::HandleRedirect, EFFECT_0, SPELL_EFFECT_ADD_COMBO_POINTS);
+				}
+			};
+		
+			SpellScript* GetSpellScript() const
+			 {
+			return new spell_rog_redirect_SpellScript();
+			}
+		};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1478,8 +1495,9 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shiv();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
+	new spell_rog_redirect();
+	new spell_rog_backstab();
     new spell_rogue_gouge();
-    new spell_rog_backstab();
     new spell_rog_sap();
     new spell_rog_smoke_bomb_inv();
     new spell_rog_blind();

@@ -180,23 +180,17 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-			if (Player* p = me->FindNearestPlayer(10.0f, true)){
-				instance->SetData(DATA_HIGH_PROPHET_BARIM_EVENT, IN_PROGRESS);
-				first = true;
-				events.SetPhase(PHASE_NORMAL);
-				events.ScheduleEvent(EVENT_PLAGUE_OF_AGES, 7000, 0, PHASE_NORMAL);
-				events.ScheduleEvent(EVENT_FIFTY_LASHINGS, 10000, 0, PHASE_NORMAL);
-				events.ScheduleEvent(EVENT_HEAVENS_FURY, 12000, 0, PHASE_NORMAL);
-				if (IsHeroic())
-					events.ScheduleEvent(EVENT_FENIX_SUMMON, 9000, 0, PHASE_NORMAL);
+            instance->SetData(DATA_HIGH_PROPHET_BARIM_EVENT, IN_PROGRESS);
+            first = true;
+            events.SetPhase(PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_PLAGUE_OF_AGES, 7000, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_FIFTY_LASHINGS, 10000, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_HEAVENS_FURY, 12000, 0, PHASE_NORMAL);
+            if (IsHeroic())
+                events.ScheduleEvent(EVENT_FENIX_SUMMON, 9000, 0, PHASE_NORMAL);
 
-				Talk(SAY_AGGRO);
-				instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-			}
-			else{
-				EnterEvadeMode();
-			}
-
+            Talk(SAY_AGGRO);
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         }
 
         void DespawnCreatures(uint32 entry)

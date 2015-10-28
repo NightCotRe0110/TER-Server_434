@@ -1,24 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
-
-/// \addtogroup world The World
-/// @{
-/// \file
 
 #ifndef __WORLD_H
 #define __WORLD_H
@@ -85,7 +67,9 @@ enum WorldTimers
     WUPDATE_AUTOBROADCAST,
     WUPDATE_MAILBOXQUEUE,
     WUPDATE_DELETECHARS,
+	WUPDATE_AHBOT,
     WUPDATE_PINGDB,
+	WUPDATE_ARENA,
     WUPDATE_GUILDSAVE,
     WUPDATE_HPGOLD,
     WUPDATE_CRONJOBS,
@@ -106,6 +90,7 @@ enum CronjobType
 enum WorldBoolConfigs
 {
     CONFIG_DURABILITY_LOSS_IN_PVP = 0,
+    BATTLEGROUND_CROSSFACTION_ENABLED,
     CONFIG_ADDON_CHANNEL,
     CONFIG_ALLOW_PLAYER_COMMANDS,
     CONFIG_CLEAN_CHARACTER_DB,
@@ -122,9 +107,6 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_TWO_SIDE_WHO_LIST,
     CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND,
     CONFIG_ALLOW_TWO_SIDE_TRADE,
-	CONFIG_FAKE_WHO_LIST,
-	CONFIG_FAKE_RANDOM_ONLINE_OFFLINE,
-	CONFIG_FAKE_LEVEL_UP,
     CONFIG_ALL_TAXI_PATHS,
     CONFIG_INSTANT_TAXI,
     CONFIG_INSTANCE_IGNORE_LEVEL,
@@ -158,6 +140,10 @@ enum WorldBoolConfigs
     CONFIG_ARENA_QUEUE_ANNOUNCER_PLAYERONLY,
     CONFIG_ARENA_SEASON_IN_PROGRESS,
     CONFIG_ARENA_LOG_EXTENDED_INFO,
+	CONFIG_ARENA_1V1_ENABLE,
+	CONFIG_ARENA_1V1_ANNOUNCER,
+	CONFIG_ARENA_1V1_VENDOR_RATING,
+	CONFIG_ARENA_1V1_BLOCK_FORBIDDEN_TALENTS,
     CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN,
     CONFIG_VMAP_INDOOR_CHECK,
     CONFIG_START_ALL_SPELLS,
@@ -199,6 +185,19 @@ enum WorldBoolConfigs
     CONFIG_ARENA_READYMARK_ENABLED,
     CONFIG_HPGOLD_REFRESH_ENABLED,
     CONFIG_CRONJOBS_ENABLED,
+	CONFIG_ARENA_2v2_TEAM_ENABLE,
+	CONFIG_ARENA_3v3_TEAM_ENABLE,
+	CONFIG_ARENA_5v5_TEAM_ENABLE,
+	CONFIG_NO_GREY_AGGRO,
+	CONFIG_GAIN_HONOR_GUARD,
+	CONFIG_GAIN_HONOR_ELITE,
+	CONFIG_NO_CAST_TIME,
+	CONFIG_NO_COOLDOWN,
+	CONFIG_HURT_IN_REAL_TIME,
+	CONFIG_LIVERS_AURA_ENABLE,
+	CONFIG_EXTERNAL_MAIL_ENABLE,
+	CONFIG_FAST_EN_TER884,
+	CONFIG_GMLOGIN_ENABLED,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -215,6 +214,12 @@ enum WorldFloatConfigs
     CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS,
     CONFIG_THREAT_RADIUS,
     CONFIG_CHANCE_OF_GM_SURVEY,
+	CONFIG_ARENA_1V1_ARENAPOINTS_MULTI,
+	VAS_Config_xPlayer,
+	VAS_Min_D_Mod,
+	VAS_Min_HP_Mod,
+	CONFIG_RESPAWNSPEED,
+	CONFIG_SPEED_GAME,
     FLOAT_CONFIG_VALUE_COUNT
 };
 
@@ -325,6 +330,8 @@ enum WorldIntConfigs
     CONFIG_ARENA_START_RATING,
     CONFIG_ARENA_START_PERSONAL_RATING,
     CONFIG_ARENA_START_MATCHMAKER_RATING,
+	CONFIG_ARENA_1V1_MIN_LEVEL,
+	CONFIG_ARENA_1V1_COSTS,
     CONFIG_MAX_WHO,
     CONFIG_HONOR_AFTER_DUEL,
     CONFIG_PVP_TOKEN_MAP_TYPE,
@@ -365,6 +372,9 @@ enum WorldIntConfigs
     CONFIG_WARDEN_CLIENT_BAN_DURATION,
     CONFIG_WARDEN_NUM_MEM_CHECKS,
     CONFIG_WARDEN_NUM_OTHER_CHECKS,
+	VAS_VasDebug,
+    VAS_AutoInstance,
+    VAS_PlayerChangeNotify,
     CONFIG_WINTERGRASP_PLR_MAX,
     CONFIG_WINTERGRASP_PLR_MIN,
     CONFIG_WINTERGRASP_PLR_MIN_LVL,
@@ -396,6 +406,24 @@ enum WorldIntConfigs
     CONFIG_DYN_ITEM_SQL_REQUEST_SIZE,
     CONFIG_HPGOLD_REFRESH_INTERVAL,
     CONFIG_CRONJOBS_INTERVAL,
+	CONFIG_LOGIN_SERVER_SEC_START,        //passworld server
+	CONFIG_LOGIN_SERVER_SEC,              //passworld server player
+	CONFIG_LOGIN_SERVER_SEC_LOG,          //passworld server player log
+	CONFIG_FAN_ACHIVEMENT_SPELL_VALUTA,   //FAN-BLIZZLAIKE-point_achievement
+	CONFIG_MAIL_PLAYER,                   //Почта от игроков
+	CONFIG_MAIL_GM,                       //Почта от ГМ
+	CONFIG_MAIL_TRAU,                     //Почта с протекцией
+	CONFIG_QUESTS_9999,                   //Список Квестов
+	CONFIG_DISABLE_FATIGUE,
+	CONFIG_BG_REWARD_WINNER_HONOR_FIRST,
+	CONFIG_BG_REWARD_WINNER_HONOR_LAST,
+	CONFIG_BG_REWARD_LOSER_HONOR_FIRST,
+	CONFIG_BG_REWARD_LOSER_HONOR_LAST,
+	CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST,
+	CONFIG_BG_REWARD_WINNER_CONQUEST_LAST,
+	CONFIG_AHBOT_UPDATE_INTERVAL,
+	CONFIG_ARENA_ENABLE,
+	CONFIG_EXTERNAL_MAIL_INTERVAL,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -599,6 +627,7 @@ class World
 
         WorldSession* FindSession(uint32 id) const;
         void AddSession(WorldSession* s);
+		void DisableArenaWithTime();
         void SendAutoBroadcast();
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
@@ -665,6 +694,14 @@ class World
 
         /// Get the path where data (dbc, maps) are stored on disk
         std::string const& GetDataPath() const { return m_dataPath; }
+
+		/// Return the Mob IDs to be Autobalanced
+        std::string GetVAS40() const { return VAS_AutoBalance_40_Name; }
+        std::string GetVAS25() const { return VAS_AutoBalance_25_Name; }
+        std::string GetVAS20() const { return VAS_AutoBalance_20_Name; }
+        std::string GetVAS10() const { return VAS_AutoBalance_10_Name; }
+        std::string GetVAS5() const { return VAS_AutoBalance_5_Name; }
+        std::string GetVAS2() const { return VAS_AutoBalance_2_Name; }
 
         /// When server started?
         time_t const& GetStartTime() const { return m_startTime; }
@@ -807,6 +844,8 @@ class World
         void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
         void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
         void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
+		void DeleteCharaceterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
+		bool HasCharacterNameData(uint32 guid) { return _characterNameDataMap.find(guid) != _characterNameDataMap.end(); }
 
         void ProcessStartEvent();
         void ProcessStopEvent();
@@ -817,6 +856,8 @@ class World
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
         void   ResetEventSeasonalQuests(uint16 event_id);
+
+		void ReloadRBAC();
 
         void UpdatePhaseDefinitions();
         void ExecuteCronjobs();
@@ -838,11 +879,21 @@ class World
         void ResetMonthlyQuests();
         void ResetRandomBG();
         void ResetGuildCap();
-		void ResetDailyGuildCap();
         void ResetCurrencyWeekCap();
     private:
         static ACE_Atomic_Op<ACE_Thread_Mutex, bool> m_stopEvent;
         static uint8 m_ExitCode;
+
+		std::string VAS_AutoBalance_40_Name;
+        std::string VAS_AutoBalance_25_Name;
+        std::string VAS_AutoBalance_20_Name;
+        std::string VAS_AutoBalance_10_Name;
+        std::string VAS_AutoBalance_5_Name;
+        std::string VAS_AutoBalance_2_Name;
+        std::string VAS_color;
+
+
+
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
 
@@ -853,6 +904,7 @@ class World
         time_t m_startTime;
         time_t m_gameTime;
         IntervalTimer m_timers[WUPDATE_COUNT];
+		IntervalTimer extmail_timer;
         time_t mail_timer;
         time_t mail_timer_expires;
         uint32 m_updateTime, m_updateTimeSum;
@@ -902,7 +954,6 @@ class World
         time_t m_NextMonthlyQuestReset;
         time_t m_NextRandomBGReset;
         time_t m_NextGuildReset;
-		time_t m_NextDailyGuildReset;
         time_t m_NextCurrencyReset;
 
         //Player Queue

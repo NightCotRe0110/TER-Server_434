@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #ifndef __TRINITY_ARCHEOLOGY_MGR_H
 #define __TRINITY_ARCHEOLOGY_MGR_H
 

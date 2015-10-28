@@ -1,4 +1,7 @@
-//add here most rarely modified headers to speed up debug build compilation
+/*
+TER-Server
+*/
+
 
 #include "Common.h"
 #include "Log.h"

@@ -1,29 +1,13 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/** \file
-    \ingroup u2w
+TER-Server
 */
 
 #include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
+#include "Config.h"
 #include <zlib.h>
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "AccountMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
@@ -97,7 +81,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, uint8 viplevel, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     _player(NULL),
@@ -105,7 +89,6 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     _security(sec),
     _accountId(id),
     m_expansion(expansion),
-	m_viplevel(viplevel),
     _warden(NULL),
     _logoutTime(0),
     m_inQueue(false),
@@ -123,6 +106,7 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
 	expireTime(60000), // 1 min after socket loss, session is deleted
 	forceExit(false),
 	timeLastWhoCommand(0),
+	_RBACData(NULL),
     m_currentBankerGUID(0)
 {
     if (sock)
@@ -163,8 +147,9 @@ WorldSession::~WorldSession()
         m_Socket = NULL;
     }
 
-    if (_warden)
-        delete _warden;
+	delete _warden;
+	delete _RBACData;
+
 
     ///- empty incoming packet queue
     WorldPacket* packet = NULL;
@@ -1181,3 +1166,43 @@ PacketThrottler::~PacketThrottler()
     delete[] m_opcodes;
 }
 
+void WorldSession::LoadPermissions()
+ {
+	uint32 id = GetAccountId();
+	std::string name;
+	AccountMgr::GetName(id, name);
+	
+	_RBACData = new RBACData(id, name, realmID);
+	_RBACData->LoadFromDB();
+
+	sLog->outDebug(LOG_FILTER_RBAC, "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d]",
+		id, name.c_str(), realmID);
+	}
+
+RBACData* WorldSession::GetRBACData()
+ {
+	return _RBACData;
+	}
+
+bool WorldSession::HasPermission(uint32 permission)
+ {
+	 if (!_RBACData)
+		 LoadPermissions();
+
+	return _RBACData->HasPermission(permission);
+
+	bool hasPermission = _RBACData->HasPermission(permission);
+	sLog->outDebug(LOG_FILTER_RBAC, "WorldSession::HasPermission [AccountId: %u, Name: %s, realmId: %d]",
+		_RBACData->GetId(), _RBACData->GetName().c_str(), realmID);
+	
+		return hasPermission;
+	
+}
+
+void WorldSession::InvalidateRBACData()
+ {
+	sLog->outDebug(LOG_FILTER_RBAC, "WorldSession::InvalidateRBACData [AccountId: %u, Name: %s, realmId: %d]",
+		_RBACData->GetId(), _RBACData->GetName().c_str(), realmID);
+	delete _RBACData;
+	_RBACData = NULL;
+	}

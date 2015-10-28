@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef TRINITY_MOTIONMASTER_H
 #define TRINITY_MOTIONMASTER_H
@@ -180,7 +166,7 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void MoveTakeoff(uint32 id, Position const& pos);
 
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
-        void MoveCharge(PathGenerator path, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE);
+		void MoveCharge(PathGenerator const& path);
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
         void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP)

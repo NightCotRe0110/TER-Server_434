@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -185,6 +171,12 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
     {
         uint32 node;
         recvData >> node;
+		if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(node) && !GetPlayer()->isTaxiCheater())
+			 {
+			SendActivateTaxiReply(ERR_TAXINOTVISITED);
+			recvData.rfinish();
+			return;
+			}
         nodes.push_back(node);
     }
 
@@ -274,7 +266,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
         GetPlayer()->m_taxi.ClearTaxiDestinations();        // not destinations, clear source node
 
     GetPlayer()->CleanupAfterTaxiFlight();
-    if (GetPlayer()->pvpInfo.inHostileArea)
+	if (GetPlayer()->pvpInfo.IsHostile)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 }
 
@@ -294,6 +286,15 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleActivateTaxiOpcode - Unit (GUID: %u) not found or you can't interact with it.", uint32(GUID_LOPART(guid)));
         return;
     }
+
+	if (!GetPlayer()->isTaxiCheater())
+		 {
+		if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(nodes[0]) || !GetPlayer()->m_taxi.IsTaximaskNodeKnown(nodes[1]))
+			 {
+			SendActivateTaxiReply(ERR_TAXINOTVISITED);
+			return;
+			}
+		}
 
     GetPlayer()->ActivateTaxiPathTo(nodes, npc);
 }

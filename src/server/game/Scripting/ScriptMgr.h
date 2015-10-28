@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef SC_SCRIPTMGR_H
 #define SC_SCRIPTMGR_H
@@ -28,6 +14,9 @@
 #include "SharedDefines.h"
 #include "World.h"
 #include "Weather.h"
+#include "Unit.h"
+
+
 
 class AuctionHouseObject;
 class AuraScript;
@@ -60,6 +49,7 @@ class Vehicle;
 class WorldPacket;
 class WorldSocket;
 class WorldObject;
+class CreatureTemplate;
 
 struct AuctionEntry;
 struct ConditionSourceInfo;
@@ -269,6 +259,9 @@ class WorldScript : public ScriptObject
 
         // Called when the world is actually shut down.
         virtual void OnShutdown() { }
+
+		// Called at End of SetInitialWorldSettings.
+        virtual void SetInitialWorldSettings() { }
 };
 
 class FormulaScript : public ScriptObject
@@ -299,6 +292,21 @@ class FormulaScript : public ScriptObject
 
         // Called when calculating the experience rate for group experience.
         virtual void OnGroupRateCalculation(float& /*rate*/, uint32 /*count*/, bool /*isRaid*/) { }
+};
+
+class AllMapScript : public ScriptObject
+{
+    protected:
+
+        AllMapScript(const char* name);
+
+    public:
+
+        // Called when a player enters any Map
+        virtual void OnPlayerEnterAll(Map* /*map*/, Player* /*player*/) { }
+
+        // Called when a player leave any Map
+        virtual void OnPlayerLeaveAll(Map* /*map*/, Player* /*player*/) { }
 };
 
 template<class TMap> class MapScript : public UpdatableScript<TMap>
@@ -407,6 +415,13 @@ class UnitScript : public ScriptObject
 
         // Called when Spell Damage is being Dealt
         virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+
+		// Called when Heal is Recieved
+        virtual void ModifyHealRecieved(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
+
+		//VAS AutoBalance
+
+		virtual uint32 DealDamage(Unit* AttackerUnit, Unit *pVictim, uint32 damage, DamageEffectType damagetype) { return damage;}
 };
 
 class CreatureScript : public UnitScript, public UpdatableScript<Creature>
@@ -448,6 +463,21 @@ class CreatureScript : public UnitScript, public UpdatableScript<Creature>
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
+};
+
+class AllCreatureScript : public ScriptObject
+{
+    protected:
+
+        AllCreatureScript(const char* name);
+
+    public:
+
+        // Called from End of Creature Update.
+        virtual void OnAllCreatureUpdate(Creature* /*creature*/, uint32 /*diff*/) { }
+
+        // Called from End of Creature SelectLevel.
+        virtual void Creature_SelectLevel(const CreatureTemplate* /*cinfo*/, Creature* /*creature*/) { }
 };
 
 class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
@@ -496,6 +526,8 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         // Called when a GameObjectAI object is needed for the gameobject.
         virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return NULL; }
 };
+
+
 
 class AreaTriggerScript : public ScriptObject
 {
@@ -735,7 +767,8 @@ class PlayerScript : public UnitScript
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
 
         // Called when a player logs in.
-        virtual void OnLogin(Player* /*player*/) { }
+       // virtual void OnLogin(Player* /*player*/) { }
+		void OnLogin(Player* /*player*/) { }
 
         // Called when a player logs out.
         virtual void OnLogout(Player* /*player*/) { }
@@ -844,6 +877,8 @@ class ScriptMgr
         ScriptMgr();
         virtual ~ScriptMgr();
 
+
+
     public: /* Initialization */
 
         void Initialize();
@@ -858,6 +893,10 @@ class ScriptMgr
     public: /* Unloading */
 
         void Unload();
+
+	public: /* {VAS} Script Hooks */
+
+        float VAS_Script_Hooks();
 
     public: /* SpellScriptLoader */
 
@@ -885,6 +924,7 @@ class ScriptMgr
         void OnWorldUpdate(uint32 diff);
         void OnStartup();
         void OnShutdown();
+		void SetInitialWorldSettings();
 
     public: /* FormulaScript */
 
@@ -895,6 +935,11 @@ class ScriptMgr
         void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content);
         void OnGainCalculation(uint32& gain, Player* player, Unit* unit);
         void OnGroupRateCalculation(float& rate, uint32 count, bool isRaid);
+
+	public: /* AllScript */
+
+        void OnPlayerEnterMapAll(Map* map, Player* player);
+        void OnPlayerLeaveMapAll(Map* map, Player* player);
 
     public: /* MapScript */
 
@@ -916,6 +961,11 @@ class ScriptMgr
         bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
         bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets);
         bool OnItemExpire(Player* player, ItemTemplate const* proto);
+
+	public: /* AllCreatureScript */
+
+        void OnAllCreatureUpdate(Creature* creature, uint32 diff);
+        void Creature_SelectLevel(const CreatureTemplate *cinfo, Creature* creature);
 
     public: /* CreatureScript */
 
@@ -1064,6 +1114,8 @@ class ScriptMgr
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
+		void ModifyHealRecieved(Unit* target, Unit* attacker, uint32& addHealth);
+		uint32 DealDamage(Unit* AttackerUnit, Unit *pVictim,uint32 damage,DamageEffectType damagetype);
 
     public: /* Scheduled scripts */
 

@@ -1,27 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
-/* ScriptData
-SDName: boss_illidan_stormrage
-SD%Complete: 90
-SDComment: Somewhat of a workaround for Parasitic Shadowfiend, unable to summon GOs for Cage Trap.
-SDCategory: Black Temple
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -37,38 +17,38 @@ EndScriptData */
 
 /************* Quotes and Sounds ***********************/
 // Gossip for when a player clicks Akama
-#define GOSSIP_ITEM           "We are ready to face Illidan"
+#define GOSSIP_ITEM           "Мы готовы встретиться с Иллидианом"
 
 // Yells for/by Akama
-#define SAY_AKAMA_BEWARE      "Be wary friends, The Betrayer meditates in the court just beyond."
+#define SAY_AKAMA_BEWARE      "Будьте осторожны друзья, предатель рядом."
 #define SOUND_AKAMA_BEWARE    11388
-#define SAY_AKAMA_MINION      "Come, my minions. Deal with this traitor as he deserves!"
+#define SAY_AKAMA_MINION      "Проходите, мои друзья. Пора разобраться с этим предателем, как он заслуживает!"
 #define SOUND_AKAMA_MINION    11465
-#define SAY_AKAMA_LEAVE       "I'll deal with these mongrels. Strike now, friends! Strike at the betrayer!"
+#define SAY_AKAMA_LEAVE       "Я разберусь с этими скотами. Начинайте сейчас, друзья! Осаждайте предателя!"
 #define SOUND_AKAMA_LEAVE     11390
 
 // Self explanatory
-char const*  SAY_KILL1        = "Who shall be next to taste my blades?!";
+char const*  SAY_KILL1        = "Должно быть он рядом, для того чтобы попробовать вкус моих лезвий?!";
 #define SOUND_KILL1           11473
-char const*  SAY_KILL2        = "This is too easy!";
+char const*  SAY_KILL2        = "Это слишком легко!";
 #define SOUND_KILL2           11472
 
 // I think I'll fly now and let my subordinates take you on
-#define SAY_TAKEOFF           "I will not be touched by rabble such as you!"
+#define SAY_TAKEOFF           "Я не буду трогать такой сброд как вы!"
 #define SOUND_TAKEOFF         11479
-#define SAY_SUMMONFLAMES      "Behold the flames of Azzinoth!"
+#define SAY_SUMMONFLAMES      "Во пламя Аззинота!"
 #define SOUND_SUMMONFLAMES    11480
 
 // When casting Eye Blast. Demon Fire will be appear on places that he casts this
-#define SAY_EYE_BLAST         "Stare into the eyes of the Betrayer!"
+#define SAY_EYE_BLAST         "Пристально смотреть в глаза предателя!"
 #define SOUND_EYE_BLAST       11481
 
 // kk, I go big, dark and demon on you.
-#define SAY_MORPH             "Behold the power... of the demon within!"
+#define SAY_MORPH             "Вся власть... демона внутри!"
 #define SOUND_MORPH           11475
 
 // I KILL!
-#define SAY_ENRAGE            "You've wasted too much time mortals, now you shall fall!"
+#define SAY_ENRAGE            "Вы и так потеряли слишком много времени, смертные, теперь вы падете!"
 #define SOUND_ENRAGE          11474
 
 enum Spells
@@ -483,9 +463,6 @@ public:
         boss_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
-			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
             DoCast(me, SPELL_DUAL_WIELD, true);
         }
 
@@ -547,7 +524,6 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             me->setActive(true);
-			EnterPhase(PHASE_NORMAL);
             DoZoneInCombat();
         }
 
@@ -1885,8 +1861,8 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
 
     me->SetDisplayId(21135);
     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-    /*me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);*/
+    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
     me->SetDisableGravity(false);
     me->setActive(false);

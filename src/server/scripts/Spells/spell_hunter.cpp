@@ -53,13 +53,7 @@ enum HunterSpells
 	SPELL_HUNTER_GLYPH_OF_SILENCING_SHOT = 56836,
 	SPELL_HUNTER_GLYPH_KILL_SHOT = 63067,
 	SPELL_HUNTER_GLYPH_KILL_SHOT_CD = 90967,
-	SPELL_HUNTER_KILL_SHOT = 53351,
-	SPELL_HUNTER_TERMINATION_RANK_1 = 83489,
-	SPELL_HUNTER_TERMINATION_RANK_2 = 83490,
-	SPELL_HUNTER_IMPROVED_STEADY_SHOT = 53220,
-	SPELL_HUNTER_IMPROVED_STEADY_SHOT_RANK_1 = 53221,
-	SPELL_HUNTER_IMPROVED_STEADY_SHOT_RANK_2 = 53222,
-	SPELL_HUNTER_IMPROVED_STEADY_SHOT_RANK_3 = 53224
+	SPELL_HUNTER_KILL_SHOT = 53351
 };
 
 enum HunterPetCalculate
@@ -82,92 +76,6 @@ enum HunterPetTreeSpecializationMarker
 	SPELL_HUNTER_PET_TENACITY_MARKER = 87891,
 	SPELL_HUNTER_PET_CUNNING_MARKER = 87884
 };
-
-// Impruved Steady Shot
-class spell_hun_steady_shot : public SpellScriptLoader
-{
-public:
-	spell_hun_steady_shot() : SpellScriptLoader("spell_hun_steady_shot") { }
-
-	class spell_hun_steady_shot_SpellScript : public SpellScript
-	{
-		PrepareSpellScript(spell_hun_steady_shot_SpellScript);
-
-
-		int8 castCount;
-
-		void HandleDummy(SpellEffIndex effIndex)
-		{
-			Unit* caster = GetCaster();
-			Unit* target = GetHitUnit();
-			castCount++;
-
-			if (!caster || !target || caster->GetTypeId() != TYPEID_PLAYER)
-				return;
-
-
-		}
-
-
-		void HandleOnHit()
-		{
-			Unit* caster = GetCaster();
-			Unit* target = GetHitUnit();
-			Player* PlayerCaster = GetCaster()->ToPlayer();
-
-			if (!caster || !target || caster->GetTypeId() != TYPEID_PLAYER)
-				return;
-
-			// Improved Steady Shot Rank 1--- 5% de haste
-			if (caster->HasAura(SPELL_HUNTER_IMPROVED_STEADY_SHOT_RANK_1))
-			{
-				if (castCount >= 2)
-				{
-					int32 basepoints = 5;
-					caster->CastCustomSpell(caster, SPELL_HUNTER_IMPROVED_STEADY_SHOT, &basepoints, NULL, NULL, true);
-					castCount = 0;
-				}
-			}
-			// Improved Steady Shot Rank 2--- 10% de haste
-			else if (caster->HasAura(SPELL_HUNTER_IMPROVED_STEADY_SHOT_RANK_2))
-			{
-				if (castCount >= 2)
-				{
-					int32 basepoints = 10;
-					caster->CastCustomSpell(caster, SPELL_HUNTER_IMPROVED_STEADY_SHOT, &basepoints, NULL, NULL, true);
-					castCount = 0;
-				}
-			}
-			// Improved Steady Shot Rank 3--- 15% de haste
-			else if (caster->HasAura(SPELL_HUNTER_IMPROVED_STEADY_SHOT_RANK_3))
-			{
-				if (castCount >= 2)
-				{
-					int32 basepoints = 15;
-					caster->CastCustomSpell(caster, SPELL_HUNTER_IMPROVED_STEADY_SHOT, &basepoints, NULL, NULL, true);
-					castCount = 0;
-
-				}
-			}
-			
-
-		}
-
-		void Register()
-		{
-
-			OnEffectHitTarget += SpellEffectFn(spell_hun_steady_shot_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
-			OnHit += SpellHitFn(spell_hun_steady_shot_SpellScript::HandleOnHit);
-		}
-	};
-
-	SpellScript* GetSpellScript() const
-	{
-		return new spell_hun_steady_shot_SpellScript();
-	}
-
-};
-
 
 // 53209 - Chimera Shot
 class spell_hun_chimera_shot : public SpellScriptLoader
@@ -963,27 +871,12 @@ public:
 					if (Aura* aura = unitTarget->GetAura(1978, GetCaster()->GetGUID()))
 						aura->SetDuration(std::min(aura->GetDuration() + GetSpellInfo()->Effects[EFFECT_1].BasePoints * 1000, aura->GetMaxDuration()), false, true);
 
-				// TALENTO Termination 
-				// No estoy seguro de qeu cobrashot use este talento 
 				// Termination
 				if (AuraEffect* termination = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 2008, EFFECT_0))
 					if (unitTarget->GetHealthPct() <= 25.0f)
 						bp0 += termination->GetAmount();
-						caster->CastCustomSpell(caster, triggeredSpell, &bp0, NULL, NULL, true);
 
-					if (caster->HasAura(SPELL_HUNTER_TERMINATION_RANK_1))
-					{
-						// 3 puntos de FOCO con un punt de TALENTO
-						caster->SetPower(POWER_FOCUS, caster->GetPower(POWER_FOCUS) + 3);
-						
-					}
-					else if (caster->HasAura(SPELL_HUNTER_TERMINATION_RANK_2))
-					{
-					
-						// 6 puntos de FOCO con un punt de TALENTO
-						caster->SetPower(POWER_FOCUS, caster->GetPower(POWER_FOCUS) + 6);
-						
-					}
+				caster->CastCustomSpell(caster, triggeredSpell, &bp0, NULL, NULL, true);
 			}
 
 		}
@@ -999,7 +892,6 @@ public:
 		return new spell_hun_energize_SpellScript();
 	}
 };
-
 
 // -83676 - Resistance is futile periodic trigger
 class spell_hun_resistance_is_futile : public SpellScriptLoader
@@ -2006,5 +1898,4 @@ void AddSC_hunter_spell_scripts()
 	new spell_hun_mend_pet();
 	new spell_hun_silencing_shot();
 	new spell_hun_glyph_kill_shot();
-	new spell_hun_steady_shot();
 }

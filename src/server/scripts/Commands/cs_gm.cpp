@@ -1,26 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
-/* ScriptData
-Name: gm_commandscript
-%Complete: 100
-Comment: All gm related commands
-Category: commandscripts
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
@@ -59,37 +40,38 @@ public:
     // Enables or disables hiding of the staff badge
     static bool HandleGMChatCommand(ChatHandler* handler, char const* args)
     {
-        if (!*args)
-        {
-            WorldSession* session = handler->GetSession();
-            if (!AccountMgr::IsPlayerAccount(session->GetSecurity()) && session->GetPlayer()->isGMChat())
-                session->SendNotification(LANG_GM_CHAT_ON);
-            else
-                session->SendNotification(LANG_GM_CHAT_OFF);
-            return true;
-        }
+		if (WorldSession* session = handler->GetSession())
+		{ 
+		if (!*args)
+			 {
+			if (session->HasPermission(RBAC_PERM_CHAT_USE_STAFF_BADGE) && session->GetPlayer()->isGMChat())
+				 session->SendNotification(LANG_GM_CHAT_ON);
+			else
+			 session->SendNotification(LANG_GM_CHAT_OFF);
+			return true;
+			}
 
-        std::string param = (char*)args;
+		std::string param = (char*)args;
 
-        if (param == "on")
-        {
-            handler->GetSession()->GetPlayer()->SetGMChat(true);
-            handler->GetSession()->SendNotification(LANG_GM_CHAT_ON);
-            return true;
-        }
+		if (param == "on")
+			 {
+			session->GetPlayer()->SetGMChat(true);
+			session->SendNotification(LANG_GM_CHAT_ON);
+			return true;
+			}
 
-        if (param == "off")
-        {
-            handler->GetSession()->GetPlayer()->SetGMChat(false);
-            handler->GetSession()->SendNotification(LANG_GM_CHAT_OFF);
-            return true;
-        }
-
+		if (param == "off")
+			 {
+			session->GetPlayer()->SetGMChat(false);
+			session->SendNotification(LANG_GM_CHAT_OFF);
+			return true;
+			}
+		}
         handler->SendSysMessage(LANG_USE_BOL);
         handler->SetSentErrorMessage(true);
         return false;
     }
-
+		
     static bool HandleGMFlyCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
@@ -129,8 +111,10 @@ public:
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itrSec = itr->second->GetSession()->GetSecurity();
-            if ((itr->second->isGameMaster() || (!AccountMgr::IsPlayerAccount(itrSec) && itrSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
-                (!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
+			if ((itr->second->isGameMaster() ||
+				(itr->second->GetSession()->HasPermission(RBAC_PERM_COMMANDS_APPEAR_IN_GM_LIST) &&
+				itrSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+				(!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
                 {
@@ -197,34 +181,32 @@ public:
     //Enable\Disable Invisible mode
     static bool HandleGMVisibleCommand(ChatHandler* handler, char const* args)
     {
-		Player* _player = handler->GetSession()->GetPlayer();
-
         if (!*args)
         {
-			handler->PSendSysMessage(LANG_YOU_ARE, _player->isGMVisible() ? handler->GetTrinityString(LANG_VISIBLE) : handler->GetTrinityString(LANG_INVISIBLE));
-			return true;
+            handler->PSendSysMessage(LANG_YOU_ARE, handler->GetSession()->GetPlayer()->isGMVisible() ? handler->GetTrinityString(LANG_VISIBLE) : handler->GetTrinityString(LANG_INVISIBLE));
+            return true;
         }
 
         const uint32 VISUAL_AURA = 37800;
         std::string param = (char*)args;
+        Player* player = handler->GetSession()->GetPlayer();
 
         if (param == "on")
         {
-            if (_player->HasAura(VISUAL_AURA, 0))
-                _player->RemoveAurasDueToSpell(VISUAL_AURA);
+            if (player->HasAura(VISUAL_AURA, 0))
+                player->RemoveAurasDueToSpell(VISUAL_AURA);
 
-            _player->SetGMVisible(true);
-			_player->UpdateObjectVisibility();
+            player->SetGMVisible(true);
             handler->GetSession()->SendNotification(LANG_INVISIBLE_VISIBLE);
             return true;
         }
 
         if (param == "off")
         {
-			_player->AddAura(VISUAL_AURA, _player);
-			_player->SetGMVisible(false);
-			_player->UpdateObjectVisibility();
             handler->GetSession()->SendNotification(LANG_INVISIBLE_INVISIBLE);
+            player->SetGMVisible(false);
+
+            player->AddAura(VISUAL_AURA, player);
 
             return true;
         }
@@ -237,11 +219,12 @@ public:
     //Enable\Disable GM Mode
     static bool HandleGMCommand(ChatHandler* handler, char const* args)
     {
-		Player* _player = handler->GetSession()->GetPlayer();
-
         if (!*args)
         {
-			handler->GetSession()->SendNotification(_player->isGameMaster() ? LANG_GM_ON : LANG_GM_OFF);
+            if (handler->GetSession()->GetPlayer()->isGameMaster())
+                handler->GetSession()->SendNotification(LANG_GM_ON);
+            else
+                handler->GetSession()->SendNotification(LANG_GM_OFF);
             return true;
         }
 
@@ -249,9 +232,9 @@ public:
 
         if (param == "on")
         {
-			_player->SetGameMaster(true);
+            handler->GetSession()->GetPlayer()->SetGameMaster(true);
             handler->GetSession()->SendNotification(LANG_GM_ON);
-			_player->UpdateTriggerVisibility();
+            handler->GetSession()->GetPlayer()->UpdateTriggerVisibility();
 #ifdef _DEBUG_VMAPS
             VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
             vMapManager->processCommand("stoplog");
@@ -261,9 +244,9 @@ public:
 
         if (param == "off")
         {
-			_player->SetGameMaster(false);
+            handler->GetSession()->GetPlayer()->SetGameMaster(false);
             handler->GetSession()->SendNotification(LANG_GM_OFF);
-			_player->UpdateTriggerVisibility();
+            handler->GetSession()->GetPlayer()->UpdateTriggerVisibility();
 #ifdef _DEBUG_VMAPS
             VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
             vMapManager->processCommand("startlog");

@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Battleground.h"
 #include "BattlegroundRV.h"
@@ -64,8 +50,6 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
                 setState(BG_RV_STATE_SWITCH_PILLARS);
                 break;
             case BG_RV_STATE_SWITCH_PILLARS:
-                for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
-                    DoorOpen(i);
                 TogglePillarCollision();
                 setTimer(BG_RV_PILLAR_SWITCH_TIMER);
                 break;
@@ -101,7 +85,7 @@ void BattlegroundRV::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     BattlegroundScore* sc = new BattlegroundScore;
     PlayerScores[player->GetGUID()] = sc;
-    sc->BgTeam = player->GetBGTeam();
+    sc->BgTeam = player->GetTeam();
     sc->TalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 
     UpdateWorldState(BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
@@ -219,7 +203,12 @@ bool BattlegroundRV::SetupBattleground()
 void BattlegroundRV::TogglePillarCollision()
 {
     bool apply = GetPillarCollision();
-
+	// Toggle visual pillars, pulley, gear, and collision based on previous state
+	for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_GEAR_2; ++i)
+		 apply ? DoorOpen(i) : DoorClose(i);
+	
+		for (uint8 i = BG_RV_OBJECT_PILAR_2; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+		 apply ? DoorClose(i) : DoorOpen(i);
     for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PILAR_COLLISION_4; ++i)
     {
         if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[i]))

@@ -372,10 +372,11 @@ public:
         return new npc_ravenous_creeper_triggerAI(creature);
     }
 
-    struct npc_ravenous_creeper_triggerAI : public Scripted_NoMovementAI
+    struct npc_ravenous_creeper_triggerAI : public ScriptedAI
     {
-        npc_ravenous_creeper_triggerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_ravenous_creeper_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
+			SetCombatMovement(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
         }
@@ -700,10 +701,11 @@ public:
         return new npc_ice_patchAI (creature);
     }
 
-    struct npc_ice_patchAI : public Scripted_NoMovementAI
+    struct npc_ice_patchAI : public ScriptedAI
     {
-        npc_ice_patchAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_ice_patchAI(Creature* creature) : ScriptedAI(creature)
         {
+			SetCombatMovement(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
         }
@@ -738,10 +740,11 @@ public:
         return new npc_soothing_breezeAI (creature);
     }
 
-    struct npc_soothing_breezeAI : public Scripted_NoMovementAI
+    struct npc_soothing_breezeAI : public ScriptedAI
     {
-        npc_soothing_breezeAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_soothing_breezeAI(Creature* creature) : ScriptedAI(creature)
         {
+			SetCombatMovement(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
             me->SetReactState(REACT_PASSIVE);
             me->SetSpeed(MOVE_WALK, 0.4f);

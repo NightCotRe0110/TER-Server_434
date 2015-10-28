@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
 #include "ObjectMgr.h"
@@ -851,8 +838,8 @@ class boss_the_lich_king : public CreatureScript
                 events.Update(diff);
 
                 // during Remorseless Winter phases The Lich King is channeling a spell, but we must continue casting other spells
-                if ((me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_TRANSITION)) || events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_FROSTMOURNE))
-                    return;
+				if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.IsInPhase(PHASE_TRANSITION) || events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_FROSTMOURNE)))
+					return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -1096,6 +1083,7 @@ class boss_the_lich_king : public CreatureScript
             {
                 WorldPacket data(SMSG_PLAY_MUSIC, 4);
                 data << uint32(musicId);
+				data << uint64(me->GetGUID());
                 SendPacketToPlayers(&data);
             }
 
@@ -2159,7 +2147,8 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-                    caster->GetAI()->SetData(DATA_PLAGUE_STACK, GetStackAmount());
+					if (caster->GetAI())
+						 caster->GetAI()->SetData(DATA_PLAGUE_STACK, GetStackAmount());
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

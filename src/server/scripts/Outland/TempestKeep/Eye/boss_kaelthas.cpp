@@ -1,28 +1,6 @@
 /*
- * Script corrected by mastergku/Stronhold in WoWSource
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: Boss_Kaelthas
-SD%Complete: 100
-SDComment: SQL, weapon scripts, mind control, need correct spells(interruptible/uninterruptible), phoenix spawn location & animation, phoenix behaviour & spawn during gravity lapse
-SDCategory: Tempest Keep, The Eye
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -307,36 +285,34 @@ class boss_kaelthas : public CreatureScript
 
             uint64 m_auiAdvisorGuid[MAX_ADVISORS];
 
-			void Reset()
-			{
-				if (!me->FindNearestPlayer(200.0f, true)){
-				Fireball_Timer = 5000 + rand() % 10000;
-				ArcaneDisruption_Timer = 45000;
-				MindControl_Timer = 40000;
-				Phoenix_Timer = 50000;
-				ShockBarrier_Timer = 60000;
-				FlameStrike_Timer = 30000;
-				GravityLapse_Timer = 20000;
-				GravityLapse_Phase = 0;
-				NetherBeam_Timer = 8000;
-				NetherVapor_Timer = 10000;
-				PyrosCasted = 0;
-				Phase = 0;
-				InGravityLapse = false;
-				IsCastingFireball = false;
-				ChainPyros = false;
+            void Reset()
+            {
+                Fireball_Timer = 5000+rand()%10000;
+                ArcaneDisruption_Timer = 45000;
+                MindControl_Timer = 40000;
+                Phoenix_Timer = 50000;
+                ShockBarrier_Timer = 60000;
+                FlameStrike_Timer = 30000;
+                GravityLapse_Timer = 20000;
+                GravityLapse_Phase = 0;
+                NetherBeam_Timer = 8000;
+                NetherVapor_Timer = 10000;
+                PyrosCasted = 0;
+                Phase = 0;
+                InGravityLapse = false;
+                IsCastingFireball = false;
+                ChainPyros = false;
 
-				if (me->isInCombat())
-					PrepareAdvisors();
+                if (me->isInCombat())
+                    PrepareAdvisors();
 
-				summons.DespawnAll();
+                summons.DespawnAll();
 
-				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-				if (instance)
-					instance->SetData(DATA_KAELTHASEVENT, 0);
-			}
+                if (instance)
+                    instance->SetData(DATA_KAELTHASEVENT, 0);
             }
 
             void PrepareAdvisors()
@@ -389,31 +365,38 @@ class boss_kaelthas : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                     PhaseSubphase = 0;
-                    Phase_Timer = 7000;
+                    Phase_Timer = 23000;
                     Phase = 1;
                 }
             }
 
-			void MoveInLineOfSight(Unit* pWho) override
-			{
-				if (Phase == 0 && pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster() &&
-					me->IsWithinDistInMap(pWho, me->GetAttackDistance(pWho)) && me->IsWithinLOSInMap(pWho))
-				{
-					//DoScriptText(SAY_INTRO, m_creature);
-					Phase = 1;
+            void MoveInLineOfSight(Unit* who)
+            {
+                if (!me->HasUnitState(UNIT_STATE_STUNNED) && me->canCreatureAttack(who))
+                {
+                    if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                        return;
 
-					// Set the player in combat with the boss
-					pWho->SetInCombatWith(me);
-					me->AddThreat(pWho, 0.0f);
+                    float attackRadius = me->GetAttackDistance(who);
+                    if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
+                    {
+                        if (!me->GetVictim() && Phase >= 4)
+                        {
+                            who->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                            AttackStart(who);
+                        }
+                        else if (me->GetMap()->IsDungeon())
+                        {
+                            if (instance && !instance->GetData(DATA_KAELTHASEVENT) && !Phase)
+                                StartEvent();
 
-					if (instance){
-						instance->SetData(DATA_KAELTHASEVENT, IN_PROGRESS);
-						StartEvent();
-					}
-				}
-			}
+                            who->SetInCombatWith(me);
+                            me->AddThreat(who, 0.0f);
+                        }
+                    }
+                }
+            }
 
-       
             void EnterCombat(Unit* /*who*/)
             {
                 if (instance && !instance->GetData(DATA_KAELTHASEVENT) && !Phase)
@@ -446,7 +429,6 @@ class boss_kaelthas : public CreatureScript
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				me->GetMotionMaster()->MovePoint(1, me->GetPositionX(), me->GetPositionY(), 48.73f);
 
                 Talk(SAY_DEATH);
 
@@ -471,14 +453,16 @@ class boss_kaelthas : public CreatureScript
                     {
                         Unit* target = NULL;
                         Creature* Advisor = NULL;
+
                         //Subphase switch
                         switch (PhaseSubphase)
                         {
                             //Subphase 1 - Start
                             case 0:
-								if (Phase_Timer <= diff)
+                                if (Phase_Timer <= diff)
                                 {
                                     Talk(SAY_INTRO_THALADRED);
+
                                     //start advisor within 7 seconds
                                     Phase_Timer = 7000;
                                     ++PhaseSubphase;
@@ -626,8 +610,8 @@ class boss_kaelthas : public CreatureScript
                                 }
                                 break;
                         }
-						break;
                     }
+                    break;
 
                     case 2:
                     {
@@ -938,9 +922,19 @@ class boss_kaelthas : public CreatureScript
 
                                     case 3:
                                         //Remove flight
-                                       
-										me->GetMotionMaster()->MovePoint(1, me->GetPositionX(), me->GetPositionY(), 48.73f);
-										me->RemoveAurasDueToSpell(SPELL_NETHER_VAPOR);
+                                        for (i = threatlist.begin(); i != threatlist.end(); ++i)
+                                        {
+                                            if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
+                                            {
+                                                //Using packet workaround
+                                                WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
+                                                data.append(unit->GetPackGUID());
+                                                data << uint32(0);
+                                                unit->SendMessageToSet(&data, true);
+                                            }
+                                        }
+
+                                        me->RemoveAurasDueToSpell(SPELL_NETHER_VAPOR);
                                         InGravityLapse = false;
                                         GravityLapse_Timer = 60000;
                                         GravityLapse_Phase = 0;
@@ -1389,9 +1383,12 @@ class mob_kael_flamestrike : public CreatureScript
             : CreatureScript("mob_kael_flamestrike")
         {
         }
-        struct mob_kael_flamestrikeAI : public Scripted_NoMovementAI
+		struct mob_kael_flamestrikeAI : public ScriptedAI
         {
-            mob_kael_flamestrikeAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+			mob_kael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
+				 {
+			SetCombatMovement(false);
+				}
 
             uint32 Timer;
             bool Casting;

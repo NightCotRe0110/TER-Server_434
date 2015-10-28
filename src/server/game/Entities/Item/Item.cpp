@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Common.h"
 #include "Item.h"
@@ -657,8 +643,11 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
     if (uState == ITEM_NEW && state == ITEM_REMOVED)
     {
         // pretend the item never existed
-        RemoveFromUpdateQueueOf(forplayer);
-        forplayer->DeleteRefundReference(GetGUIDLow());
+		if (forplayer)
+			{
+			RemoveFromUpdateQueueOf(forplayer);
+			forplayer->DeleteRefundReference(GetGUIDLow());
+			}
         delete this;
         return;
     }
@@ -668,7 +657,9 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
         if (uState != ITEM_NEW)
             uState = state;
 
-        AddToUpdateQueueOf(forplayer);
+		if (forplayer)
+		AddToUpdateQueueOf(forplayer);
+
     }
     else
     {
@@ -691,12 +682,13 @@ void Item::AddToUpdateQueueOf(Player* player)
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
-
-    if (player->m_itemUpdateQueueBlocked)
+	
+	if (player->m_itemUpdateQueueBlocked)
         return;
 
     player->m_itemUpdateQueue.push_back(this);
     uQueuePos = player->m_itemUpdateQueue.size()-1;
+	
 }
 
 void Item::RemoveFromUpdateQueueOf(Player* player)
@@ -711,12 +703,13 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
-
+	
     if (player->m_itemUpdateQueueBlocked)
         return;
 
     player->m_itemUpdateQueue[uQueuePos] = NULL;
     uQueuePos = -1;
+	
 }
 
 uint8 Item::GetBagSlot() const

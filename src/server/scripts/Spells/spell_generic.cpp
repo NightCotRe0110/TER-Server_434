@@ -1,25 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- * Scripts for spells with SPELLFAMILY_GENERIC which cannot be included in AI script file
- * of creature using it or can't be bound to any player class.
- * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_gen_"
+TER-Server
  */
 
 #include "ScriptMgr.h"
@@ -4494,6 +4474,111 @@ public:
         return new spell_gen_fix_anticheat_AuraScript();
     }
 };
+enum OrcDisguiseSpells
+	 {
+	SPELL_ORC_DISGUISE_TRIGGER = 45759,
+		SPELL_ORC_DISGUISE_MALE = 45760,
+		SPELL_ORC_DISGUISE_FEMALE = 45762,
+		};
+
+class spell_gen_orc_disguise : public SpellScriptLoader
+ {
+	public:
+		spell_gen_orc_disguise() : SpellScriptLoader("spell_gen_orc_disguise") { }
+		
+			class spell_gen_orc_disguise_SpellScript : public SpellScript
+			 {
+			PrepareSpellScript(spell_gen_orc_disguise_SpellScript);
+			
+				bool Validate(SpellInfo const* /*spell*/)
+				 {
+				if (!sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_TRIGGER) || !sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_MALE) ||
+					!sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_FEMALE))
+					 return false;
+				return true;
+				}
+			
+				void HandleScript(SpellEffIndex /*effIndex*/)
+				 {
+				Unit* caster = GetCaster();
+				if (Player* target = GetHitPlayer())
+					 {
+					uint8 gender = target->getGender();
+					if (!gender)
+						 caster->CastSpell(target, SPELL_ORC_DISGUISE_MALE, true);
+					else
+						 caster->CastSpell(target, SPELL_ORC_DISGUISE_FEMALE, true);
+					}
+				}
+			
+				void Register()
+				 {
+				OnEffectHitTarget += SpellEffectFn(spell_gen_orc_disguise_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+				}
+			};
+		
+			SpellScript* GetSpellScript() const
+			 {
+			return new spell_gen_orc_disguise_SpellScript();
+			}
+		};
+
+enum ServiceUniform
+	 {
+	SPELL_SERVICE_UNIFORM = 71450,
+		
+		MODEL_GOBLIN_MALE = 31002,
+		MODEL_GOBLIN_FEMALE = 31003,
+		};
+
+class spell_gen_aura_service_uniform : public SpellScriptLoader
+ {
+	public:
+		spell_gen_aura_service_uniform() : SpellScriptLoader("spell_gen_aura_service_uniform") { }
+		
+			class spell_gen_aura_service_uniform_AuraScript : public AuraScript
+			 {
+			PrepareAuraScript(spell_gen_aura_service_uniform_AuraScript);
+			
+				bool Validate(SpellInfo const* /*spell*/)
+				 {
+				if (!sSpellMgr->GetSpellInfo(SPELL_SERVICE_UNIFORM))
+					 return false;
+				return true;
+				}
+			
+				void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+				 {
+				                // Apply model goblin
+					Unit* target = GetTarget();
+				if (target->GetTypeId() == TYPEID_PLAYER)
+					 {
+					if (target->getGender() == GENDER_MALE)
+						target->SetDisplayId(MODEL_GOBLIN_MALE);
+					else
+						target->SetDisplayId(MODEL_GOBLIN_FEMALE);
+					}
+				}
+			
+				void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+				 {
+				Unit* target = GetTarget();
+				if (target->GetTypeId() == TYPEID_PLAYER)
+				 target->RestoreDisplayId();
+				}
+			
+				void Register()
+				 {
+				AfterEffectApply += AuraEffectRemoveFn(spell_gen_aura_service_uniform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+				AfterEffectRemove += AuraEffectRemoveFn(spell_gen_aura_service_uniform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+				}
+			};
+		
+			AuraScript* GetAuraScript() const
+			 {
+			return new spell_gen_aura_service_uniform_AuraScript();
+			}
+		};
 
 void AddSC_generic_spell_scripts()
 {
@@ -4597,10 +4682,12 @@ void AddSC_generic_spell_scripts()
     new spell_gen_angerforge();
     new spell_gen_scales_of_life();
     new spell_gen_apparatus_of_khaz();
+	new spell_gen_aura_service_uniform();
     new spell_gen_luck_of_the_draw();
     new spell_gen_forged_fury();
     new spell_gen_blessing_of_khazgoroth();
     new spell_gen_tipping_of_scales();
 	new spell_gen_mixology_bonus();
 	new spell_gen_fix_anticheat();
+	new spell_gen_orc_disguise();
 }

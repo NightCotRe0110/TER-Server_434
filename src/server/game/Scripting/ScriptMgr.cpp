@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "ScriptMgr.h"
 #include "Config.h"
@@ -32,6 +18,7 @@
 #include "CreatureAI.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "Creature.h"
 
 // This is the global static registry of scripts.
 template<class TScript>
@@ -56,8 +43,8 @@ class ScriptRegistry
             {
                 if (it->second == script)
                 {
-                    sLog->outError(LOG_FILTER_TSCR, "Script '%s' has same memory pointer as '%s'.",
-                        script->GetName().c_str(), it->second->GetName().c_str());
+                //    sLog->outError(LOG_FILTER_TSCR, "Script '%s' has same memory pointer as '%s'.",
+                //        script->GetName().c_str(), it->second->GetName().c_str());
 
                     return;
                 }
@@ -102,8 +89,9 @@ class ScriptRegistry
                 {
                     // The script uses a script name from database, but isn't assigned to anything.
                     if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
-                        sLog->outError(LOG_FILTER_SQL, "Script named '%s' does not have a script name assigned in database.",
-                            script->GetName().c_str());
+					{ }
+						//   sLog->outError(LOG_FILTER_SQL, "Script named '%s' does not have a script name assigned in database.",
+                     //       script->GetName().c_str());
                 }
             }
             else
@@ -273,10 +261,12 @@ void ScriptMgr::Unload()
     SCR_CLEAR(ServerScript);
     SCR_CLEAR(WorldScript);
     SCR_CLEAR(FormulaScript);
+	SCR_CLEAR(AllMapScript);
     SCR_CLEAR(WorldMapScript);
     SCR_CLEAR(InstanceMapScript);
     SCR_CLEAR(BattlegroundMapScript);
     SCR_CLEAR(ItemScript);
+	SCR_CLEAR(AllCreatureScript);
     SCR_CLEAR(CreatureScript);
     SCR_CLEAR(GameObjectScript);
     SCR_CLEAR(AreaTriggerScript);
@@ -565,14 +555,14 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
 }
 
 #define SCR_MAP_BGN(M, V, I, E, C, T) \
-    if (V->GetEntry()->T()) \
+    if (V->GetEntry() && V->GetEntry()->T()) \
     { \
         FOR_SCRIPTS(M, I, E) \
         { \
             MapEntry const* C = I->second->GetEntry(); \
             if (!C) \
                 continue; \
-            if (entry->MapID == V->GetId()) \
+           if (C->MapID == V->GetId()) \
             {
 
 #define SCR_MAP_END \
@@ -653,6 +643,8 @@ void ScriptMgr::OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
 
 void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
 {
+	FOREACH_SCRIPT(AllMapScript)->OnPlayerEnterAll(map, player);
+
     ASSERT(map);
     ASSERT(player);
 
@@ -671,6 +663,8 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
 
 void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
 {
+	FOREACH_SCRIPT(AllMapScript)->OnPlayerLeaveAll(map, player);
+
     ASSERT(map);
     ASSERT(player);
 
@@ -864,10 +858,17 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 
 void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
 {
+	FOREACH_SCRIPT(AllCreatureScript)->OnAllCreatureUpdate(creature, diff);
+
     ASSERT(creature);
 
     GET_SCRIPT(CreatureScript, creature->GetScriptId(), tmpscript);
     tmpscript->OnUpdate(creature, diff);
+}
+
+void ScriptMgr::Creature_SelectLevel(const CreatureTemplate *cinfo, Creature* creature)
+{
+    FOREACH_SCRIPT(AllCreatureScript)->Creature_SelectLevel(cinfo, creature);
 }
 
 bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
@@ -1187,6 +1188,22 @@ void ScriptMgr::OnShutdown()
     FOREACH_SCRIPT(WorldScript)->OnShutdown();
 }
 
+void ScriptMgr::SetInitialWorldSettings()
+{
+    FOREACH_SCRIPT(WorldScript)->SetInitialWorldSettings();
+}
+
+float ScriptMgr::VAS_Script_Hooks()
+{
+    float VAS_Script_Hook_Version = 1.03f;
+
+	sLog->outDebug(LOG_FILTER_WORLDSERVER, "------------------------------------------------------------");
+	sLog->outDebug(LOG_FILTER_WORLDSERVER, "     Battle-Dangeons {VAS} Script Balanse : TER-Server");
+	sLog->outDebug(LOG_FILTER_WORLDSERVER, "--------------------------------------------------------------");
+
+    return VAS_Script_Hook_Version;
+}
+
 bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target)
 {
     ASSERT(source);
@@ -1194,6 +1211,14 @@ bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target)
 
     GET_SCRIPT_RET(AchievementCriteriaScript, scriptId, tmpscript, false);
     return tmpscript->OnCheck(source, target);
+}
+
+//Called From Unit::DealDamage
+uint32 ScriptMgr::DealDamage(Unit* AttackerUnit, Unit *pVictim, uint32 damage, DamageEffectType damagetype)
+{
+    FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
+        damage = itr->second->DealDamage(AttackerUnit, pVictim, damage, damagetype);
+    return damage;
 }
 
 // Player
@@ -1446,10 +1471,21 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
     FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(target, attacker, damage);
 }
 
+void ScriptMgr::ModifyHealRecieved(Unit* target, Unit* attacker, uint32& damage)
+{
+    FOREACH_SCRIPT(UnitScript)->ModifyHealRecieved(target, attacker, damage);
+}
+
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
     ScriptRegistry<SpellScriptLoader>::AddScript(this);
+}
+
+AllMapScript::AllMapScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<AllMapScript>::AddScript(this);
 }
 
 ServerScript::ServerScript(const char* name)
@@ -1481,16 +1517,24 @@ WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<Map>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsWorldMap())
-        sLog->outError(LOG_FILTER_TSCR, "WorldMapScript for map %u is invalid.", mapId);
+	{ }
+     //   sLog->outError(LOG_FILTER_TSCR, "WorldMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<WorldMapScript>::AddScript(this);
+}
+
+AllCreatureScript::AllCreatureScript(const char* name)
+: ScriptObject(name)
+{
+    ScriptRegistry<AllCreatureScript>::AddScript(this);
 }
 
 InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<InstanceMap>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsDungeon())
-        sLog->outError(LOG_FILTER_TSCR, "InstanceMapScript for map %u is invalid.", mapId);
+	{ }
+     //   sLog->outError(LOG_FILTER_TSCR, "InstanceMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<InstanceMapScript>::AddScript(this);
 }
@@ -1499,7 +1543,8 @@ BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<BattlegroundMap>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsBattleground())
-        sLog->outError(LOG_FILTER_TSCR, "BattlegroundMapScript for map %u is invalid.", mapId);
+	{ }
+     //   sLog->outError(LOG_FILTER_TSCR, "BattlegroundMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<BattlegroundMapScript>::AddScript(this);
 }
@@ -1615,10 +1660,12 @@ template class ScriptRegistry<SpellScriptLoader>;
 template class ScriptRegistry<ServerScript>;
 template class ScriptRegistry<WorldScript>;
 template class ScriptRegistry<FormulaScript>;
+template class ScriptRegistry<AllMapScript>;
 template class ScriptRegistry<WorldMapScript>;
 template class ScriptRegistry<InstanceMapScript>;
 template class ScriptRegistry<BattlegroundMapScript>;
 template class ScriptRegistry<ItemScript>;
+template class ScriptRegistry<AllCreatureScript>;
 template class ScriptRegistry<CreatureScript>;
 template class ScriptRegistry<GameObjectScript>;
 template class ScriptRegistry<AreaTriggerScript>;

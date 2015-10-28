@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
 #include "ScriptMgr.h"
@@ -729,15 +716,6 @@ public:
     {
         return new npc_salanar_the_horsemanAI(creature);
     }
-	bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest){
-		if (quest->GetQuestId() == 12687){
-			player->learnSpell(33388, true);
-			player->learnSpell(33391, true);
-			player->learnSpell(48778, true);
-		}
-		return true;
-	}
-
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
     {
@@ -764,7 +742,6 @@ public:
                 }
             }
         }
-
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -1116,8 +1093,7 @@ public:
 
         void InitCartQuest(Player* who)
         {
-			if (who!=NULL)
-				carGUID = me->FindNearestCreature(28817, 100, true)->GetGUID();
+            carGUID = who->GetVehicleBase()->GetGUID();
             InitWaypoint();
             Start(false, false, who->GetGUID());
             SetDespawnAtFar(false);
@@ -1208,7 +1184,7 @@ public:
             if (Creature* miner = player->SummonCreature(NPC_SCARLET_MINER, 2383.869629f, -5900.312500f, 107.996086f, player->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1))
             {
                 player->CastSpell(player, SPELL_HIDE_IN_MINE_CAR, true);
-                if (Creature* car = player->FindNearestCreature(28817, true) )
+                if (Creature* car = player->GetVehicleCreatureBase())
                 {
                     if (car->GetEntry() == NPC_MINE_CAR)
                     {

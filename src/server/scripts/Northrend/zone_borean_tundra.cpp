@@ -1,40 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: Borean_Tundra
-SD%Complete: 100
-SDComment: Quest support: 11708. Taxi vendors.
-SDCategory: Borean Tundra
-EndScriptData */
-
-/* ContentData
-npc_iruk
-npc_corastrasza
-npc_jenny
-npc_sinkhole_kill_credit
-npc_khunok_the_behemoth
-mob_nerubar_victim
-npc_keristrasza
-npc_nesingwary_trapper
-npc_lurgglbr
-npc_nexus_drake_hatchling
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -744,12 +710,13 @@ public:
                     switch (IntroPhase)
                     {
                         case 1:
-                            Talk(SAY_START_1);
+							if (Player* player = GetPlayerForEscort())
+								 Talk(SAY_START_1);
                             IntroPhase = 2;
                             IntroTimer = 7500;
                             break;
                         case 2:
-                            Talk(SAY_END_1);
+							Talk(SAY_START_2);
                             IntroPhase = 3;
                             IntroTimer = 7500;
                             break;
@@ -759,12 +726,13 @@ public:
                             IntroTimer = 0;
                             break;
                         case 4:
-                            Talk(SAY_START_2);
+							Talk(SAY_END_1);
                             IntroPhase = 5;
                             IntroTimer = 8000;
                             break;
                         case 5:
-                            Talk(SAY_END_2);
+							if (Player* player = GetPlayerForEscort())
+								Talk(SAY_END_2);
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
@@ -2241,9 +2209,9 @@ class npc_warmage_coldarra : public CreatureScript
 public:
     npc_warmage_coldarra() : CreatureScript("npc_warmage_coldarra") { }
 
-    struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
+	struct npc_warmage_coldarraAI : public ScriptedAI
     {
-        npc_warmage_coldarraAI(Creature* creature) : Scripted_NoMovementAI(creature){}
+		npc_warmage_coldarraAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 m_uiTimer;                 //Timer until recast
 

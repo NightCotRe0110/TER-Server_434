@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef __SPELL_H
 #define __SPELL_H
@@ -493,11 +479,12 @@ class Spell
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         int32 GetPowerCost() const { return m_powerCost; }
 
-        bool UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
+        void UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
 
         void CleanupTargetList();
 
         void SetSpellValue(SpellValueMod mod, int32 value);
+
 
         // used for soulburn effect
         void SetChangeBySoulBurn(bool state) { m_changeBySoulburn = state; }
@@ -505,6 +492,8 @@ class Spell
 
         bool _redirected;
         bool _isReflected;
+
+		bool isearlyfrostaffected;
 
     protected:
         bool HasGlobalCooldown() const;

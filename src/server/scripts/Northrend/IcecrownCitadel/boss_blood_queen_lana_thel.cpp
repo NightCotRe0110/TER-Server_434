@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
 #include "ObjectMgr.h"
@@ -45,11 +32,13 @@ enum Spells
     SPELL_SHROUD_OF_SORROW                  = 70986,
     SPELL_FRENZIED_BLOODTHIRST_VISUAL       = 71949,
     SPELL_VAMPIRIC_BITE                     = 71726,
+	SPELL_VAMPIRIC_BITE_DUMMY = 71837,
     SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR    = 70879,
     SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL   = 70872,
     SPELL_FRENZIED_BLOODTHIRST              = 70877,
     SPELL_UNCONTROLLABLE_FRENZY             = 70923,
-    SPELL_PRESENCE_OF_THE_DARKFALLEN        = 71952,
+	SPELL_PRESENCE_OF_THE_DARKFALLEN = 70994,
+	SPELL_PRESENCE_OF_THE_DARKFALLEN_2 = 71952,
     SPELL_BLOOD_MIRROR_DAMAGE               = 70821,
     SPELL_BLOOD_MIRROR_VISUAL               = 71510,
     SPELL_BLOOD_MIRROR_DUMMY                = 70838,
@@ -88,6 +77,7 @@ uint32 const vampireAuras[3][MAX_DIFFICULTY] =
 #define ESSENCE_OF_BLOOD_QUEEN_PLR RAID_MODE<uint32>(70879, 71525, 71530, 71531)
 #define FRENZIED_BLOODTHIRST       RAID_MODE<uint32>(70877, 71474, 70877, 71474)
 #define DELIRIOUS_SLASH            RAID_MODE<uint32>(71623, 71624, 71625, 71626)
+#define PRESENCE_OF_THE_DARKFALLEN RAID_MODE<uint32>(70994, 71962, 71963, 71964)
 
 enum Events
 {
@@ -219,6 +209,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLOOD_MIRROR_DUMMY);
                 instance->DoRemoveAurasDueToSpellOnPlayers(DELIRIOUS_SLASH);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PACT_OF_THE_DARKFALLEN);
+				instance->DoRemoveAurasDueToSpellOnPlayers(PRESENCE_OF_THE_DARKFALLEN);
             }
 
             void DoAction(int32 const action)
@@ -354,8 +345,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             {
                                 Unit* target = targets.front();
                                 DoCast(target, SPELL_VAMPIRIC_BITE);
+								DoCastAOE(SPELL_VAMPIRIC_BITE_DUMMY, true);
                                 Talk(SAY_VAMPIRIC_BITE);
                                 _vampires.insert(target->GetGUID());
+								target->CastSpell(target, SPELL_PRESENCE_OF_THE_DARKFALLEN, TRIGGERED_FULL_MASK);
+								target->CastSpell(target, SPELL_PRESENCE_OF_THE_DARKFALLEN_2, TRIGGERED_FULL_MASK);
+
                             }
                             break;
                         }
@@ -374,9 +369,11 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                         _offtank->CastSpell(me->GetVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
                                         me->GetVictim()->CastSpell(_offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
                                         DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
-                                        if (Item* shadowsEdge = _offtank->GetWeaponForAttack(BASE_ATTACK, true))
-                                            if (!_offtank->HasAura(SPELL_THIRST_QUENCHED) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE && !_offtank->HasAura(SPELL_GUSHING_WOUND))
-                                                _offtank->CastSpell(_offtank, SPELL_GUSHING_WOUND, true);
+										if (Is25ManRaid() && _offtank->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE &&
+											_offtank->HasAura(SPELL_UNSATED_CRAVING) && !_offtank->HasAura(SPELL_THIRST_QUENCHED) &&
+											!_offtank->HasAura(SPELL_GUSHING_WOUND))
+											 _offtank->CastSpell(_offtank, SPELL_GUSHING_WOUND, TRIGGERED_FULL_MASK);
+
 
                                     }
                                 }
@@ -393,13 +390,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         {
                             std::list<Player*> targets;
                             SelectRandomTarget(false, &targets);
-                            uint32 targetCount = 2;
-                            // do not combine these checks! we want it incremented TWICE when both conditions are met
-                            if (IsHeroic())
-                                ++targetCount;
-                            if (Is25ManRaid())
-                                ++targetCount;
-                            Trinity::Containers::RandomResizeList<Player*>(targets, targetCount);
+							Trinity::Containers::RandomResizeList(targets, Is25ManRaid() ? 3 : 2);
                             if (targets.size() > 1)
                             {
                                 Talk(SAY_PACT_OF_THE_DARKFALLEN);
@@ -550,34 +541,36 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
 
                 uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_FRENZIED_BLOODTHIRST, GetCaster());
                 GetCaster()->RemoveAura(spellId, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
-                GetCaster()->CastSpell(GetCaster(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, true);
-                // Presence of the Darkfallen buff on Blood-Queen
-                if (GetCaster()->GetMap()->IsHeroic())
-                    GetCaster()->CastSpell(GetCaster(), SPELL_PRESENCE_OF_THE_DARKFALLEN, true);
+				GetCaster()->CastSpell(GetCaster(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, TRIGGERED_FULL_MASK);
                 // Shadowmourne questline
-                if (GetCaster()->ToPlayer()->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE)
+				if (Aura* aura = GetCaster()->GetAura(SPELL_GUSHING_WOUND))
                 {
-                    if (Aura* aura = GetCaster()->GetAura(SPELL_GUSHING_WOUND))
+					if (aura->GetStackAmount() == 3)
                     {
-                        if (aura->GetStackAmount() == 3)
-                        {
-                            GetCaster()->CastSpell(GetCaster(), SPELL_THIRST_QUENCHED, true);
-                            GetCaster()->RemoveAura(aura);
-                        }
-                        else
-                            GetCaster()->CastSpell(GetCaster(), SPELL_GUSHING_WOUND, true);
+						GetCaster()->CastSpell(GetCaster(), SPELL_THIRST_QUENCHED, TRIGGERED_FULL_MASK);
+						GetCaster()->RemoveAura(aura);
+
                     }
+					else
+						 GetCaster()->CastSpell(GetCaster(), SPELL_GUSHING_WOUND, TRIGGERED_FULL_MASK);
                 }
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
                         bloodQueen->AI()->SetGUID(GetHitUnit()->GetGUID(), GUID_VAMPIRE);
             }
 
+			void HandlePresence(SpellEffIndex /*effIndex*/)
+				 {
+				GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PRESENCE_OF_THE_DARKFALLEN, TRIGGERED_FULL_MASK);
+				GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PRESENCE_OF_THE_DARKFALLEN_2, TRIGGERED_FULL_MASK);
+				}
+
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_blood_queen_vampiric_bite_SpellScript::CheckTarget);
                 BeforeHit += SpellHitFn(spell_blood_queen_vampiric_bite_SpellScript::OnCast);
-            }
+				OnEffectHitTarget += SpellEffectFn(spell_blood_queen_vampiric_bite_SpellScript::HandlePresence, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+			}
         };
 
         SpellScript* GetSpellScript() const
@@ -716,8 +709,8 @@ class spell_blood_queen_essence_of_the_blood_queen : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 int32 heal = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL, SPELLVALUE_BASE_POINT0, heal, GetTarget(), TRIGGERED_FULL_MASK, NULL, aurEff);
-            }
+				GetTarget()->CastCustomSpell(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL, SPELLVALUE_BASE_POINT0, heal, GetTarget(), TRIGGERED_FULL_MASK, NULL, aurEff);
+			}
 
             void Register()
             {

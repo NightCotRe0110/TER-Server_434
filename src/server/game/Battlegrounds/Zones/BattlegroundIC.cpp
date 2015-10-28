@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Player.h"
 #include "Battleground.h"
@@ -308,7 +294,7 @@ void BattlegroundIC::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     BattlegroundICScore* sc = new BattlegroundICScore;
     PlayerScores[player->GetGUID()] = sc;
-    sc->BgTeam = player->GetBGTeam();
+    sc->BgTeam = player->GetTeam();
     sc->TalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 
     if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
@@ -329,11 +315,26 @@ void BattlegroundIC::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team
     }
 }
 
-void BattlegroundIC::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
+void BattlegroundIC::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+	/// @hack: this spell should be cast by npc 22515 (World Trigger) and not by the player
+	if (trigger == 5555 && player->GetTeamId() == TEAM_HORDE)
+		 {
+		if (GateStatus[BG_IC_A_FRONT] != BG_IC_GATE_DESTROYED
+			 && GateStatus[BG_IC_A_WEST] != BG_IC_GATE_DESTROYED
+			 && GateStatus[BG_IC_A_EAST] != BG_IC_GATE_DESTROYED)
+			 player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
+		}
+	else if (trigger == 5535 && player->GetTeamId() == TEAM_ALLIANCE)
+		 {
+		if (GateStatus[BG_IC_H_FRONT] != BG_IC_GATE_DESTROYED
+			 && GateStatus[BG_IC_H_WEST] != BG_IC_GATE_DESTROYED
+			 && GateStatus[BG_IC_H_EAST] != BG_IC_GATE_DESTROYED)
+			 player->CastSpell(player, SPELL_BACK_DOOR_JOB_ACHIEVEMENT, true);
+		}
 }
 
 void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)

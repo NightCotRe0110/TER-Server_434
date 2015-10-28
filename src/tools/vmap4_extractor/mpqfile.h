@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #define _CRT_SECURE_NO_DEPRECATE
 #ifndef _CRT_SECURE_NO_WARNINGS // fuck the police^Wwarnings
 #define _CRT_SECURE_NO_WARNINGS

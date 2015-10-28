@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2014 WoWSource 4.3.4
- *
- * Do Not Share The SourceCode
- * and read our WoWSource Terms
- *
- */
-
-/* ScriptData
-SDName: LFG
-SD%Complete: 100%
-SDComment: Fully Working
-SDCategory: LFG
-EndScriptData
+TER-Server
 */
 
 #ifndef _LFGMGR_H
@@ -345,7 +333,7 @@ class LFGMgr
         uint32 GetOptions();
         /// Sets new lfg options
         void SetOptions(uint32 options);
-        /// Checks if given lfg option is enabled
+		/// Checks if given lfg option is enabled
         bool isOptionEnabled(uint32 option);
         /// Clears queue - Only for internal testing
         void Clean();

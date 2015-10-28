@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef TRINITY_CALENDARMGR_H
 #define TRINITY_CALENDARMGR_H
@@ -263,8 +250,9 @@ struct CalendarEvent
         std::string _description;
 };
 
+typedef std::vector<CalendarInvite*> CalendarInviteStore;
 typedef std::set<CalendarEvent*> CalendarEventStore;
-typedef std::map<uint64 /* eventId */, std::vector<CalendarInvite*> > CalendarInviteStore;
+typedef std::map<uint64 /* eventId */, CalendarInviteStore > CalendarEventInviteStore;
 
 class CalendarMgr
 {
@@ -275,7 +263,7 @@ class CalendarMgr
         ~CalendarMgr();
 
         CalendarEventStore _events;
-        CalendarInviteStore _invites;
+		CalendarEventInviteStore _invites;
 
         std::deque<uint64> _freeEventIds;
         std::deque<uint64> _freeInviteIds;
@@ -285,14 +273,14 @@ class CalendarMgr
     public:
         void LoadFromDB();
 
-        CalendarEvent* GetEvent(uint64 eventId);
+		CalendarEvent* GetEvent(uint64 eventId) const;
         CalendarEventStore const& GetEvents() const { return _events; }
         CalendarEventStore GetPlayerEvents(uint64 guid);
 
-        CalendarInvite* GetInvite(uint64 inviteId);
-        CalendarInviteStore const& GetInvites() const { return _invites; }
-        std::vector<CalendarInvite*> GetEventInvites(uint64 eventId);
-        std::vector<CalendarInvite*> GetPlayerInvites(uint64 guid);
+		CalendarInvite* GetInvite(uint64 inviteId) const;
+		CalendarEventInviteStore const& GetInvites() const { return _invites; }
+		CalendarInviteStore const& GetEventInvites(uint64 eventId);
+		CalendarInviteStore GetPlayerInvites(uint64 guid);
 
         void FreeEventId(uint64 id);
         uint64 GetFreeEventId();

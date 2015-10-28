@@ -1,24 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- * Scripts for spells with SPELLFAMILY_GENERIC spells used by items.
- * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_item_".
+ *TER-Server
  */
 
 #include "Player.h"
@@ -180,7 +161,7 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
                     protEff->SetAmount(std::min<int32>(protEff->GetAmount() + absorb, 20000));
 
                     // Refresh and return to prevent replacing the aura
-                    aurEff->GetBase()->RefreshDuration();
+					protEff->GetBase()->RefreshDuration();
                 }
                 else
                     GetTarget()->CastCustomSpell(SPELL_PROTECTION_OF_ANCIENT_KINGS, SPELLVALUE_BASE_POINT0, absorb, eventInfo.GetProcTarget(), true, NULL, aurEff);
@@ -893,53 +874,64 @@ class spell_item_scroll_of_recall : public SpellScriptLoader
 enum ShadowsFate
 {
     SPELL_SOUL_FEAST        = 71203,
-    QUEST_A_FEAST_OF_SOULS  = 24547
 };
 
-class spell_item_shadows_fate : public SpellScriptLoader
+class spell_item_unsated_craving : public SpellScriptLoader
 {
     public:
-        spell_item_shadows_fate() : SpellScriptLoader("spell_item_shadows_fate") { }
+		spell_item_unsated_craving() : SpellScriptLoader("spell_item_unsated_craving") { }
 
-        class spell_item_shadows_fate_AuraScript : public AuraScript
+		class spell_item_unsated_craving_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_item_shadows_fate_AuraScript);
+			PrepareAuraScript(spell_item_unsated_craving_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+			bool CheckProc(ProcEventInfo& procInfo)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_FEAST))
+				Unit* caster = procInfo.GetActor();
+				if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
                     return false;
-                if (!sObjectMgr->GetQuestTemplate(QUEST_A_FEAST_OF_SOULS))
+
+				Unit* target = procInfo.GetActionTarget();
+				if (!target || target->GetTypeId() != TYPEID_UNIT || target->GetCreatureType() == CREATURE_TYPE_CRITTER || target->isSummon())
                     return false;
                 return true;
             }
 
-            bool Load()
+			void Register()
             {
-                _procTarget = NULL;
-                return true;
-            }
+				DoCheckProc += AuraCheckProcFn(spell_item_unsated_craving_AuraScript::CheckProc);
+			}
+		};
 
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+		AuraScript* GetAuraScript() const
+			 {
+			return new spell_item_unsated_craving_AuraScript();
+			}
+		
+};
+class spell_item_shadows_fate : public SpellScriptLoader
+	 {
+	public:
+		spell_item_shadows_fate() : SpellScriptLoader("spell_item_shadows_fate") { }
+		
+			class spell_item_shadows_fate_AuraScript : public AuraScript
+			 {
+			PrepareAuraScript(spell_item_shadows_fate_AuraScript);
+			
+				void HandleProc(ProcEventInfo& procInfo)
             {
-                _procTarget = GetCaster();
-                return _procTarget && _procTarget->GetTypeId() == TYPEID_PLAYER && _procTarget->ToPlayer()->GetQuestStatus(QUEST_A_FEAST_OF_SOULS) == QUEST_STATUS_INCOMPLETE;
-            }
-
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(_procTarget, SPELL_SOUL_FEAST, true);
+				Unit* caster = procInfo.GetActor();
+				Unit* target = GetCaster();
+				if (!caster || !target)
+					 return;
+				
+					caster->CastSpell(target, SPELL_SOUL_FEAST, TRIGGERED_FULL_MASK);
             }
 
             void Register()
             {
-                DoCheckProc += AuraCheckProcFn(spell_item_shadows_fate_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_item_shadows_fate_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-
-        private:
-            Unit* _procTarget;
+				OnProc += AuraProcFn(spell_item_shadows_fate_AuraScript::HandleProc);
+			}
         };
 
         AuraScript* GetAuraScript() const
@@ -2816,6 +2808,7 @@ void AddSC_item_spell_scripts()
     new spell_item_piccolo_of_the_flaming_fire();
     new spell_item_savory_deviate_delight();
     new spell_item_scroll_of_recall();
+	new spell_item_unsated_craving();
     new spell_item_shadows_fate();
     new spell_item_shadowmourne();
     new spell_item_shadowmourne_soul_fragment();

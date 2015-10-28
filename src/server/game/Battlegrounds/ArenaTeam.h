@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef TRINITYCORE_ARENATEAM_H
 #define TRINITYCORE_ARENATEAM_H
@@ -77,7 +63,7 @@ enum ArenaTeamTypes
 {
     ARENA_TEAM_2v2      = 2,
     ARENA_TEAM_3v3      = 3,
-    ARENA_TEAM_5v5      = 5
+    ARENA_TEAM_5v5      = 1
 };
 
 struct ArenaTeamMember
@@ -118,6 +104,7 @@ class ArenaTeam
                                       uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor,
                                       uint8 borderStyle, uint32 borderColor);
         void Disband(WorldSession* session);
+		void Disband();
 
         typedef std::list<ArenaTeamMember> MemberList;
 
@@ -134,6 +121,7 @@ class ArenaTeam
         uint32 GetAverageMMR(Group* group) const;
 
         void SetCaptain(uint64 guid);
+		bool SetName(std::string const& name);
         bool AddMember(uint64 PlayerGuid);
         void DelMember(uint64 guid, bool cleanDb);
 

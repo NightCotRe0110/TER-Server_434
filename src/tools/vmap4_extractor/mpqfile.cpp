@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "mpqfile.h"
 #include <deque>
 #include <cstdio>

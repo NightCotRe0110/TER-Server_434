@@ -1,22 +1,23 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "ScriptLoader.h"
 #include "AnticheatMgr.h"
+
+
+//---------------------//
+//       Custom       //
+//--------------------//
+
+//Vas AutoBalance
+void AddSC_VAS_AutoBalance();
+
+
+void AddSC_gm_login();
+//---------------------//
+//    End Custom       //
+//--------------------//
 
 //examples
 void AddSC_example_creature();
@@ -48,7 +49,9 @@ void AddSC_SmartSCripts();
 //Commands
 void AddSC_anticheat_commandscript();
 void AddSC_account_commandscript();
+void AddSC_ahbot_commandscript();
 void AddSC_achievement_commandscript();
+void AddSC_arena_commandscript();
 void AddSC_ban_commandscript();
 void AddSC_bf_commandscript();
 void AddSC_cast_commandscript();
@@ -73,6 +76,7 @@ void AddSC_mmaps_commandscript();
 void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
+void AddSC_rbac_commandscript();
 void AddSC_reload_commandscript();
 void AddSC_reset_commandscript();
 void AddSC_server_commandscript();
@@ -793,6 +797,7 @@ void AddScripts()
     AddOutlandScripts();
     AddMaelstromScripts();
     AddNorthrendScripts();
+	AddEventScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
@@ -832,7 +837,9 @@ void AddCommandScripts()
 {
     AddSC_anticheat_commandscript();
     AddSC_account_commandscript();
+	AddSC_ahbot_commandscript();
     AddSC_achievement_commandscript();
+	AddSC_arena_commandscript();
     AddSC_ban_commandscript();
     AddSC_bf_commandscript();
     AddSC_cast_commandscript();
@@ -857,6 +864,7 @@ void AddCommandScripts()
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
     AddSC_quest_commandscript();
+	AddSC_rbac_commandscript();
     AddSC_reload_commandscript();
     AddSC_reset_commandscript();
     AddSC_server_commandscript();
@@ -1596,11 +1604,20 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
+// Start Guild
+ void AddSC_gon_playerscripts();
+ // 1v1 Arena
+ void AddSC_npc_1v1arena();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
-    /* This is where custom scripts should be added. */
+	 AddSC_VAS_AutoBalance();
+	 AddSC_gm_login();
+	 // Start Guild
+	 AddSC_gon_playerscripts();
+	 // 1v1 Arena
+	 AddSC_npc_1v1arena();
 #endif
 }

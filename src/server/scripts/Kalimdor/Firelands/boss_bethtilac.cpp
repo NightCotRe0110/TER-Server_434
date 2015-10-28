@@ -1,9 +1,5 @@
-/*
- * Copyright (C) 2014 WoW Source  <http://wowsource.info/>
- *
- * Dont Share The SourceCode
- * and read our WoWSource Terms
- *
+/* 
+TER-Server
  */
 
 // ToDo: - Move drones to bethtilac and siphon at 0% fire energy | Achievements
@@ -976,11 +972,12 @@ class npc_web_rip: public CreatureScript
         {
         }
 
-        struct npc_web_ripAI: public Scripted_NoMovementAI
+        struct npc_web_ripAI: public ScriptedAI
         {
                 npc_web_ripAI(Creature* creature) :
-                        Scripted_NoMovementAI(creature)
+                        ScriptedAI(creature)
                 {
+					SetCombatMovement(false);
                 }
 
                 void JustDied(Unit* /*killer*/)

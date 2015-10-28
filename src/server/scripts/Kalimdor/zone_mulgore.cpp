@@ -1,38 +1,18 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: Mulgore
-SD%Complete: 100
-SDComment: Support for quest: 11129, 861 ,772
-SDCategory: Mulgore
-EndScriptData */
-
-/* ContentData
-npc_skorn_whitecloud
-npc_kyle_frenzied
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
+
+enum eMulgore
+	 {
+	NPC_FLEDGLING_BRAVE     = 36942,
+	NPC_BRISTLEBACK_INVADER = 36943,
+		};
 
 /*######
 # npc_skorn_whitecloud
@@ -313,9 +293,107 @@ public:
     };
 };
 
+/*######
+## npc_bristleback_invader
+######*/
+
+class npc_bristleback_invader : public CreatureScript
+ {
+	public:
+		npc_bristleback_invader() : CreatureScript("npc_bristleback_invader") { }
+		
+			struct npc_bristleback_invaderAI : public ScriptedAI
+			 {
+			npc_bristleback_invaderAI(Creature *c) : ScriptedAI(c) {}
+			
+				uint32 _timer;
+			
+				void Reset()
+				 {
+				_timer = urand(1800, 2200);
+			}
+			
+				void UpdateAI(const uint32 diff)
+				 {
+				if (!UpdateVictim())
+					 {
+					if (_timer <= diff)
+						 {
+						if (Creature* brave = me->FindNearestCreature(NPC_FLEDGLING_BRAVE, 3.0f))
+						{
+							me->SetFacingTo(me->GetAngle(brave));
+							me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
+							_timer = urand(1800, 2200);
+							}
+						}
+					else
+					 _timer -= diff;
+					}
+				else
+					 DoMeleeAttackIfReady();
+				
+					}
+			};
+		
+			CreatureAI* GetAI(Creature* pCreature) const
+			 {
+			return new npc_bristleback_invaderAI(pCreature);
+			}
+		};
+
+/*######
+ ## npc_fledgling_brave
+ ######*/
+ 
+ class npc_fledgling_brave : public CreatureScript
+  {
+	public:
+		npc_fledgling_brave() : CreatureScript("npc_fledgling_brave") { }
+		
+			struct npc_fledgling_braveAI : public ScriptedAI
+			 {
+			npc_fledgling_braveAI(Creature *c) : ScriptedAI(c) {}
+			
+				uint32 _timer;
+			
+				void Reset()
+				 {
+				_timer = urand(1800, 2200);
+				}
+			
+				void UpdateAI(const uint32 diff)
+				 {
+				if (!UpdateVictim())
+					 {
+					if (_timer <= diff)
+						 {
+						if (Creature* invader = me->FindNearestCreature(NPC_BRISTLEBACK_INVADER, 3.0f))
+							 {
+							me->SetFacingTo(me->GetAngle(invader));
+							me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
+							_timer = urand(1800, 2200);
+							}
+						}
+					else
+						 _timer -= diff;
+				}
+				else
+					 DoMeleeAttackIfReady();
+				
+					}
+			};
+		
+			CreatureAI* GetAI(Creature* pCreature) const
+			 {
+			return new npc_fledgling_braveAI(pCreature);
+			}
+		};
+
 void AddSC_mulgore()
 {
     new npc_skorn_whitecloud();
     new npc_kyle_frenzied();
     new npc_plains_vision();
+	new npc_fledgling_brave();
+	new npc_bristleback_invader();
 }

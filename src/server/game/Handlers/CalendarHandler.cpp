@@ -1,38 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
------ Opcodes Not Used yet -----
-
-SMSG_CALENDAR_EVENT_INVITE_NOTES        [ packguid(Invitee), uint64(inviteId), string(Text), Boolean(Unk) ]
-?CMSG_CALENDAR_EVENT_INVITE_NOTES       [ uint32(unk1), uint32(unk2), uint32(unk3), uint32(unk4), uint32(unk5) ]
-SMSG_CALENDAR_EVENT_INVITE_NOTES_ALERT  [ uint64(inviteId), string(Text) ]
-SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT [ uint64(eventId), uint32(eventTime), uint32(unkFlag), uint8(deletePending) ]
-SMSG_CALENDAR_RAID_LOCKOUT_UPDATED      SendCalendarRaidLockoutUpdated(InstanceSave const* save)
-
------ TODO -----
-
-Finish complains' handling - what to do with received complains and how to respond?
-Find out what to do with all "not used yet" opcodes
-Correct errors sending (event/invite not found, invites exceeded, event already passed, permissions etc.)
-Fix locked events to be displayed properly and response time shouldn't be shown for people that haven't respond yet
-Copied events should probably have a new owner
-
+TER-Server
 */
 
 #include "InstanceSaveMgr.h"
@@ -57,9 +24,9 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 
     WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR, 1000); // Average size if no instance
 
-    std::vector<CalendarInvite*> invites = sCalendarMgr->GetPlayerInvites(guid);
+	CalendarInviteStore invites = sCalendarMgr->GetPlayerInvites(guid);
     data << uint32(invites.size());
-    for (std::vector<CalendarInvite*>::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+	for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
     {
         data << uint64((*itr)->GetEventId());
         data << uint64((*itr)->GetInviteId());
@@ -351,10 +318,10 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
         newEvent->SetEventTime(time_t(time));
         sCalendarMgr->AddEvent(newEvent, CALENDAR_SENDTYPE_COPY);
 
-        std::vector<CalendarInvite*> invites = sCalendarMgr->GetEventInvites(eventId);
+		CalendarInviteStore invites = sCalendarMgr->GetEventInvites(eventId);
 
-        for (std::vector<CalendarInvite*>::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
-            sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId()));
+		for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+			sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId()));
 
         // should we change owner when somebody makes a copy of event owned by another person?
     }

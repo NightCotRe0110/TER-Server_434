@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #ifndef _MOVEMENT_INFO_H_
 #define _MOVEMENT_INFO_H_
 

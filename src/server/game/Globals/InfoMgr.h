@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #ifndef _INFOMGR_H_
 #define _INFOMGR_H_
 

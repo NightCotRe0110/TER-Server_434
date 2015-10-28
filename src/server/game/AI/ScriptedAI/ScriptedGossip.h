@@ -1,9 +1,6 @@
-/* Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+/*
+TER-Server
+*/
 
 #ifndef SC_GOSSIP_H
 #define SC_GOSSIP_H
@@ -12,8 +9,8 @@
 #include "QuestDef.h"
 
 // Gossip Item Text
-#define GOSSIP_TEXT_BROWSE_GOODS        "I'd like to browse your goods."
-#define GOSSIP_TEXT_TRAIN               "Train me!"
+#define GOSSIP_TEXT_BROWSE_GOODS        "Я бы хотел, просмотреть Ваши товары."
+#define GOSSIP_TEXT_TRAIN               "Обучи меня!"
 
 enum eTradeskill
 {
@@ -79,6 +76,7 @@ enum eTradeskill
 // e - Text to be displayed in pop up box
 // f - Money value in pop up box
 #define ADD_GOSSIP_ITEM(a, b, c, d)   PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, a, b, c, d, "", 0)
+#define ADD_GOSSIP_ITEM_DB(h, i, c, d)   PlayerTalkClass->GetGossipMenu().AddMenuItem(h, i, c, d)
 #define ADD_GOSSIP_ITEM_EXTENDED(a, b, c, d, e, f, g)   PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, a, b, c, d, e, f, g)
 
 // This fuction Sends the current menu to show to client, a - NPCTEXTID(uint32), b - npc guid(uint64)

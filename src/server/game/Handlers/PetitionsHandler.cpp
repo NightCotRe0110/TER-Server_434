@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Common.h"
 #include "Language.h"
@@ -949,7 +935,7 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     }
     else
     {
-        data << uint8(3);                                   // count
+		data << uint8(2);                                   // count
         // 2v2
         data << uint32(1);                                  // index
         data << uint32(ARENA_TEAM_CHARTER_2v2);             // charter entry
@@ -965,12 +951,14 @@ void WorldSession::SendPetitionShowList(uint64 guid)
         data << uint32(3);                                  // unknown
         data << uint32(3);                                  // required signs?
         // 5v5
+		/* Disable purchase 5v5 petition - edit to 1v1 doesn't work (client prevent it)
         data << uint32(3);                                  // index
         data << uint32(ARENA_TEAM_CHARTER_5v5);             // charter entry
         data << uint32(CHARTER_DISPLAY_ID);                 // charter display id
         data << uint32(ARENA_TEAM_CHARTER_5v5_COST);        // charter cost
         data << uint32(5);                                  // unknown
         data << uint32(5);                                  // required signs?
+		*/
     }
 
     SendPacket(&data);

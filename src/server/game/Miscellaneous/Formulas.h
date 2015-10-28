@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef TRINITY_FORMULAS_H
 #define TRINITY_FORMULAS_H
@@ -241,7 +227,7 @@ namespace Trinity
         inline uint32 BgConquestRatingCalculator(uint32 rate)
         {
             // WowWiki: Battleground ratings receive a bonus of 22.2% to the cap they generate
-            return uint32(ConquestRatingCalculator(rate)*1.222f);
+			return uint32(ConquestRatingCalculator(rate)*1.222f + 0.5f);
         }
     } // namespace Trinity::Currency
 } // namespace Trinity

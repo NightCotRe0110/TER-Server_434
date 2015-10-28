@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "MovementInfo.h"
 #include "MovementStructures.h"
 #include "Player.h"

@@ -1,26 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/**
-* @file cs_mmaps.cpp
-* @brief .mmap related commands
-*
-* This file contains the CommandScripts for all
-* mmap sub-commands
+TER-Server
 */
 
 #include "ScriptMgr.h"
@@ -95,7 +74,7 @@ public:
         path.SetUseStraightPath(useStraightPath);
         bool result = path.CalculatePath(x, y, z);
 
-        PointsArray pointPath = path.GetPath();
+		PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
         handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : "SmoothPath");
         handler->PSendSysMessage("Result: %s - Length: "SIZEFMTD" - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());

@@ -1,25 +1,11 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "BattlefieldMgr.h"
 #include "Zones/BattlefieldWG.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "BattlefieldTB.h"
 
 BattlefieldMgr::BattlefieldMgr()
 {
@@ -49,19 +35,19 @@ void BattlefieldMgr::InitBattlefield()
         sLog->outInfo(LOG_FILTER_GENERAL, "Battlefield : Wintergrasp successfully initiated.");
     }
 
-    // For Cataclysm: Tol Barad
-	pBf = new BattlefieldTB;
+    /* For Cataclysm: Tol Barad
+       pBf = new BattlefieldTB;
        // respawn, init variables
        if (!pBf->SetupBattlefield())
        {
-		   sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad init failed.");
-		   delete pBf;
+       sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad init failed.");
+       delete pBf;
        }
        else
        {
-		   m_BattlefieldSet.push_back(pBf);
-		   sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad successfully initiated.");
-       }
+       m_BattlefieldSet.push_back(pBf);
+       sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad successfully initiated.");
+       } */
 }
 
 void BattlefieldMgr::AddZone(uint32 zoneid, Battlefield *handle)

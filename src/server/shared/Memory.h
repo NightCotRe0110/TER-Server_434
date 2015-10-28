@@ -1,3 +1,6 @@
+/*
+TER-Server
+*/
 
 
 #ifndef _MEMORY_H

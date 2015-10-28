@@ -1,25 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: Boss_Muru
-SD%Complete: 80
-SDComment: all sounds, black hole effect triggers to often (46228)
-*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -213,10 +194,11 @@ public:
         return new boss_muruAI (creature);
     }
 
-    struct boss_muruAI : public Scripted_NoMovementAI
+	struct boss_muruAI : public ScriptedAI
     {
-        boss_muruAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+		boss_muruAI(Creature* creature) : ScriptedAI(creature), Summons(creature)
         {
+			SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 
@@ -377,10 +359,11 @@ public:
         return new npc_muru_portalAI (creature);
     }
 
-    struct npc_muru_portalAI : public Scripted_NoMovementAI
+	struct npc_muru_portalAI : public ScriptedAI
     {
-        npc_muru_portalAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+		npc_muru_portalAI(Creature* creature) : ScriptedAI(creature), Summons(creature)
         {
+			SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 

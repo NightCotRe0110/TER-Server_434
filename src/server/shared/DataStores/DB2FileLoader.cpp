@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Common.h"
 
@@ -30,17 +17,17 @@ DB2FileLoader::DB2FileLoader()
 
 bool DB2FileLoader::Load(const char *filename, const char *fmt)
 {
-    uint32 header = 48;
     if (data)
     {
         delete [] data;
-        data=NULL;
+		data = NULL;
     }
 
     FILE* f = fopen(filename, "rb");
     if (!f)
         return false;
 
+	uint32 header;
     if (fread(&header, 4, 1, f) != 1)                        // Signature
     {
         fclose(f);
@@ -114,12 +101,12 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
 
     if (build > 12880)
     {
-        if (fread(&unk2, 4, 1, f) != 1)                // Unknown WDB2
+		if (fread(&minIndex, 4, 1, f) != 1)                           // MinIndex WDB2
         {
             fclose(f);
             return false;
         }
-        EndianConvert(unk2);
+		EndianConvert(minIndex);
 
         if (fread(&maxIndex, 4, 1, f) != 1)                           // MaxIndex WDB2
         {
@@ -145,7 +132,7 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
 
     if (maxIndex != 0)
     {
-        int32 diff = maxIndex - unk2 + 1;
+		int32 diff = maxIndex - minIndex + 1;
         fseek(f, diff * 4 + diff * 2, SEEK_CUR);    // diff * 4: an index for rows, diff * 2: a memory allocation bank
     }
 

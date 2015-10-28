@@ -1,32 +1,11 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "ahnkahet.h"
-
-/* Ahn'kahet encounters:
-0 - Elder Nadox
-1 - Prince Taldaram
-2 - Jedoga Shadowseeker
-3 - Herald Volazj
-4 - Amanitar (Heroic only)
-*/
 
 #define MAX_ENCOUNTER           5
 
@@ -336,5 +315,5 @@ public:
 
 void AddSC_instance_ahnkahet()
 {
-   new instance_ahnkahet;
+	new instance_ahnkahet();
 }

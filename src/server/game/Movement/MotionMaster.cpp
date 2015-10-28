@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "MotionMaster.h"
 #include "CreatureAISelector.h"
@@ -407,8 +393,6 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
 {
     sLog->outDebug(LOG_FILTER_GENERAL, "Unit (GUID: %u) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUIDLow(), x, y, z);
 
-	if (speedXY <= 0.1f)
-		return;
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
     Movement::MoveSplineInit init(_owner);
@@ -496,15 +480,16 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id,
     }
 }
 
-void MotionMaster::MoveCharge(PathGenerator path, float speed, uint32 id)
+void MotionMaster::MoveCharge(PathGenerator const& path)
 {
     Vector3 dest = path.GetActualEndPosition();
 
-    MoveCharge(dest.x, dest.y, dest.z, speed, id);
+	MoveCharge(dest.x, dest.y, dest.z, SPEED_CHARGE, EVENT_CHARGE_PREPATH);
 
+	// Charge movement is not started when using EVENT_CHARGE_PREPATH
     Movement::MoveSplineInit init(_owner);
     init.MovebyPath(path.GetPath());
-    init.SetVelocity(speed);
+	init.SetVelocity(SPEED_CHARGE);
     init.Launch();
 }
 

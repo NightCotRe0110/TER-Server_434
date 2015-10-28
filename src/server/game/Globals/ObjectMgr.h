@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef _OBJECTMGR_H
 #define _OBJECTMGR_H
@@ -422,7 +408,7 @@ typedef UNORDERED_MAP<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef UNORDERED_MAP<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
 
 // Trinity string ranges
-#define MIN_TRINITY_STRING_ID           1                    // 'trinity_string'
+#define MIN_TRINITY_STRING_ID           1                    // 'TER-Core'
 #define MAX_TRINITY_STRING_ID           2000000000
 #define MIN_DB_SCRIPT_STRING_ID        MAX_TRINITY_STRING_ID // 'db_script_string'
 #define MAX_DB_SCRIPT_STRING_ID        2000010000
@@ -659,7 +645,7 @@ typedef UNORDERED_MAP<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
 struct HotfixInfo
 {
-    DB2Hash Type;
+	uint32 Type;
     uint32 Timestamp;
     uint32 Entry;
 };
@@ -915,7 +901,7 @@ class ObjectMgr
         void ValidateSpellScripts();
 
         bool LoadTrinityStrings(char const* table, int32 min_value, int32 max_value);
-        bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
+        bool LoadTrinityStrings() { return LoadTrinityStrings("ter_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
         void LoadDbScriptStrings();
         void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
@@ -1250,7 +1236,7 @@ class ObjectMgr
 
         void LoadHotfixData();
         HotfixData const& GetHotfixData() const { return _hotfixData; }
-        time_t GetHotfixDate(uint32 entry, DB2Hash type) const
+		time_t GetHotfixDate(uint32 entry, uint32 type) const
         {
             time_t ret = 0;
             for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)

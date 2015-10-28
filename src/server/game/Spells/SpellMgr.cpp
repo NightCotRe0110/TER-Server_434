@@ -1,21 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
+TER-Server
+*/
+#include "Configuration/Config.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "ObjectMgr.h"
@@ -628,21 +614,6 @@ bool SpellMgr::IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const
     return false;
 }
 
-const SpellsRequiringSpellMap SpellMgr::GetSpellsRequiringSpell()
-{
-    return this->mSpellsReqSpell;
-}
-
-uint32 SpellMgr::GetSpellRequired(uint32 spell_id) const
-{
-    SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
-
-    if (itr == mSpellReq.end())
-        return 0;
-
-    return itr->second;
-}
-
 SpellLearnSkillNode const* SpellMgr::GetSpellLearnSkill(uint32 spell_id) const
 {
     SpellLearnSkillMap::const_iterator itr = mSpellLearnSkills.find(spell_id);
@@ -671,9 +642,9 @@ bool SpellMgr::IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const
     return false;
 }
 
-SpellTargetPosition const* SpellMgr::GetSpellTargetPosition(uint32 spell_id) const
+SpellTargetPosition const* SpellMgr::GetSpellTargetPosition(uint32 spell_id, SpellEffIndex effIndex) const
 {
-    SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find(spell_id);
+	SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find(std::make_pair(spell_id, effIndex));
     if (itr != mSpellTargetPositions.end())
         return &itr->second;
     return NULL;
@@ -813,7 +784,7 @@ SpellProcEventEntry const* SpellMgr::GetSpellProcEvent(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active)
+bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
 {
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
@@ -956,7 +927,7 @@ SpellProcEntry const* SpellMgr::GetSpellProcEntry(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo)
+bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const
 {
     // proc type doesn't match
     if (!(eventInfo.GetTypeMask() & procEntry.typeMask))
@@ -1057,7 +1028,7 @@ SkillLineAbilityMapBounds SpellMgr::GetSkillLineAbilityMapBounds(uint32 spell_id
     return mSkillLineAbilityMap.equal_range(spell_id);
 }
 
-PetAura const* SpellMgr::GetPetAura(uint32 spell_id, uint8 eff)
+PetAura const* SpellMgr::GetPetAura(uint32 spell_id, uint8 eff) const
 {
     SpellPetAuraMap::const_iterator itr = mSpellPetAuraMap.find((spell_id<<8) + eff);
     if (itr != mSpellPetAuraMap.end())
@@ -1548,7 +1519,7 @@ void SpellMgr::LoadSpellTargetPositions()
     mSpellTargetPositions.clear();                                // need for reload case
 
     //                                                0      1              2                  3                  4                  5
-    QueryResult result = WorldDatabase.Query("SELECT id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
+	QueryResult result = WorldDatabase.Query("SELECT id, effIndex, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
     if (!result)
     {
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
@@ -1561,14 +1532,14 @@ void SpellMgr::LoadSpellTargetPositions()
         Field* fields = result->Fetch();
 
         uint32 Spell_ID = fields[0].GetUInt32();
-
+		SpellEffIndex effIndex = SpellEffIndex(fields[1].GetUInt8());
         SpellTargetPosition st;
 
-        st.target_mapId       = fields[1].GetUInt16();
-        st.target_X           = fields[2].GetFloat();
-        st.target_Y           = fields[3].GetFloat();
-        st.target_Z           = fields[4].GetFloat();
-        st.target_Orientation = fields[5].GetFloat();
+		st.target_mapId = fields[2].GetUInt16();
+		st.target_X = fields[3].GetFloat();
+		st.target_Y = fields[4].GetFloat();
+		st.target_Z = fields[5].GetFloat();
+		st.target_Orientation = fields[6].GetFloat();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(st.target_mapId);
         if (!mapEntry)
@@ -1590,23 +1561,19 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
         }
 
-        bool found = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+		if (spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DEST_DB || spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_DB)
         {
-            if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_DEST_DB || spellInfo->Effects[i].TargetB.GetTarget() == TARGET_DEST_DB)
-            {
-                found = true;
-                break;
-            }
+			std::pair<uint32, SpellEffIndex> key = std::make_pair(Spell_ID, effIndex);
+			mSpellTargetPositions[key] = st;
+			++count;
         }
-        if (!found)
+		else
         {
             sLog->outError(LOG_FILTER_SQL, "Spell (Id: %u) listed in `spell_target_position` does not have target TARGET_DEST_DB (17).", Spell_ID);
             continue;
         }
 
-        mSpellTargetPositions[Spell_ID] = st;
-        ++count;
+
 
     } while (result->NextRow());
 
@@ -2723,6 +2690,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_POWER_BURN:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
                     break;
+				case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+					spellInfo->AttributesCu |= SPELL_ATTR0_CU_SCALABLE; // Meh i dont think this is a proper name..
+					break;
             }
 
             switch (spellInfo->Effects[j].Effect)
@@ -2902,6 +2872,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 92651:
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
                 break;
+			case 81913: // Die by the Sword
+		    case 81914: // Die by the Sword
+			spellInfo->Effects[0].TriggerSpell = 86624;
+			break;
             case 24340: // Meteor
             case 26558: // Meteor
             case 28884: // Meteor
@@ -2974,52 +2948,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 72446: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
-			// Heart of the Wild
-			case 17003:
-				spellInfo->SpellFamilyName = SPELLFAMILY_DRUID;
-
-				spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
-				spellInfo->Effects[EFFECT_1].BasePoints = 0;
-				spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_ATTACK_POWER_PCT;
-				spellInfo->Effects[EFFECT_1].MiscValueB = 3;
-
-				spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
-				spellInfo->Effects[EFFECT_2].BasePoints = 0;
-				spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-				spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_MOD_PERCENT_STAT;
-				spellInfo->Effects[EFFECT_2].MiscValue = UNIT_MOD_STAT_STAMINA;
-				spellInfo->Effects[EFFECT_2].MiscValueB = 2;
-				break;
-			case 17004:
-				spellInfo->SpellFamilyName = SPELLFAMILY_DRUID;
-
-				spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
-				spellInfo->Effects[EFFECT_1].BasePoints = 0;
-				spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_ATTACK_POWER_PCT;
-				spellInfo->Effects[EFFECT_1].MiscValueB = 7;
-
-				spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
-				spellInfo->Effects[EFFECT_2].BasePoints = 0;
-				spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-				spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_MOD_PERCENT_STAT;
-				spellInfo->Effects[EFFECT_2].MiscValue = UNIT_MOD_STAT_STAMINA;
-				spellInfo->Effects[EFFECT_2].MiscValueB = 4;
-				break;
-			case 17005:
-				spellInfo->SpellFamilyName = SPELLFAMILY_DRUID;
-
-				spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
-				spellInfo->Effects[EFFECT_1].BasePoints = 0;
-				spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_ATTACK_POWER_PCT;
-				spellInfo->Effects[EFFECT_1].MiscValueB = 10;
-
-				spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_APPLY_AURA;
-				spellInfo->Effects[EFFECT_2].BasePoints = 0;
-				spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-				spellInfo->Effects[EFFECT_2].ApplyAuraName = SPELL_AURA_MOD_PERCENT_STAT;
-				spellInfo->Effects[EFFECT_2].MiscValue = UNIT_MOD_STAT_STAMINA;
-				spellInfo->Effects[EFFECT_2].MiscValueB = 6;
-				break;
             case 64422: // Sonic Screech (Auriaya)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
@@ -3142,22 +3070,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 100698:
                 spellInfo->Effects[0].TriggerSpell = 0;
                 break;
-			// Divine Fire (priest t12 2p bonus)
-            case 99131:
-                spellInfo->Effects[EFFECT_0].BasePoints = 412;
-                break;
-            // Flame Tide (Shaman t12 2p bonus)
-            case 99189:
-                spellInfo->Effects[EFFECT_0].BasePoints = 234;
-                break;
-            // Fire of Heaven (Paladin t12 2p bonus)
-            case 99069:
-                spellInfo->Effects[EFFECT_0].BasePoints = 1404;
-                break;
-			// Heartfire (Druid t12 2p bonus)
-			case 99007:
-				spellInfo->Effects[EFFECT_0].BasePoints = 187;
-				break;
             case 82935: // Caustic Slime
             case 88915: // Caustic Slime
             case 88916: // Caustic Slime
@@ -3229,10 +3141,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 92315:	// Mage - Pyromaniac(Dot after casting Pyroblast with Hot Strake + Using Impact set to 3 target)
                 spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_EFFECT_DUMMY;
                 break;
-			case 51460:	// Runic Corruption
-				spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_MOD_POWER_REGEN_PERCENT;
-				spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_DUMMY;
-				break;
             case 80380: // Disable Temporarily the Aura Effect "MELEE_SLOW"
                 spellInfo->Effects[1].BasePoints = 0;
                 break;
@@ -3271,6 +3179,18 @@ void SpellMgr::LoadSpellInfoCorrections()
                     if (!spellInfo->Speed && !spellInfo->SpellFamilyName)
                         spellInfo->Speed = SPEED_CHARGE;
                     break;
+
+	                         if (sWorld->getBoolConfig(CONFIG_FAST_EN_TER884) == true)
+					            {
+				                 case SPELL_EFFECT_APPLY_GLYPH:
+									 spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
+				                    	break;
+				                  case SPELL_EFFECT_ENCHANT_ITEM:
+									  spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
+				                          	break;
+					             }
+							 else
+							 { }
             }
         }
 
@@ -3358,18 +3278,15 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 76674: // Setesh - Chaos Blast
                 spellInfo->MaxAffectedTargets = 1;
                 break;
+			case 95869: //Deepholm, Realm of Earth
+				spellInfo->Effects[EFFECT_1].Effect = 0;
+				break;
             case 42730:
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 42739;
                 break;
             case 59735:
                 spellInfo->Effects[EFFECT_1].TriggerSpell = 59736;
                 break;
-			case 78788: // Fungal Growth Rank 1
-				spellInfo->Effects[EFFECT_0].MiscValue = 81289;
-				break;
-			case 78789: // Fungal Growth Rank 2
-				spellInfo->Effects[EFFECT_0].MiscValue = 81282;
-				break;
             case 52611: // Summon Skeletons
             case 52612: // Summon Skeletons
                 spellInfo->Effects[EFFECT_0].MiscValueB = 64;
@@ -3480,7 +3397,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 54172: // Divine Storm (heal)
             case 29213: // Curse of the Plaguebringer - Noth
             case 28542: // Life Drain - Sapphiron
-            case 66588: // Flaming Spear
+			case 66588: // Flaming Spear
+				spellInfo->MaxAffectedTargets = 3;
+				break;
             case 54171: // Divine Storm
                 spellInfo->MaxAffectedTargets = 3;
                 break;
@@ -3539,10 +3458,15 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 44544: // Fingers of Frost
                 spellInfo->Effects[0].SpellClassMask[0] |= 0x00020000;
                 break;
-            case 57470: // Renewed Hope
-            case 57472:
-                spellInfo->Effects[0].SpellClassMask[0] |= 0x00000800;
-                break;
+			case 50526: // Wandering Plague
+				spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+				break;
+			case 15290: // Vampiric Embrace
+				spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+				break;
+			case 12721: // Deep Wounds shouldnt ignore resillience or damage taken auras because its damage is not based off a spell.
+				spellInfo->AttributesEx4 = 0;
+				break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
@@ -3554,6 +3478,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // add corruption to affected spells
                 spellInfo->Effects[1].SpellClassMask[0] |= 2;
                 break;
+			case 57470: // Renewed Hope (Rank 1)
+				case 57472: // Renewed Hope (Rank 2)
+				 // should also affect Flash Heal
+				spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x800;
+				break;
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->Effects[0].MiscValue |= 1;
                 break;
@@ -3572,7 +3501,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
                 break;
             // Tree of Life passives
-            case 5420:
+            case 5420: // Tree of Life (Passive)
                 spellInfo->Stances = 1 << (FORM_TREE - 1);
                 break;
             case 81097:
@@ -3743,6 +3672,17 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64596: // Cosmic Smash (Algalon the Observer)
                 spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6);  // 100yd
                 break;
+			case 64014: // Expedition Base Camp Teleport
+			case 64024: // Conservatory Teleport
+			case 64025: // Halls of Invention Teleport
+			case 64028: // Colossal Forge Teleport
+			case 64029: // Shattered Walkway Teleport
+			case 64030: // Antechamber Teleport
+			case 64031: // Scrapyard Teleport
+			case 64032: // Formation Grounds Teleport
+			case 65042: // Prison of Yogg-Saron Teleport
+				spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+			break;
             // ENDOF ULDUAR SPELLS
             //
             // TRIAL OF THE CRUSADER SPELLS
@@ -3769,9 +3709,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 70861: // Sindragosa's Lair Teleport
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
-            case 69055: // Saber Lash (Lord Marrowgar)
-            case 70814: // Saber Lash (Lord Marrowgar)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS); // 5yd
+			case 69055: // Bone Slice (Lord Marrowgar)
+		    case 70814: // Bone Slice (Lord Marrowgar)
+				spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_8_YARDS); // 5yd
                 break;
             case 69075: // Bone Storm (Lord Marrowgar)
             case 70834: // Bone Storm (Lord Marrowgar)
@@ -3837,7 +3777,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 71518: // Unholy Infusion Quest Credit (Professor Putricide)
             case 72934: // Blood Infusion Quest Credit (Blood-Queen Lana'thel)
             case 72289: // Frost Infusion Quest Credit (Sindragosa)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // another missing radius
+				spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // another missing radius
                 break;
             case 71708: // Empowered Flare (Blood Prince Council)
             case 72785: // Empowered Flare (Blood Prince Council)
@@ -4296,11 +4236,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 99488:
                 spellInfo->Effects[0].MiscValue |= 16;
                 break;
-			case 14751: // Chakra
-				spellInfo->Effects[0].ApplyAuraName = SPELL_AURA_DUMMY;
-				spellInfo->Effects[0].MiscValue = 0;
-				spellInfo->Effects[0].SpellClassMask = flag96(0x0, 0x0, 0x0);
-				break;
 			// ISLE OF CONQUEST SPELLS
            //
             case 66551: // Teleport

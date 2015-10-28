@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "ScriptPCH.h"
 #include "Chat.h"
 #include "World.h"

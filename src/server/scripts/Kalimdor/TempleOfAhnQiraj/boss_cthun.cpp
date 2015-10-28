@@ -1,62 +1,11 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: Boss_Cthun
-SD%Complete: 95
-SDComment: Darkglare tracking issue
-SDCategory: Temple of Ahn'Qiraj
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
 #include "Player.h"
-
-/*
- * This is a 2 phases events. Here follows an explanation of the main events and transition between phases and sub-phases.
- *
- * The first phase is the EYE phase: the Eye of C'Thun is active and C'thun is not active.
- *     During this phase, the "Eye of C'Thun" alternates between 2 sub-phases:
- *         - PHASE_EYE_GREEN_BEAM:
- *             50 sec phase during which the Eye mainly casts its Green Beam every 3 sec.
- *         - PHASE_EYE_RED_BEAM:
- *             35 sec phase during which the Eye casts its red beam every sec.
- *     This EYE phase ends when the "Eye of C'Thun" is killed. Then starts the CTHUN phase.
- *
- * The second phase is the CTHUN phase. The Eye of C'Thun is not active and C'Thun is active.
- *     This phase starts with the transformation of the Eye into C'Thun (PHASE_CTHUN_TRANSITION).
- *     After the transformation, C'Thun alternates between 2 sub-phases:
- *         - PHASE_CTHUN_STOMACH:
- *             - C'Thun is almost insensible to all damage (99% damage reduction).
- *             - It spawns 2 tentacles in its stomach.
- *             - C'Thun swallows players.
- *             - This sub-phase ends when the 2 tentacles are killed. Swallowed players are regurgitate.
- *
- *         - PHASE_CTHUN_WEAK:
- *             - weakened C'Thun takes normal damage.
- *             - This sub-phase ends after 45 secs.
- *
- *     This CTHUN phase ends when C'Thun is killed
- *
- * Note:
- * - the current phase is stored in the instance data to be easily shared between the eye and cthun.
- */
 
 enum Phases
 {
@@ -156,13 +105,15 @@ public:
         return new eye_of_cthunAI (creature);
     }
 
-    struct eye_of_cthunAI : public Scripted_NoMovementAI
+	struct eye_of_cthunAI : public ScriptedAI
     {
-        eye_of_cthunAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		eye_of_cthunAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
             if (!instance)
                 sLog->outError(LOG_FILTER_TSCR, "No Instance eye_of_cthunAI");
+
+			SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -460,9 +411,9 @@ public:
         return new cthunAI (creature);
     }
 
-    struct cthunAI : public Scripted_NoMovementAI
+	struct cthunAI : public ScriptedAI
     {
-        cthunAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		cthunAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
 
@@ -916,15 +867,16 @@ public:
         return new eye_tentacleAI (creature);
     }
 
-    struct eye_tentacleAI : public Scripted_NoMovementAI
+	struct eye_tentacleAI : public ScriptedAI
     {
-        eye_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		eye_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             if (Creature* pPortal = me->SummonCreature(MOB_SMALL_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
             {
                 pPortal->SetReactState(REACT_PASSIVE);
                 Portal = pPortal->GetGUID();
             }
+			SetCombatMovement(false);
         }
 
         uint32 MindflayTimer;
@@ -989,9 +941,9 @@ public:
         return new claw_tentacleAI (creature);
     }
 
-    struct claw_tentacleAI : public Scripted_NoMovementAI
+	struct claw_tentacleAI : public ScriptedAI
     {
-        claw_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		claw_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1099,9 +1051,9 @@ public:
         return new giant_claw_tentacleAI (creature);
     }
 
-    struct giant_claw_tentacleAI : public Scripted_NoMovementAI
+	struct giant_claw_tentacleAI : public ScriptedAI
     {
-        giant_claw_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		giant_claw_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1218,9 +1170,9 @@ public:
         return new giant_eye_tentacleAI (creature);
     }
 
-    struct giant_eye_tentacleAI : public Scripted_NoMovementAI
+	struct giant_eye_tentacleAI : public ScriptedAI
     {
-        giant_eye_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		giant_eye_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1282,9 +1234,9 @@ public:
         return new flesh_tentacleAI (creature);
     }
 
-    struct flesh_tentacleAI : public Scripted_NoMovementAI
+	struct flesh_tentacleAI : public ScriptedAI
     {
-        flesh_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		flesh_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
         }

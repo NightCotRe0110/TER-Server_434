@@ -1,52 +1,31 @@
 /*
-* Copyright (C) 2010-2011 Project SkyFire <http://www.projectskyfire.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program.If not, see <http://www.gnu.org/licenses/>.
+TER-Server
 */
 
 #include "BattlefieldTB.h"
 #include "SpellAuras.h"
 #include "GroupMgr.h"
 #include "Player.h"
-#include "BattlefieldWG.h"
 
 bool BattlefieldTB::SetupBattlefield()
 {
-	m_TypeId                     = BATTLEFIELD_TB;    //View enum BattlefieldTypes
+    m_TypeId                     = BATTLEFIELD_TB;    //View enum BattlefieldTypes
     m_BattleId                   = BATTLEFIELD_BATTLEID_TB;
     m_ZoneId                     = 5095; // Tol Barad
     m_MapId                      = 732;  // Map X
-
-
-	m_Map = sMapMgr->FindMap(m_MapId, 0);
-
     m_MaxPlayer                  = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MAX);
     m_IsEnabled                     = sWorld->getBoolConfig(CONFIG_TOL_BARAD_ENABLE);
     m_MinPlayer                  = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MIN);
     m_MinLevel                   = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MIN_LVL);
     m_BattleTime                 = sWorld->getIntConfig(CONFIG_TOL_BARAD_BATTLETIME)*60*1000;   // Time of battle (in ms)
     m_NoWarBattleTime            = sWorld->getIntConfig(CONFIG_TOL_BARAD_NOBATTLETIME)*60*1000; // Time between to battle (in ms)
-
     m_TimeForAcceptInvite        = 20; // in second
     m_StartGroupingTimer         = 15*60*1000; // in ms
     m_StartGrouping=false;
-
     KickPositionA.Relocate(-363.897f, 1047.931f, 22, 0);
     KickPositionA.m_mapId        = m_MapId;
     KickPositionH.Relocate(-609.336f, 1392.194f, 21.5f, 0);
     KickPositionH.m_mapId        = m_MapId;
-
     RegisterZone(m_ZoneId);
     m_Data32.resize(BATTLEFIELD_TB_DATA_MAX);
     m_saveTimer                  = 60000;
@@ -55,17 +34,16 @@ bool BattlefieldTB::SetupBattlefield()
     SetGraveyardNumber(BATTLEFIELD_TB_GY_MAX);
 
     //Load from db
-	if ((sWorld->getWorldState(5387/*BATTLEFIELD_WG_WORLD_STATE_ACTIVE*/) == 0) && (sWorld->getWorldState(5384) == 0) 
-		&& (sWorld->getWorldState(ClockWorldState[0]) == 0))
+    if(( sWorld->getWorldState(5387) == 0 ) && (sWorld->getWorldState(5384) == 0) && (sWorld->getWorldState(TBClockWorldState[0]) == 0 ))
     {
         sWorld->setWorldState(5387, false);
         sWorld->setWorldState(5384, urand(0, 1));
-        sWorld->setWorldState(ClockWorldState[0], m_NoWarBattleTime);
+        sWorld->setWorldState(TBClockWorldState[0], m_NoWarBattleTime);
     }
 
-       // m_WarTime                = sWorld->getWorldState(5387);
+        m_WarTime                = sWorld->getWorldState(5387);
         m_DefenderTeam           = (TeamId)sWorld->getWorldState(5384);
-        m_Timer                  = sWorld->getWorldState(ClockWorldState[0]);
+        m_Timer                  = sWorld->getWorldState(TBClockWorldState[0]);
     if(m_WarTime)
     {
         m_WarTime = false;
@@ -75,17 +53,18 @@ bool BattlefieldTB::SetupBattlefield()
     for(uint8 i=0; i<BATTLEFIELD_TB_GY_MAX; i++)
     {
         BfGraveyardTB* gy = new BfGraveyardTB(this);
-		if (TBGraveYard[i].startcontrol == TEAM_NEUTRAL)
-		{
-			// In no war time Gy is control by defender
-			gy->Initialize(m_DefenderTeam, TBGraveYard[i].guid);
-		}
-		else
-			gy->Initialize(TBGraveYard[i].startcontrol, TBGraveYard[i].guid);
+        if (TBGraveYard[i].startcontrol == TEAM_NEUTRAL)
+        {
+            // In no war time Gy is control by defender
+            gy->Init(45079, 45066, TBGraveYard[i].x, TBGraveYard[i].y, TBGraveYard[i].z, TBGraveYard[i].o, m_DefenderTeam, TBGraveYard[i].guid);
+        }
+        else
+            gy->Init(45079, 45066, TBGraveYard[i].x, TBGraveYard[i].y, TBGraveYard[i].z, TBGraveYard[i].o, TBGraveYard[i].startcontrol, TBGraveYard[i].guid);
+        gy->SetTextId(TBGraveYard[i].textid);
         m_GraveyardList[i] = gy;
     }
 
-    // Spawn gameobjects and npc's
+    // Pop des gameobject et creature du TBWorkShop
     for(uint8 i = 0; i<TB_MAX_WORKSHOP; i++)
     {
         BfTBWorkShopData* ws = new BfTBWorkShopData(this); // Create new object
@@ -143,10 +122,11 @@ bool BattlefieldTB::SetupBattlefield()
                 HideNpc(creature);
 
     // Spawning battle npcs
-	for (uint8 i = 0; i<TB_MAX_WAR_NPC; i++)
+    for(uint8 i = 0; i<TB_MAX_KEEP_NPC; i++)
     {
         // Horde npc
-		if (Creature* creature = SpawnCreature(TBWarNPC[i].entryh, TBWarNPC[i].x, TBWarNPC[i].y, TBWarNPC[i].z, TBWarNPC[i].o, TEAM_HORDE))
+        if (Creature* creature = SpawnCreature(TBWarNPC[i].entryh, TBWarNPC[i].x, TBWarNPC[i].y, TBWarNPC[i].z, TBWarNPC[i].o, TEAM_HORDE))
+            WarCreature[TEAM_HORDE].insert(creature->GetGUID());
         // Alliance npc
         if (Creature* creature = SpawnCreature(TBWarNPC[i].entrya, TBWarNPC[i].x, TBWarNPC[i].y, TBWarNPC[i].z, TBWarNPC[i].o, TEAM_ALLIANCE))
             WarCreature[TEAM_ALLIANCE].insert(creature->GetGUID());
@@ -175,12 +155,6 @@ bool BattlefieldTB::SetupBattlefield()
         }
     }
     return true;
-}
-void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
-{
-	data << uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE) << uint32(IsWarTime() ? 1 : 0);
-	for (uint32 i = 0; i < 2; ++i)
-		data << ClockWorldState[i] << uint32(time(NULL) + (m_Timer / 1000));
 }
 
 bool BattlefieldTB::Update(uint32 diff)
@@ -251,7 +225,7 @@ void BattlefieldTB::OnBattleStart()
     // Update graveyard (in no war time all graveyard is to deffender, in war time, depend of base)
     for(TBWorkShop::const_iterator itr = WorkShopList.begin(); itr != WorkShopList.end(); ++itr)
     {
-        if ((*itr) != NULL)
+        if ((*itr))
             (*itr)->UpdateGraveYardAndWorkshop();
     }
 

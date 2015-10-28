@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "MapUpdater.h"
 #include "DelayExecutor.h"
 #include "Map.h"

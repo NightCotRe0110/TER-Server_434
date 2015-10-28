@@ -1,26 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* ScriptData
-Name: ticket_commandscript
-%Complete: 100
-Comment: All ticket related commands
-Category: commandscripts
-EndScriptData */
+TER-Server
+*/
 
 #include "AccountMgr.h"
 #include "Chat.h"
@@ -95,18 +75,15 @@ public:
             return true;
         }
 
-        // Get target information
-        uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target.c_str());
-        uint64 targetAccountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
-        uint32 targetGmLevel = AccountMgr::GetSecurity(targetAccountId, realmID);
-
+		uint32 accountId = AccountMgr::GetId(target);
         // Target must exist and have administrative rights
-        if (!targetGuid || AccountMgr::IsPlayerAccount(targetGmLevel))
+		if (!AccountMgr::HasPermission(accountId, RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmID))
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
             return true;
         }
 
+		uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
         // If already assigned, leave
         if (ticket->IsAssignedTo(targetGuid))
         {
@@ -125,8 +102,8 @@ public:
 
         // Assign ticket
         SQLTransaction trans = SQLTransaction(NULL);
-        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(targetGmLevel));
-        ticket->SaveToDB(trans);
+		ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realmID)));
+		ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
         std::string msg = ticket->FormatMessageString(*handler, NULL, target.c_str(), NULL, NULL);
@@ -237,6 +214,10 @@ public:
         if (Player* player = ticket->GetPlayer())
             if (player->IsInWorld())
                 ticket->SendResponse(player->GetSession());
+
+		SQLTransaction trans = SQLTransaction(NULL);
+		ticket->SetCompleted();
+		ticket->SaveToDB(trans);
 
         sTicketMgr->UpdateLastChange();
         return true;

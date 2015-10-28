@@ -1,27 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: boss_the_lurker_below
-SD%Complete: 80
-SDComment: Coilfang Frenzy, find out how could we fishing in the strangepool
-SDCategory: The Lurker Below
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -39,7 +18,7 @@ EndScriptData */
 #define SPELL_SUBMERGE      37550
 #define SPELL_EMERGE        20568
 
-#define EMOTE_SPOUT "The Lurker Below takes a deep breath."
+#define EMOTE_SPOUT "Луркеров делает глубокий вдох."
 
 #define SPOUT_DIST  100
 
@@ -78,10 +57,11 @@ public:
         return new boss_the_lurker_belowAI (creature);
     }
 
-    struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
+	struct boss_the_lurker_belowAI : public ScriptedAI
     {
-        boss_the_lurker_belowAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+		boss_the_lurker_belowAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+			SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 
@@ -152,11 +132,10 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* who)
+		void EnterCombat(Unit* /*who*/)
         {
             if (instance)
                 instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
-            Scripted_NoMovementAI::EnterCombat(who);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -368,10 +347,11 @@ public:
         return new mob_coilfang_ambusherAI (creature);
     }
 
-    struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
+	struct mob_coilfang_ambusherAI : public ScriptedAI
     {
-        mob_coilfang_ambusherAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		mob_coilfang_ambusherAI(Creature* creature) : ScriptedAI(creature)
         {
+			SetCombatMovement(false);
         }
 
         uint32 MultiShotTimer;

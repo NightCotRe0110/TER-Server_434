@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "AnticheatData.h"
 
 AnticheatData::AnticheatData()

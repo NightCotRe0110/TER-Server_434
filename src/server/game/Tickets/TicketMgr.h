@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef _TICKETMGR_H
 #define _TICKETMGR_H
@@ -92,7 +79,7 @@ class GmTicket
 {
 public:
     GmTicket();
-    explicit GmTicket(Player* player, WorldPacket& recvData);
+	GmTicket(Player* player, WorldPacket& recvData);
     ~GmTicket();
 
     bool IsClosed() const { return _closedBy; }
@@ -129,7 +116,8 @@ public:
         else if (_escalatedStatus == TICKET_UNASSIGNED)
             _escalatedStatus = TICKET_ASSIGNED;
     }
-    void SetClosedBy(const int64& value) { _closedBy = value; }
+	void SetClosedBy(int64 value) { _closedBy = value; }
+	void SetCompleted() { _completed = true; }
     void SetMessage(std::string const& message)
     {
         _message = message;

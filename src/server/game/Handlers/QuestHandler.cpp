@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Common.h"
 #include "Log.h"
@@ -293,7 +279,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
     if (!quest)
         return;
     Object* object = _player;
-    if (!quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT) && !quest->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
+    if (!quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT) && !quest->HasFlag(QUEST_FLAGS_TRACKING))
     {
         object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!object || !object->hasInvolvedQuest(questId))
@@ -314,7 +300,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
     if (_player->CanRewardQuest(quest, reward, true))
     {
         _player->RewardQuest(quest, reward, object);
-        if (quest->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
+		if (quest->HasFlag(QUEST_FLAGS_TRACKING))
         {
             _player->PlayerTalkClass->ClearMenus();
         }
@@ -414,7 +400,7 @@ void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recvData)
     uint8 slot1, slot2;
     recvData >> slot1 >> slot2;
 
-    if (slot1 == slot2 || slot1 >= MAX_QUEST_LOG_SIZE || slot2 >= MAX_QUEST_LOG_SIZE)
+	if (slot1 == slot2 || slot1 >= sWorld->getIntConfig(CONFIG_QUESTS_9999) || slot2 >= sWorld->getIntConfig(CONFIG_QUESTS_9999))
         return;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_SWAP_QUEST slot 1 = %u, slot 2 = %u", slot1, slot2);
@@ -429,17 +415,23 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = %u", slot);
 
-    if (slot < MAX_QUEST_LOG_SIZE)
+	if (slot < sWorld->getIntConfig(CONFIG_QUESTS_9999))
     {
         if (uint32 questId = _player->GetQuestSlotQuestId(slot))
         {
             if (!_player->TakeQuestSourceItem(questId, true))
                 return;                                     // can't un-equip some items, reject quest cancel
 
-            if (const Quest *quest = sObjectMgr->GetQuestTemplate(questId))
+			if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
             {
                 if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
                     _player->RemoveTimedQuest(questId);
+
+				if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+					 {
+					_player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
+					_player->UpdatePvPState();
+					}
             }
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player

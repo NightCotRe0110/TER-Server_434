@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "QuestDef.h"
 #include "GossipDef.h"
@@ -64,6 +50,39 @@ void GossipMenu::AddMenuItem(int32 menuItemId, uint8 icon, std::string const& me
     menuItem.BoxMessage      = boxMessage;
     menuItem.BoxMoney        = boxMoney;
 }
+void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, uint32 action)
+ {
+	    /// Find items for given menu id.
+		GossipMenuItemsMapBounds bounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
+	    /// Return if there are none.
+		if (bounds.first == bounds.second)
+	 return;
+	
+		    /// Iterate over each of them.
+		for (GossipMenuItemsContainer::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
+		 {
+		       /// Find the one with the given menu item id.
+			if (itr->second.OptionIndex != menuItemId)
+			 continue;
+		
+			        /// Store texts for localization.
+		std::string strOptionText = itr->second.OptionText;
+		std::string strBoxText = itr->second.BoxText;
+		
+			        /// Check need of localization.
+			if (GetLocale() > LOCALE_enUS)
+			            /// Find localizations from database.
+			if (GossipMenuItemsLocale const* no = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuItemId)))
+			 {
+			                /// Translate texts if there are any.
+			ObjectMgr::GetLocaleString(no->OptionText, GetLocale(), strOptionText);
+			ObjectMgr::GetLocaleString(no->BoxText, GetLocale(), strBoxText);
+			}
+		
+			        /// Add menu item with existing method. Menu item id -1 is also used in ADD_GOSSIP_ITEM macro.
+			AddMenuItem(-1, itr->second.OptionIcon, strOptionText, sender, action, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+		}
+	}
 
 void GossipMenu::AddGossipMenuItemData(uint32 menuItemId, uint32 gossipActionMenuId, uint32 gossipActionPoi)
 {
@@ -108,6 +127,8 @@ void GossipMenu::ClearMenu()
 
 PlayerMenu::PlayerMenu(WorldSession* session) : _session(session)
 {
+	if (_session)
+		_gossipMenu.SetLocale(_session->GetSessionDbLocaleIndex());
 }
 
 PlayerMenu::~PlayerMenu()

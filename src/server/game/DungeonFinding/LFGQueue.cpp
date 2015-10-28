@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2014 WoWSource 4.3.4
- *
- * Do Not Share The SourceCode
- * and read our WoWSource Terms
- *
- */
-
-/* ScriptData
-SDName: LFG
-SD%Complete: 100%
-SDComment: Fully Working
-SDCategory: LFG
-EndScriptData
+TER-Server
 */
 
 #include "ObjectDefines.h"

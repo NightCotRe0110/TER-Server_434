@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "SpellInfo.h"
 #include "SpellAuraDefines.h"
@@ -512,17 +499,56 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         value = caster->ApplyEffectModifiers(_spellInfo, _effIndex, value);
 
         // amount multiplication based on caster's level
-        if (!_spellInfo->GetSpellScaling() && !basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
-                Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
-                Effect != SPELL_EFFECT_KNOCK_BACK &&
-                Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
-                ApplyAuraName != SPELL_AURA_MOD_SPEED_ALWAYS &&
-                ApplyAuraName != SPELL_AURA_MOD_SPEED_NOT_STACK &&
-                ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
-                ApplyAuraName != SPELL_AURA_MOD_DECREASE_SPEED)
-                //there are many more: slow speed, -healing pct
-            value *= 0.25f * exp(caster->getLevel() * (70 - _spellInfo->SpellLevel) / 1000.0f);
-            //value = int32(value * (int32)getLevel() / (int32)(_spellInfo->spellLevel ? _spellInfo->spellLevel : 1));
+		if (!caster->IsControlledByPlayer() &&
+			_spellInfo->SpellLevel && _spellInfo->SpellLevel != caster->getLevel() &&
+			!basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
+			 {
+			bool canEffectScale = false;
+			switch (Effect)
+				{
+				case SPELL_EFFECT_SCHOOL_DAMAGE:
+					case SPELL_EFFECT_DUMMY:
+						case SPELL_EFFECT_POWER_DRAIN:
+							case SPELL_EFFECT_HEALTH_LEECH:
+								case SPELL_EFFECT_HEAL:
+									case SPELL_EFFECT_WEAPON_DAMAGE:
+										case SPELL_EFFECT_POWER_BURN:
+											case SPELL_EFFECT_SCRIPT_EFFECT:
+												case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+													case SPELL_EFFECT_FORCE_CAST_WITH_VALUE:
+														case SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE:
+															case SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE:
+																canEffectScale = true;
+																break;
+																default:
+																	break;
+																	}
+			
+				switch (ApplyAuraName)
+				{
+				case SPELL_AURA_PERIODIC_DAMAGE:
+					case SPELL_AURA_DUMMY:
+						case SPELL_AURA_PERIODIC_HEAL:
+							case SPELL_AURA_DAMAGE_SHIELD:
+								case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+									case SPELL_AURA_PERIODIC_LEECH:
+										case SPELL_AURA_PERIODIC_MANA_LEECH:
+											case SPELL_AURA_SCHOOL_ABSORB:
+												case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+													canEffectScale = true;
+													break;
+													default:
+														break;
+														}
+			
+				if (canEffectScale)
+				{
+				GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(_spellInfo->SpellLevel - 1);
+				GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(caster->getLevel() - 1);
+				if (spellScaler && casterScaler)
+					 value *= casterScaler->ratio / spellScaler->ratio;
+				}
+			}
     }
 
     return uint32(floor(value + 0.5f));
@@ -1023,7 +1049,7 @@ bool SpellInfo::IsLootCrafting() const
     return (Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
         // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
         (Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        (TotemCategory[0] != 0 || Effects[0].ItemType == 0)));
+		((TotemCategory[0] != 0 || (Totem[0] != 0 && SpellIconID == 1)) || Effects[0].ItemType == 0)));
 }
 
 bool SpellInfo::IsQuestTame() const
@@ -1219,6 +1245,12 @@ bool SpellInfo::IsMultiSlotAura() const
     return IsPassive() || Id == 55849 || Id == 40075 || Id == 44413; // Power Spark, Fel Flak Fire, Incanter's Absorption
 }
 
+bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const
+ {
+	   /// TODO: Re-verify meaning of SPELL_ATTR3_STACK_FOR_DIFF_CASTERS and update conditions here
+		return StackAmount > 1 && !IsChanneled() && !(AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS);
+	}
+
 bool SpellInfo::IsDeathPersistent() const
 {
     return AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT;
@@ -1344,8 +1376,8 @@ bool SpellInfo::CanPierceImmuneAura(SpellInfo const* aura) const
 
 bool SpellInfo::CanDispelAura(SpellInfo const* aura) const
 {
-    // These spells (like Mass Dispel) can dispell all auras
-    if (Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
+	// These spells (like Mass Dispel) can dispell all auras, except death persistent ones (like Dungeon and Battleground Deserter)
+	if (Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY && !aura->IsDeathPersistent())
         return true;
 
     // These auras (like Divine Shield) can't be dispelled
@@ -1391,10 +1423,8 @@ bool SpellInfo::NeedsSpecialTreatment() const
 
 bool SpellInfo::IsSingleTargetWith(SpellInfo const* spellInfo) const
 {
-    // TODO - need better check
-    // Equal icon and spellfamily
-    if (SpellFamilyName == spellInfo->SpellFamilyName &&
-        SpellIconID == spellInfo->SpellIconID)
+	// Same spell?
+	if (IsRankOf(spellInfo))
         return true;
 
     SpellSpecificType spec = GetSpellSpecific();
@@ -1676,9 +1706,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
         return SPELL_FAILED_BAD_TARGETS;
 
     // check visibility - ignore stealth for implicit (area) targets
-	if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE) && !caster->canSeeOrDetect(target, implicit) && caster->GetGoType() != GAMEOBJECT_TYPE_TRAP 
-		&& caster->GetEntry() != 12999)  // ignore if the caster is WORLD_TRIGGER
-
+    if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE) && !caster->canSeeOrDetect(target, implicit) && caster->GetGoType() != GAMEOBJECT_TYPE_TRAP)
         return SPELL_FAILED_BAD_TARGETS;
 
     Unit const* unitTarget = target->ToUnit();
@@ -2229,6 +2257,9 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case SPELL_AURA_AOE_CHARM:
                     return SPELL_SPECIFIC_CHARM;
                 case SPELL_AURA_TRACK_CREATURES:
+					/// @workaround For non-stacking tracking spells (We need generic solution)
+					if (Id == 30645) // Gas Cloud Tracking
+					 return SPELL_SPECIFIC_NORMAL;
                 case SPELL_AURA_TRACK_RESOURCES:
                 case SPELL_AURA_TRACK_STEALTHED:
                     return SPELL_SPECIFIC_TRACKER;
@@ -2407,13 +2438,36 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, S
     }
     // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
     if (AttributesEx4 & SPELL_ATTR4_SPELL_VS_EXTEND_COST)
-        powerCost += caster->GetAttackTime(OFF_ATTACK) / 100;
+	{
+		uint32 speed = 0;
+		if (SpellShapeshiftEntry const* ss = sSpellShapeshiftStore.LookupEntry(caster->GetShapeshiftForm()))
+			speed = 1;
+		else
+			 {
+			WeaponAttackType slot = BASE_ATTACK;
+			if (AttributesEx3 & SPELL_ATTR3_REQ_OFFHAND)
+				 slot = OFF_ATTACK;
+			
+				speed = caster->GetAttackTime(slot);
+			}
+		
+			powerCost += speed / 100;
+		
+	}
     // Apply cost mod by spell
     if (Player* modOwner = caster->GetSpellModOwner())
         modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost, spell);
 
-    if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
-        powerCost = int32(powerCost / (1.117f * SpellLevel / caster->getLevel() -0.1327f));
+	if (!caster->IsControlledByPlayer())
+		 {
+		if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
+			 {
+			GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(SpellLevel - 1);
+			GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(caster->getLevel() - 1);
+			if (spellScaler && casterScaler)
+				 powerCost *= casterScaler->ratio / spellScaler->ratio;
+			}
+		}
 
     // PCT mod from user auras by school
     Unit::AuraEffectList const& aurasPct = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
@@ -2724,7 +2778,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                                     continue;
                                 // if non-positive trigger cast targeted to positive target this main cast is non-positive
                                 // this will place this spell auras as debuffs
-                                if (_IsPositiveTarget(spellTriggeredProto->Effects[i].TargetA.GetTarget(), spellTriggeredProto->Effects[i].TargetB.GetTarget()) && !spellTriggeredProto->_IsPositiveEffect(i, true))
+								if (_IsPositiveTarget(spellTriggeredProto->Effects[i].TargetA.GetTarget(), spellTriggeredProto->Effects[i].TargetB.GetTarget()) && !spellTriggeredProto->_IsPositiveEffect(i, true))
+
                                     return false;
                             }
                         }

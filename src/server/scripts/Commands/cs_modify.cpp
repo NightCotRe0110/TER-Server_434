@@ -1,26 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
-/* ScriptData
-Name: modify_commandscript
-%Complete: 100
-Comment: All modify related commands
-Category: commandscripts
-EndScriptData */
 
 #include "Chat.h"
 #include <stdlib.h>
@@ -1088,9 +1069,12 @@ public:
                 ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), uint32(moneyToAdd));
 
             if (moneyToAdd >= MAX_MONEY_AMOUNT)
-                target->SetMoney(MAX_MONEY_AMOUNT);
-            else
-                target->ModifyMoney(moneyToAdd);
+				moneyToAdd = MAX_MONEY_AMOUNT;
+			
+				if (targetMoney >= uint64(MAX_MONEY_AMOUNT) - moneyToAdd)
+				 moneyToAdd -= targetMoney;
+			
+				target->ModifyMoney(moneyToAdd);
         }
 
         sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));

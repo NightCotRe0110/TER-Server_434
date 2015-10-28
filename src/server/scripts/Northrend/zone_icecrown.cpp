@@ -1,31 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* ScriptData
-SDName: Icecrown
-SD%Complete: 100
-SDComment: Quest support: 12807
-SDCategory: Icecrown
-EndScriptData */
-
-/* ContentData
-npc_arete
-EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -40,13 +15,13 @@ EndContentData */
 ## npc_arete
 ######*/
 
-#define GOSSIP_ARETE_ITEM1 "Lord-Commander, I would hear your tale."
-#define GOSSIP_ARETE_ITEM2 "<You nod slightly but do not complete the motion as the Lord-Commander narrows his eyes before he continues.>"
-#define GOSSIP_ARETE_ITEM3 "I thought that they now called themselves the Scarlet Onslaught?"
-#define GOSSIP_ARETE_ITEM4 "Where did the grand admiral go?"
-#define GOSSIP_ARETE_ITEM5 "That's fine. When do I start?"
-#define GOSSIP_ARETE_ITEM6 "Let's finish this!"
-#define GOSSIP_ARETE_ITEM7 "That's quite a tale, Lord-Commander."
+#define GOSSIP_ARETE_ITEM1 "Лорд-командующий, я хотел бы услышать твой рассказ."
+#define GOSSIP_ARETE_ITEM2 "<Вы киваете слегка, но не завершаете движение, Лорд-командующий прищуривает глаза, прежде чем он продолжает.>"
+#define GOSSIP_ARETE_ITEM3 "Я думал, что они теперь называли себя алый натиск?"
+#define GOSSIP_ARETE_ITEM4 "Откуда у Гранд-адмирала?"
+#define GOSSIP_ARETE_ITEM5 "Это нормально. Когда мне приступать?"
+#define GOSSIP_ARETE_ITEM6 "Давайте на этом закончим!"
+#define GOSSIP_ARETE_ITEM7 "Это вполне себе история, Лорд-командующий."
 
 enum eArete
 {
@@ -136,8 +111,8 @@ enum eSquireDavid
     GOSSIP_TEXTID_SQUIRE                                = 14407
 };
 
-#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
-#define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
+#define GOSSIP_SQUIRE_ITEM_1 "Я готов к бою!"
+#define GOSSIP_SQUIRE_ITEM_2 "Как Крестоносцам Серебряного Авангарда бороться?"
 
 class npc_squire_david : public CreatureScript
 {
@@ -270,9 +245,12 @@ class npc_guardian_pavilion : public CreatureScript
 public:
     npc_guardian_pavilion() : CreatureScript("npc_guardian_pavilion") { }
 
-    struct npc_guardian_pavilionAI : public Scripted_NoMovementAI
+	struct npc_guardian_pavilionAI : public ScriptedAI
     {
-        npc_guardian_pavilionAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+		npc_guardian_pavilionAI(Creature* creature) : ScriptedAI(creature)
+			 {
+			SetCombatMovement(false);
+			}
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -376,9 +354,12 @@ class npc_tournament_training_dummy : public CreatureScript
     public:
         npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy"){}
 
-        struct npc_tournament_training_dummyAI : Scripted_NoMovementAI
+		struct npc_tournament_training_dummyAI : ScriptedAI
         {
-            npc_tournament_training_dummyAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+			npc_tournament_training_dummyAI(Creature* creature) : ScriptedAI(creature)
+				 {
+				SetCombatMovement(false);
+				}
 
             EventMap events;
             bool isVulnerable;
@@ -596,13 +577,15 @@ class npc_blessed_banner : public CreatureScript
 public:
     npc_blessed_banner() : CreatureScript("npc_blessed_banner") { }
 
-    struct npc_blessed_bannerAI : public Scripted_NoMovementAI
+	struct npc_blessed_bannerAI : public ScriptedAI
     {
-        npc_blessed_bannerAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+		npc_blessed_bannerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             HalofSpawned = false;
             PhaseCount = 0;
             Summons.DespawnAll();
+
+			SetCombatMovement(false);
         }
 
 

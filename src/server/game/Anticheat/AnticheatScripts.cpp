@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "AnticheatScripts.h"
 #include "AnticheatMgr.h"
 

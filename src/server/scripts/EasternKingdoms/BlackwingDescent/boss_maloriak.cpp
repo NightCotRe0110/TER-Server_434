@@ -239,28 +239,28 @@ public:
             events.Update(diff);
 
             if(me->GetHealthPct() < 25 && phase != PHASE_FINAL && final == false)
-			{   // Enter Final Phase
-				uint32 uiBerserker = events.GetNextEventTime(EVENT_BERSERK);
-				events.Reset();
-				events.ScheduleEvent(EVENT_BERSERK, uiBerserker);
-				events.ScheduleEvent(EVENT_DRINK_ALL, 100);
-				events.ScheduleEvent(EVENT_ACID_NOVA, urand(6000, 10000));
-				events.ScheduleEvent(EVENT_MAGMA_JETS, urand(12000, 15000));
-				events.ScheduleEvent(EVENT_ABSOLUTE_ZERO, urand(16000, 20000));
+            {   // Enter Final Phase
+                uint32 uiBerserker = events.GetNextEventTime(EVENT_BERSERK);
+                events.Reset();
+                events.ScheduleEvent(EVENT_BERSERK, uiBerserker);
+                events.ScheduleEvent(EVENT_DRINK_ALL, 100);
+                events.ScheduleEvent(EVENT_ACID_NOVA, urand(6000, 10000));
+                events.ScheduleEvent(EVENT_MAGMA_JETS, urand(12000, 15000));
+                events.ScheduleEvent(EVENT_ABSOLUTE_ZERO, urand(16000, 20000));
 
-				phase = PHASE_FINAL;
-				final = true;
-				me->InterruptNonMeleeSpells(true);
+                phase = PHASE_FINAL;
+                final = true;
+                me->InterruptNonMeleeSpells(true);
+                
+                DoCast(SPELL_RELEASE_ALL_ABBERATIONS);
+                if(abberationsLeft > 0)
+                    for (uint8 i = 0; i < abberationsLeft; i++)
+                        me->SummonCreature(NPC_ABBERATON, MaloriakPositions[urand(1,4)]);
 
-				DoCast(SPELL_RELEASE_ALL_ABBERATIONS);
-				if (abberationsLeft > 0)
-					for (uint8 i = 0; i < abberationsLeft; i++)
-						me->SummonCreature(NPC_ABBERATON, MaloriakPositions[urand(1, 4)]);
-
-				Talk(SAY_LOW_HEALTH);
-				Talk(SAY_PRIME);
-				events.ScheduleEvent(EVENT_LOW_HEALTH, 6000);
-			};
+                Talk(SAY_LOW_HEALTH);
+                Talk(SAY_PRIME);
+                events.ScheduleEvent(EVENT_LOW_HEALTH, 6000);
+            };
 
             if(me->GetHealthPct() < 30 && say == false)
             {

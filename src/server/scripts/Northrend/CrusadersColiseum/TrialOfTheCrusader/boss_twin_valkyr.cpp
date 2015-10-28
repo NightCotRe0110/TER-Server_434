@@ -1,24 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-// Known bugs:
-//    - They should be floating but they aren't respecting the floor =(
-//    - Hardcoded bullets spawner
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -654,11 +636,11 @@ class mob_bullet_controller : public CreatureScript
     public:
         mob_bullet_controller() : CreatureScript("mob_bullet_controller") { }
 
-        struct mob_bullet_controllerAI : public Scripted_NoMovementAI
+		struct mob_bullet_controllerAI : public ScriptedAI
         {
-            mob_bullet_controllerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+			mob_bullet_controllerAI(Creature* creature) : ScriptedAI(creature)
             {
-                Reset();
+				SetCombatMovement(false);
             }
 
             void Reset()

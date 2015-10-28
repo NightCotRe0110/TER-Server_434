@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2014 WoWSource 4.3.4
- *
- * Do Not Share The SourceCode
- * and read our WoWSource Terms
- *
- */
-
-/* ScriptData
-SDName: LFG
-SD%Complete: 100%
-SDComment: Fully Working
-SDCategory: LFG
-EndScriptData
+TER-Server
 */
 
 #ifndef _LFG_H
@@ -25,8 +13,8 @@ namespace lfg
 enum LFGEnum
 {
     LFG_TANKS_NEEDED                             = 1,
-    LFG_HEALERS_NEEDED                           = 1,
-    LFG_DPS_NEEDED                               = 3
+    LFG_HEALERS_NEEDED                           = 0,
+    LFG_DPS_NEEDED                               = 0
 };
 
 enum LfgRoles

@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef __UNIT_H
 #define __UNIT_H
@@ -27,6 +13,7 @@
 #include "Object.h"
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
+//#include "MoveSplineInit.h"
 
 
 
@@ -341,8 +328,8 @@ class TransportBase;
 class SpellCastTargets;
 namespace Movement
 {
-    class ExtraMovementStatusElement;
-    class MoveSpline;
+	class ExtraMovementStatusElement;
+	class MoveSpline;
 }
 
 typedef std::list<Unit*> UnitList;
@@ -559,32 +546,34 @@ enum WeaponAttackType
 
 enum CombatRating
 {
-    CR_WEAPON_SKILL                     = 0,
-    CR_DEFENSE_SKILL                    = 1, // Removed in 4.0.1
-    CR_DODGE                            = 2,
-    CR_PARRY                            = 3,
-    CR_BLOCK                            = 4,
-    CR_HIT_MELEE                        = 5,
-    CR_HIT_RANGED                       = 6,
-    CR_HIT_SPELL                        = 7,
-    CR_CRIT_MELEE                       = 8,
-    CR_CRIT_RANGED                      = 9,
-    CR_CRIT_SPELL                       = 10,
-    CR_HIT_TAKEN_MELEE                  = 11, // Deprecated since Cataclysm
-    CR_HIT_TAKEN_RANGED                 = 12, // Deprecated since Cataclysm
-    CR_HIT_TAKEN_SPELL                  = 13, // Deprecated since Cataclysm
-    CR_RESILIENCE_CRIT_TAKEN            = 14,
-    CR_RESILIENCE_PLAYER_DAMAGE_TAKEN   = 15,
-    CR_CRIT_TAKEN_SPELL                 = 16, // Deprecated since Cataclysm
-    CR_HASTE_MELEE                      = 17,
-    CR_HASTE_RANGED                     = 18,
-    CR_HASTE_SPELL                      = 19,
-    CR_WEAPON_SKILL_MAINHAND            = 20,
-    CR_WEAPON_SKILL_OFFHAND             = 21,
-    CR_WEAPON_SKILL_RANGED              = 22,
-    CR_EXPERTISE                        = 23,
-    CR_ARMOR_PENETRATION                = 24,
-    CR_MASTERY                          = 25,
+	CR_WEAPON_SKILL = 0,
+	CR_DEFENSE_SKILL = 1,
+	CR_DODGE = 2,
+	CR_PARRY = 3,
+	CR_BLOCK = 4,
+	CR_HIT_MELEE = 5,
+	CR_HIT_RANGED = 6,
+	CR_HIT_SPELL = 7,
+	CR_CRIT_MELEE = 8,
+	CR_CRIT_RANGED = 9,
+	CR_CRIT_SPELL = 10,
+	CR_HIT_TAKEN_MELEE = 11,
+	CR_HIT_TAKEN_RANGED = 12,
+	CR_HIT_TAKEN_SPELL = 13,
+	CR_CRIT_TAKEN_MELEE = 14,                     // COMBAT_RATING_RESILIENCE_CRIT_TAKEN
+	CR_CRIT_TAKEN_RANGED = 15,                     // COMBAT_RATING_RESILIENCE_PLAYER_DAMAGE_TAKEN
+	CR_RESILIENCE_CRIT_TAKEN = 14,
+	CR_RESILIENCE_PLAYER_DAMAGE_TAKEN = 15,
+	CR_CRIT_TAKEN_SPELL = 16,
+	CR_HASTE_MELEE = 17,
+	CR_HASTE_RANGED = 18,
+	CR_HASTE_SPELL = 19,
+	CR_WEAPON_SKILL_MAINHAND = 20,
+	CR_WEAPON_SKILL_OFFHAND = 21,
+	CR_WEAPON_SKILL_RANGED = 22,
+	CR_EXPERTISE = 23,
+	CR_ARMOR_PENETRATION = 24,
+	CR_MASTERY = 25
 };
 
 #define MAX_COMBAT_RATING         26
@@ -782,9 +771,6 @@ enum UnitTypeMask
     UNIT_MASK_ACCESSORY             = 0x00000200
 };
 
-namespace Movement{
-    class MoveSpline;
-}
 
 enum DiminishingLevels
 {
@@ -1379,8 +1365,10 @@ class Unit : public WorldObject
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
         uint8 getLevelForTarget(WorldObject const* /*target*/) const { return getLevel(); }
         void SetLevel(uint8 lvl);
-        uint8 getRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, 0); }
+        uint8 getRace(bool forceoriginal = false) const;
+        uint8 getORace() { return getRace(true); }
         uint32 getRaceMask() const { return 1 << (getRace()-1); }
+        uint32 getORaceMask() const { return 1 << (getRace(true) - 1); }
         uint8 getClass() const { return GetByteValue(UNIT_FIELD_BYTES_0, 1); }
         uint32 getClassMask() const { return 1 << (getClass()-1); }
         uint8 getGender() const { return GetByteValue(UNIT_FIELD_BYTES_0, 2); }
@@ -1509,8 +1497,8 @@ class Unit : public WorldObject
         void TriggerAurasProcOnEvent(ProcEventInfo& eventInfo, std::list<AuraApplication*>& procAuras);
 
         void HandleEmoteCommand(uint32 anim_id);
-        void HandleEmote(uint32 emote_id);
-        void HandleEmoteState(uint32 emote_id);
+		void HandleEmote(uint32 emote_id);
+		void HandleEmoteState(uint32 emote_id);
         void AttackerStateUpdate (Unit* victim, WeaponAttackType attType = BASE_ATTACK, bool extra = false);
 
         void CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType = BASE_ATTACK);
@@ -1520,10 +1508,13 @@ class Unit : public WorldObject
         void CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = BASE_ATTACK, bool crit = false);
         void DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss);
 
-        // player or player's pet resilience (-1%)
-        uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 1.0f, 100.0f, damage); }
+		        // player or player's pet resilience (-1%), cap 100%
+		uint32 GetMeleeDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 2.0f, 100.0f, damage); }
+		uint32 GetRangedDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_RANGED, 2.0f, 100.0f, damage); }
+		uint32 GetSpellDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_SPELL, 2.0f, 100.0f, damage); }
+		uint32 GetPlayerDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 1.0f, 100.0f, damage); }
 
-        void ApplyResilience(const Unit* victim, int32 * damage) const;
+		void ApplyResilience(const Unit* victim, int32 * damage, CombatRating type) const;
 
         float MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, uint32 spellId) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
@@ -1684,6 +1675,8 @@ class Unit : public WorldObject
         void SendMovementSwimming();
         void SendMovementWalkMode();
 
+		void SendSetPlayHoverAnim(bool enable);
+
         bool IsLevitating() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);}
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);}
         virtual bool SetWalk(bool enable);
@@ -1789,7 +1782,7 @@ class Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
         void UpdateCharmAI();
-        void EnableAI();
+		void EnableAI();
         //Player* GetMoverSource() const;
         Player* m_movedPlayer;
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
@@ -2145,7 +2138,7 @@ class Unit : public WorldObject
         float m_TempSpeed;
 
         bool isHover() const { return HasAuraType(SPELL_AURA_HOVER); }
-        bool isCamouflaged() const { return HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE); }
+		bool isCamouflaged() const { return HasAuraType(SPELL_AURA_MOD_CAMOUFLAGE); }
 
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
         int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints = NULL) const;
@@ -2268,7 +2261,7 @@ class Unit : public WorldObject
         void ExitVehicle(Position const* exitPosition = NULL);
         void ChangeSeat(int8 seatId, bool next = true);
 
-        void WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusElement* extras = NULL);
+		void WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusElement* extras = NULL);
 
         // Should only be called by AuraEffect::HandleAuraControlVehicle(AuraApplication const* auraApp, uint8 mode, bool apply) const;
         void _ExitVehicle(Position const* exitPosition = NULL);
@@ -2311,7 +2304,7 @@ class Unit : public WorldObject
         void ReleaseFocus(Spell const* focusSpell);
 
         //bool IsVisionObscured(Unit* target, bool ranged = false);
-        bool IsVisionObscured(Unit* pVictim);
+		bool IsVisionObscured(Unit* pVictim);
 
         // Done priotiy to setCanFly in script fix visual bug with movementflag (creature took flying animation on ground, walkin animation in air etc...)
         inline void DisableMovementFlagUpdate(bool s) { _disableMovementFlagUpdate = s; }
@@ -2336,7 +2329,7 @@ class Unit : public WorldObject
         rowCastsMap _spellsCastedInRow;
         SpellInfo const* lastSpell;
 
-        //alt power 10
+		//alt power 10
         int32 alt;
         int32 GetAltPower() {return alt;};
         void SetAltPower(int32 power);
@@ -2438,8 +2431,8 @@ class Unit : public WorldObject
 
         uint32 m_unitTypeMask;
         LiquidTypeEntry const* _lastLiquid;
-        
-        bool m_IsInKillingProcess;        
+		
+        bool m_IsInKillingProcess;		
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const;
         bool IsAlwaysDetectableFor(WorldObject const* seer) const;

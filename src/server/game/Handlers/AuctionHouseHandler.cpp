@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -161,8 +147,11 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         recvData >> itemGUIDs[i];
         recvData >> count[i];
 
-        if (!itemGUIDs[i] || !count[i] || count[i] > 1000 )
-            return;
+		if (!itemGUIDs[i] || !count[i] || count[i] > 1000)
+		{
+			recvData.rfinish();
+			return;
+		}
     }
 
     recvData >> bid;
@@ -171,6 +160,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 
     if (!bid || !etime)
         return;
+	if (bid > MAX_MONEY_AMOUNT || buyout > MAX_MONEY_AMOUNT)
+		 {
+		sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Player %s (GUID %u) attempted to sell item with higher price than max gold amount.", _player->GetName().c_str(), _player->GetGUIDLow());
+		SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+		return;
+		}
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -245,6 +240,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
              if (itemGUIDs[i] == itemGUIDs[j])
              {
                  SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+				 recvData.rfinish();
                  return;
              }
          }
@@ -288,7 +284,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         // Required stack size of auction matches to current item stack size, just move item to auctionhouse
         if (itemsCount == 1 && item->GetCount() == count[i])
         {
-            if (GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+			if (HasPermission(RBAC_PERM_LOG_GM_TRADE) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
             {
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
                     GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount());
@@ -337,7 +333,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
                 return;
             }
 
-            if (GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+			if (HasPermission(RBAC_PERM_LOG_GM_TRADE) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
             {
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
                     GetPlayerName().c_str(), GetAccountId(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetCount());

@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef TRINITYCORE_CREATURE_H
 #define TRINITYCORE_CREATURE_H
@@ -488,7 +474,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
             SetReactState(REACT_DEFENSIVE);*/;
         }
 
-        ///// TODO RENAME THIS!!!!!
+        /// @todo Rename this to proper functions
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
@@ -546,8 +532,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
 
-        uint8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
-        uint32 GetCurrentEquipmentId() { return m_equipmentId; }
+		uint8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
+		uint32 GetCurrentEquipmentId() { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }
         float GetSpellDamageMod(int32 Rank);
 
@@ -759,7 +745,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         MovementGeneratorType m_defaultMovementType;
         uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
         uint8 m_equipmentId;
-        uint8 m_originalEquipmentId;
+		uint8 m_originalEquipmentId;
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;

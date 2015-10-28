@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef TRINITY_MAP_H
 #define TRINITY_MAP_H
@@ -58,8 +44,16 @@ struct ScriptAction
 {
     uint64 sourceGUID;
     uint64 targetGUID;
-    uint64 ownerGUID;                                       // owner of source if source is item
-    ScriptInfo const* script;                               // pointer to static script data
+	uint64 ownerGUID;                                       ///> owner of source if source is item
+	ScriptInfo const* script;                               ///> pointer to static script data
+	
+};
+
+/// Represents a map magic value of 4 bytes (used in versions)
+union u_map_magic
+ {
+	char asChar[4]; ///> Non-null terminated string
+	uint32 asUInt;  ///> uint32 representation
 };
 
 // ******************************************
@@ -67,9 +61,9 @@ struct ScriptAction
 // ******************************************
 struct map_fileheader
 {
-    uint32 mapMagic;
-    uint32 versionMagic;
-    uint32 buildMagic;
+	u_map_magic mapMagic;
+	u_map_magic versionMagic;
+	u_map_magic buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
     uint32 heightMapOffset;

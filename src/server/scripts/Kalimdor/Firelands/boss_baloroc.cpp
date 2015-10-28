@@ -1,3 +1,28 @@
+/* Copyright (C) 2006 - 2015 ScriptDev2 <http://www.scriptdev2.com/>
+ * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2015 TrinityCore R2
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+/* ScriptData
+SDName: boss_baloroc
+SD%Complete: %10
+SDComment: All abilities not implemented
+SDCategory: Kalimdor, Firelands
+EndScriptData */
+
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -40,8 +65,6 @@ enum Spells
 	// Misc
 	SPELL_BLAZE_OF_GLORY = 99252,
 	SPELL_INCENDIARY_SOUL = 99369,
-	SPELL_DECIMATING_STRIKE = 99353,
-	SPELL_INFERNO_STRIKE = 99351,
 
 	SPELL_SHARDS_OF_TORMENT = 99259, //dummy
 	SPELL_SHARDS_OF_TORMENT_SUMMON = 99260, //end of dummy cast
@@ -94,16 +117,16 @@ enum Events
 
 	// Decimation Phase
 	EVENT_DECIMATION_BLADE = 5,
-	EVENT_DECIMATING_STRIKE=6,
-	// Inferno Phase
-	EVENT_INFERNO_BLADE = 7,
 
-	EVENT_BERSERK = 8,
+	// Inferno Phase
+	EVENT_INFERNO_BLADE = 6,
+
+	EVENT_BERSERK = 7,
 
 	// Shards of torment
-	EVENT_CHECK_RANGE = 9,
-	EVENT_WAVE_OF_TORMENT = 10,
-	EVENT_LAST_PLAYER = 11,
+	EVENT_CHECK_RANGE = 8,
+	EVENT_WAVE_OF_TORMENT = 9,
+	EVENT_LAST_PLAYER = 10,
 };
 
 enum Equipment
@@ -154,15 +177,6 @@ public:
 			_EnterCombat();
 		}
 
-		void DamageDealt(Unit* victim, uint32& damage, DamageEffectType damagetype)
-		{
-			if (damagetype == DIRECT_DAMAGE)
-			{
-				if (me->HasAura(SPELL_INFERNO_BLADE))
-					me->CastSpell(victim, SPELL_INFERNO_STRIKE, false);
-			}
-		}
-
 		void JustDied(Unit * /*victim*/)
 		{
 			if (instance)
@@ -195,7 +209,6 @@ public:
 			if (me->isInCombat())
 				summon->AI()->DoZoneInCombat();
 		}
-
 
 		void RemoveBlazeOfGlory()
 		{
@@ -283,19 +296,8 @@ public:
 					SetEquipmentSlots(false, EQUIPMENT_ID_SWORD_2H, 0, 0); //set one blade equip
 
 					events.ScheduleEvent(EVENT_INFERNO_BLADE, 30000);
-					events.ScheduleEvent(EVENT_DECIMATING_STRIKE, 4000);
 					break;
 
-
-				case EVENT_DECIMATING_STRIKE:
-					if (me->HasAura(SPELL_DECIMATION_BLADE_25) || me->HasAura(SPELL_DECIMATION_BLADE_10))
-					{
-						me->CastSpell(me->GetVictim(), SPELL_DECIMATING_STRIKE, false);
-						events.ScheduleEvent(EVENT_DECIMATING_STRIKE, 5000);
-					}
-					else
-						events.CancelEvent(EVENT_DECIMATING_STRIKE);
-					break;
 				case EVENT_INFERNO_BLADE:
 					Talk(SAY_INFERNO);
 					Talk(SAY_INFE_ANN);
@@ -515,33 +517,6 @@ public:
 	}
 };
 
-class spell_decimating_strike : public SpellScriptLoader
-{
-public: spell_decimating_strike() : SpellScriptLoader("spell_decimating_strike") { }
-		class spell_decimating_strike_SpellScript : public SpellScript
-		{
-			PrepareSpellScript(spell_decimating_strike_SpellScript);
-			void Damage()
-			{
-				Unit* target = GetHitUnit();
-				if (!target)
-					return;
-				uint32 damage = target->GetMaxHealth()* 0.9f;
-				if (damage < 250000)
-					damage = 250000;
-				SetHitDamage(damage);
-			}
-			void Register()
-			{
-				BeforeHit += SpellHitFn(spell_decimating_strike_SpellScript::Damage);
-			}
-		};
-		SpellScript* GetSpellScript() const
-		{
-			return new spell_decimating_strike_SpellScript();
-		}
-};
-
 void AddSC_boss_baloroc()
 {
 	new boss_baloroc();
@@ -549,5 +524,4 @@ void AddSC_boss_baloroc()
 	new spell_baloroc_countdown();
 	new spell_baloroc_countdown_dmg();
 	new spell_baloroc_countdown_dmg_target();
-	new spell_decimating_strike();
 }

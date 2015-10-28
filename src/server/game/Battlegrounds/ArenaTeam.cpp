@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
@@ -273,6 +259,19 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
     return true;
 }
 
+bool ArenaTeam::SetName(std::string const& name)
+ {
+	if (TeamName == name || name.empty() || name.length() > 24 || sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+		 return false;
+	
+		TeamName = name;
+	PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_NAME);
+	stmt->setString(0, TeamName);
+	stmt->setUInt32(1, GetId());
+	CharacterDatabase.Execute(stmt);
+	return true;
+	}
+
 void ArenaTeam::SetCaptain(uint64 guid)
 {
     // Disable remove/promote buttons
@@ -363,6 +362,29 @@ void ArenaTeam::Disband(WorldSession* session)
     sArenaTeamMgr->RemoveArenaTeam(TeamId);
 }
 
+void ArenaTeam::Disband()
+ {
+	    // Remove all members from arena team
+		while (!Members.empty())
+		 DelMember(Members.front().Guid, false);
+	
+		    // Update database
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+	
+	PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARENA_TEAM);
+	stmt->setUInt32(0, TeamId);
+	trans->Append(stmt);
+	
+	stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARENA_TEAM_MEMBERS);
+	stmt->setUInt32(0, TeamId);
+	trans->Append(stmt);
+	
+	CharacterDatabase.CommitTransaction(trans);
+	
+		    // Remove arena team from ObjectMgr
+		sArenaTeamMgr->RemoveArenaTeam(TeamId);
+	}
+
 void ArenaTeam::Roster(WorldSession* session)
 {
     Player* player = NULL;
@@ -406,8 +428,8 @@ void ArenaTeam::Query(WorldSession* session)
     WorldPacket data(SMSG_ARENA_TEAM_QUERY_RESPONSE, 4*7+GetName().size()+1);
     data << uint32(GetId());                                // team id
     data << GetName();                                      // team name
-    data << uint32(GetType());                              // arena team type (2=2x2, 3=3x3 or 5=5x5)
-    data << uint32(BackgroundColor);                        // background color
+	data << uint32(GetType() == 1 ? 5 : GetType());         // arena team type (2=2x2, 3=3x3 or 1=1x1(modify 1 to 5, so player can see arenateam in 5v5 slot))
+	data << uint32(BackgroundColor);                        // background color
     data << uint32(EmblemStyle);                            // emblem style
     data << uint32(EmblemColor);                            // emblem color
     data << uint32(BorderStyle);                            // border style

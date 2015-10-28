@@ -1,19 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
 #include "WorldModel.h"
@@ -205,35 +191,44 @@ namespace VMAP
 
     bool WmoLiquid::writeToFile(FILE* wf)
     {
-        bool result = true;
-        if (result && fwrite(&iTilesX, sizeof(uint32), 1, wf) != 1) result = false;
-        if (result && fwrite(&iTilesY, sizeof(uint32), 1, wf) != 1) result = false;
-        if (result && fwrite(&iCorner, sizeof(Vector3), 1, wf) != 1) result = false;
-        if (result && fwrite(&iType, sizeof(uint32), 1, wf) != 1) result = false;
-        uint32 size = (iTilesX + 1)*(iTilesY + 1);
-        if (result && fwrite(iHeight, sizeof(float), size, wf) != size) result = false;
-        size = iTilesX*iTilesY;
-        if (result && fwrite(iFlags, sizeof(uint8), size, wf) != size) result = false;
+		bool result = false;
+		if (fwrite(&iTilesX, sizeof(uint32), 1, wf) == 1 &&
+			fwrite(&iTilesY, sizeof(uint32), 1, wf) == 1 &&
+			fwrite(&iCorner, sizeof(Vector3), 1, wf) == 1 &&
+			fwrite(&iType, sizeof(uint32), 1, wf) == 1)
+			 {
+			uint32 size = (iTilesX + 1) * (iTilesY + 1);
+			if (fwrite(iHeight, sizeof(float), size, wf) == size)
+				 {
+				size = iTilesX*iTilesY;
+				result = fwrite(iFlags, sizeof(uint8), size, wf) == size;
+				}
+			}
         return result;
     }
 
     bool WmoLiquid::readFromFile(FILE* rf, WmoLiquid* &out)
     {
-        bool result = true;
+		bool result = false;
         WmoLiquid* liquid = new WmoLiquid();
-        if (result && fread(&liquid->iTilesX, sizeof(uint32), 1, rf) != 1) result = false;
-        if (result && fread(&liquid->iTilesY, sizeof(uint32), 1, rf) != 1) result = false;
-        if (result && fread(&liquid->iCorner, sizeof(Vector3), 1, rf) != 1) result = false;
-        if (result && fread(&liquid->iType, sizeof(uint32), 1, rf) != 1) result = false;
-        uint32 size = (liquid->iTilesX + 1)*(liquid->iTilesY + 1);
-        liquid->iHeight = new float[size];
-        if (result && fread(liquid->iHeight, sizeof(float), size, rf) != size) result = false;
-        size = liquid->iTilesX * liquid->iTilesY;
-        liquid->iFlags = new uint8[size];
-        if (result && fread(liquid->iFlags, sizeof(uint8), size, rf) != size) result = false;
+		if (fread(&liquid->iTilesX, sizeof(uint32), 1, rf) == 1 &&
+			fread(&liquid->iTilesY, sizeof(uint32), 1, rf) == 1 &&
+			fread(&liquid->iCorner, sizeof(Vector3), 1, rf) == 1 &&
+			fread(&liquid->iType, sizeof(uint32), 1, rf) == 1)
+			 {
+			uint32 size = (liquid->iTilesX + 1) * (liquid->iTilesY + 1);
+		    liquid->iHeight = new float[size];
+			if (fread(liquid->iHeight, sizeof(float), size, rf) == size)
+				 {
+				size = liquid->iTilesX * liquid->iTilesY;
+				liquid->iFlags = new uint8[size];
+				result = fread(liquid->iFlags, sizeof(uint8), size, rf) == size;
+				}
+			}
         if (!result)
             delete liquid;
-        out = liquid;
+		else
+		 out = liquid;
         return result;
     }
 

@@ -1,24 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/// \addtogroup u2w
-/// @{
-/// \file
+TER-Server
+*/
 
 #ifndef _OPCODES_H
 #define _OPCODES_H
@@ -73,7 +55,8 @@ enum Opcodes
     CMSG_AUTOSTORE_BANK_ITEM                          = 0x0607,
     CMSG_AUTOSTORE_GROUND_ITEM                        = 0x0000,
     CMSG_AUTOSTORE_LOOT_ITEM                          = 0x0E34,
-    CMSG_AUTO_DECLINE_GUILD_INVITES                   = 0x2034,
+	CMSG_AUTO_DECLINE_GUILD_INVITE                    = 0x1234,
+	CMSG_AUTO_DECLINE_GUILD_INVITES                   = 0x2034,
     CMSG_BANKER_ACTIVATE                              = 0x0005,
     CMSG_BATTLEFIELD_JOIN                             = 0x0000,
     CMSG_BATTLEFIELD_LEAVE                            = 0x3018,
@@ -118,7 +101,7 @@ enum Opcodes
     CMSG_CANCEL_AUTO_REPEAT_SPELL                     = 0x6C35,
     CMSG_CANCEL_CAST                                  = 0x0115,
     CMSG_CANCEL_CHANNELLING                           = 0x6C25,
-    CMSG_CANCEL_GROWTH_AURA                           = 0x0000,
+	CMSG_CANCEL_GROWTH_AURA                           = 0x0237,
     CMSG_CANCEL_MOUNT_AURA                            = 0x0635,
     CMSG_CANCEL_QUEUED_SPELL                          = 0x7B1C,
     CMSG_CANCEL_TEMP_ENCHANTMENT                      = 0x6C37,
@@ -593,7 +576,13 @@ enum Opcodes
     MSG_GM_SHOWLABEL                                  = 0x0000,
     MSG_GM_SUMMON                                     = 0x0000,
     MSG_INSPECT_ARENA_TEAMS                           = 0x2704,
-    MSG_LIST_STABLED_PETS                             = 0x0834,
+	MSG_LIST_STABLED_PETS = 0x0834, // hope this works (4.3.4)
+	CMSG_STABLE_PET = 0x1271, // hope this works (4.3.4)
+	CMSG_UNSTABLE_PET = 0x1272, // hope this works (4.3.4)
+	CMSG_BUY_STABLE_SLOT = 0x1273, // hope this works (4.3.4)
+	SMSG_STABLE_RESULT = 0x2204, // hope this works (4.3.4)
+	CMSG_STABLE_REVIVE_PET = 0x1275, // hope this works (4.3.4)
+	CMSG_STABLE_SWAP_PET = 0x1276, // hope this works (4.3.4)
     MSG_MINIMAP_PING                                  = 0x6635,
     MSG_MOVE_CHARM_TELEPORT_CHEAT                     = 0x7A08,
     MSG_MOVE_FALL_LAND                                = 0x380A,
@@ -659,7 +648,6 @@ enum Opcodes
     MSG_SAVE_GUILD_EMBLEM                             = 0x2404,
     MSG_SET_DUNGEON_DIFFICULTY                        = 0x4925,
     MSG_SET_RAID_DIFFICULTY                           = 0x0614,
-    MSG_START_MOVE_FORWARD                            = 0x0000,
     MSG_TABARDVENDOR_ACTIVATE                         = 0x6926,
     MSG_TALENT_WIPE_CONFIRM                           = 0x0107,
     MSG_VERIFY_CONNECTIVITY                           = 0x4F57,
@@ -734,7 +722,7 @@ enum Opcodes
     SMSG_BATTLEGROUND_PLAYER_LEFT                     = 0x59A6,
     SMSG_BINDER_CONFIRM                               = 0x2835,
     SMSG_BINDPOINTUPDATE                              = 0x0527,
-    SMSG_BINDZONEREPLY                                = 0x0000,
+	SMSG_BINDZONEREPLY = 0x4C34,
     SMSG_BREAK_TARGET                                 = 0x0105,
     SMSG_BUY_BANK_SLOT_RESULT                         = 0x4806,
     SMSG_BUY_FAILED                                   = 0x6435,
@@ -763,7 +751,7 @@ enum Opcodes
     SMSG_CALENDAR_SEND_NUM_PENDING                    = 0x0C17,
     SMSG_CALENDAR_UPDATE_INVITE_LIST                  = 0x0000,
     SMSG_CAMERA_SHAKE                                 = 0x4214,
-    SMSG_CANCEL_AUTO_REPEAT                           = 0x6436,
+	SMSG_CANCEL_AUTO_REPEAT                           = 0x6436,
     SMSG_CANCEL_COMBAT                                = 0x4F04,
     SMSG_CAST_FAILED                                  = 0x4D16,
     SMSG_CHANNEL_LIST                                 = 0x2214,
@@ -782,6 +770,7 @@ enum Opcodes
     SMSG_CHAT_PLAYER_NOT_FOUND                        = 0x2526,
     SMSG_CHAT_RESTRICTED                              = 0x6536,
     SMSG_CHAT_SERVER_DISCONNECTED                     = 0x6D34,
+	SMSG_CHAT_SERVER_DISCONNECTED_2                   = 0x4627,
     SMSG_CHAT_SERVER_RECONNECTED                      = 0x6905,
     SMSG_CHAT_WRONG_FACTION                           = 0x6724,
     SMSG_CHECK_FOR_BOTS                               = 0x0000,
@@ -825,6 +814,7 @@ enum Opcodes
     SMSG_DB_REPLY                                     = 0x38A4,
     SMSG_DEATH_RELEASE_LOC                            = 0x2F07,
     SMSG_DEBUG_RUNE_REGEN                             = 0x31B3,
+	SMSG_DEBUG_SERVER_GEO = 0x0235,
     SMSG_DEFENSE_MESSAGE                              = 0x0314,
     SMSG_DESTROY_OBJECT                               = 0x4724,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x4825,
@@ -861,9 +851,10 @@ enum Opcodes
     SMSG_FISH_NOT_HOOKED                              = 0x0A17,
     SMSG_FLIGHT_SPLINE_SYNC                           = 0x0924,
     SMSG_FLOOD_DETECTED                               = 0x0542,
-    SMSG_FORCEACTIONSHOW                              = 0x0000,
+	SMSG_FORCEACTIONSHOW = 0x6126,
     SMSG_FORCED_DEATH_UPDATE                          = 0x2606,
-    SMSG_FORCE_DISPLAY_UPDATE                         = 0x0000,
+	SMSG_FORCE_ANIM = 0x4C05,
+	SMSG_FORCE_DISPLAY_UPDATE                         = 0x0000,
     SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0x0140,
     SMSG_FORCE_SET_VEHICLE_REC_ID                     = 0x70A1,
     SMSG_FORGE_MASTER_SET                             = 0x70B7,
@@ -956,7 +947,9 @@ enum Opcodes
     SMSG_HIGHEST_THREAT_UPDATE                        = 0x4104,
     SMSG_HOTFIX_INFO                                  = 0x19B5,
     SMSG_HOTFIX_NOTIFY                                = 0x55A7,
-    SMSG_INITIALIZE_FACTIONS                          = 0x4634,
+	SMSG_IGNORE_DIMINISHING_RETURNS_CHEAT = 0x0125,
+	SMSG_IGNORE_REQUIREMENTS_CHEAT = 0x4E36,
+	SMSG_INITIALIZE_FACTIONS                          = 0x4634,
     SMSG_INITIAL_SPELLS                               = 0x0104,
     SMSG_INIT_CURRENCY                                = 0x15A5,
     SMSG_INIT_WORLD_STATES                            = 0x4C15,
@@ -985,7 +978,7 @@ enum Opcodes
     SMSG_ITEM_TEXT_QUERY_RESPONSE                     = 0x2725,
     SMSG_ITEM_TIME_UPDATE                             = 0x2407,
     SMSG_JOINED_BATTLEGROUND_QUEUE                    = 0x0000,
-    SMSG_KICK_REASON                                  = 0x0000,
+	SMSG_KICK_REASON = 0x4027,
     SMSG_LEARNED_DANCE_MOVES                          = 0x0E05,
     SMSG_LEARNED_SPELL                                = 0x58A2,
     SMSG_LEVELUP_INFO                                 = 0x0435,
@@ -1109,6 +1102,7 @@ enum Opcodes
     SMSG_NEW_WORLD                                    = 0x79B1,
     SMSG_NEW_WORLD_ABORT                              = 0x14B7,
     SMSG_NOTIFICATION                                 = 0x14A0,
+	SMSG_NOTIFICATION_2 = 0x0724,
     SMSG_NOTIFY_DANCE                                 = 0x4904,
     SMSG_NOTIFY_DEST_LOC_SPELL_CAST                   = 0x6204,
     SMSG_NPC_TEXT_UPDATE                              = 0x4436,
@@ -1154,7 +1148,6 @@ enum Opcodes
     SMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x2217,
     SMSG_PLAYER_MOVE                                  = 0x79A2,
     SMSG_PLAYER_SKINNED                               = 0x0116,
-    SMSG_PLAYER_UNK_DEAD_ALIVE                        = 0x0000,
     SMSG_PLAYER_VEHICLE_DATA                          = 0x4115,
     SMSG_PLAY_DANCE                                   = 0x4704,
     SMSG_PLAY_MUSIC                                   = 0x4B06,
@@ -1224,6 +1217,7 @@ enum Opcodes
     SMSG_RESET_FAILED_NOTIFY                          = 0x4616,
     SMSG_RESISTLOG                                    = 0x0000,
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x15B0,
+	SMSG_RESURRECT_FAILED = 0x6705,
     SMSG_RESURRECT_REQUEST                            = 0x2905,
     SMSG_RESYNC_RUNES                                 = 0x6224,
     SMSG_ROLE_POLL_BEGIN                              = 0x70B0,
@@ -1239,6 +1233,7 @@ enum Opcodes
     SMSG_SET_AI_ANIM_KIT                              = 0x0000,
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x35B6,
     SMSG_SET_FACTION_ATWAR                            = 0x4216,
+	SMSG_SET_FACTION_NOT_VISIBLE                      = 0x6737,
     SMSG_SET_FACTION_STANDING                         = 0x0126,
     SMSG_SET_FACTION_VISIBLE                          = 0x2525,
     SMSG_SET_FLAT_SPELL_MODIFIER                      = 0x2834,
@@ -1253,6 +1248,7 @@ enum Opcodes
     SMSG_SET_PROJECTILE_POSITION                      = 0x2616,
     SMSG_SHOWTAXINODES                                = 0x2A36,
     SMSG_SHOW_BANK                                    = 0x2627,
+	SMSG_SHOW_MAILBOX                                 = 0x2524,
     SMSG_SHOW_RATINGS                                 = 0x11B4,
     SMSG_SOCKET_GEMS_RESULT                           = 0x6014,
     SMSG_SOR_START_EXPERIENCE_INCOMPLETE              = 0x7CA7,
@@ -1282,7 +1278,7 @@ enum Opcodes
     SMSG_SPLINE_MOVE_GRAVITY_DISABLE                  = 0x5DB5,
     SMSG_SPLINE_MOVE_GRAVITY_ENABLE                   = 0x3CA6,
     SMSG_SPLINE_MOVE_ROOT                             = 0x51B4,
-    SMSG_SPLINE_MOVE_SET_ANIM                         = 0x4335,
+	SMSG_SPLINE_MOVE_SET_ANIM                         = 0x4335,
     SMSG_SPLINE_MOVE_SET_FEATHER_FALL                 = 0x3DA5,
     SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED            = 0x38B3,
     SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED                 = 0x39A0,
@@ -1305,7 +1301,6 @@ enum Opcodes
     SMSG_SPLINE_MOVE_UNSET_FLYING                     = 0x58A6,
     SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x7DA5,
     SMSG_SPLINE_MOVE_SET_WATER_WALK                   = 0x50A2,
-    SMSG_STABLE_RESULT                                = 0x2204,
     SMSG_STANDSTATE_UPDATE                            = 0x6F04,
     SMSG_START_MIRROR_TIMER                           = 0x6824,
     SMSG_START_TIMER                                  = 0x59A5,

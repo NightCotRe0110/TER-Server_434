@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
 #include "ObjectMgr.h"
@@ -435,7 +422,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     // these 2 gates are functional only on 25man modes
                     case GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_01:
                     case GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04:
-                        if (instance->GetSpawnMode() & 1)
+						if (instance->Is25ManRaid())
                             AddDoor(go, true);
                         break;
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
@@ -950,7 +937,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
             {
-                if (player && AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()))
+				if (player && player->GetSession()->HasPermission(RBAC_PERM_SKIP_CHECK_INSTANCE_REQUIRED_BOSSES))
                     return true;
 
                 switch (bossId)

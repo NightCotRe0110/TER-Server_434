@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
  */
 
 #include "Chat.h"
@@ -719,8 +706,8 @@ public:
 
         if (target)
         {
-            target->ResurrectPlayer(!AccountMgr::IsPlayerAccount(target->GetSession()->GetSecurity()) ? 1.0f : 0.5f);
-            target->SpawnCorpseBones();
+			target->ResurrectPlayer(target->GetSession()->HasPermission(RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
+			target->SpawnCorpseBones();
             target->SaveToDB();
         }
         else
@@ -922,7 +909,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         // save GM account without delay and output message
-        if (!AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
+		if (handler->GetSession()->HasPermission(RBAC_PERM_COMMANDS_SAVE_WITHOUT_DELAY))
         {
             if (Player* target = handler->getSelectedPlayer())
                 target->SaveToDB();
@@ -983,8 +970,8 @@ public:
 
     static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
-        //No args required for players
-        if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
+		// No args required for players
+		if (handler->GetSession() && !handler->GetSession()->HasPermission(RBAC_PERM_COMMANDS_USE_UNSTUCK_WITH_ARGS))
         {
             // 7355: "Stuck"
             if (Player* player = handler->GetSession()->GetPlayer())
@@ -1614,8 +1601,8 @@ public:
 
         std::string userName    = handler->GetTrinityString(LANG_ERROR);
         std::string eMail       = handler->GetTrinityString(LANG_ERROR);
-        std::string muteReason  = "";
-        std::string muteBy      = "";
+		std::string muteReason = "";
+		std::string muteBy = "";
         std::string lastIp      = handler->GetTrinityString(LANG_ERROR);
         uint32 security         = 0;
         std::string lastLogin   = handler->GetTrinityString(LANG_ERROR);
@@ -1648,7 +1635,7 @@ public:
                 EndianConvertReverse(ip);
 #endif
 
-                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_IP2NATION_COUNTRY);
+				PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
 
                 stmt->setUInt32(0, ip);
 
@@ -1695,7 +1682,7 @@ public:
         }
 
         if (muteTime > 0)
-            handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str(), muteBy.c_str(), muteReason.c_str());
+			handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str(), muteBy.c_str(), muteReason.c_str());
 
         if (banTime >= 0)
             handler->PSendSysMessage(LANG_PINFO_BAN, banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "permanently", bannedby.c_str(), banreason.c_str());
@@ -1808,19 +1795,13 @@ public:
 	    result = CharacterDatabase.Query(stmt);
 		if (result)
 		    {
-			    uint32 guildId = 0;
-			    std::string guildName = "";
-			    std::string guildRank = "";
-			    std::string note = "";
-			    std::string officeNote = "";
-			    
-			    Field* fields = result->Fetch();
-			    guildId = fields[0].GetUInt32();
-			    guildName = fields[1].GetString();
-			    //rankId           = fields[2].GetUInt8();
-			    guildRank = fields[3].GetString();
-			    note = fields[4].GetString();
-			    officeNote = fields[5].GetString();
+				Field* fields = result->Fetch();
+				
+				uint32 guildId = fields[0].GetUInt32();
+				std::string guildName = fields[1].GetString();
+				std::string guildRank = fields[2].GetString();
+				std::string note = fields[3].GetString();
+				std::string officeNote = fields[4].GetString();
 			    
 			    handler->PSendSysMessage(LANG_PINFO_GUILD_INFO, guildName.c_str(), guildId, guildRank.c_str(), note.c_str(), officeNote.c_str());
 			}
@@ -1968,7 +1949,9 @@ public:
 
         stmt->setString(1, muteReasonStr.c_str());
         stmt->setString(2, muteBy.c_str());
-        stmt->setUInt32(1, accountId);
+		stmt->setString(1, muteReasonStr.c_str());
+		stmt->setString(2, muteBy.c_str());
+		stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
@@ -2168,6 +2151,69 @@ public:
             return false;
 
         Unit* target = handler->getSelectedUnit();
+		char* str = strtok((char*)args, " ");
+		
+			if (strcmp(str, "go") == 0)
+			 {
+			char* guidStr = strtok(NULL, " ");
+			if (!guidStr)
+				 {
+				handler->SendSysMessage(LANG_BAD_VALUE);
+				handler->SetSentErrorMessage(true);
+				return false;
+				}
+			
+				int32 guid = atoi(guidStr);
+			if (!guid)
+				 {
+				handler->SendSysMessage(LANG_BAD_VALUE);
+				handler->SetSentErrorMessage(true);
+				return false;
+				}
+			
+			char* damageStr = strtok(NULL, " ");
+			if (!damageStr)
+				 {
+				handler->SendSysMessage(LANG_BAD_VALUE);
+				handler->SetSentErrorMessage(true);
+				return false;
+				}
+			
+				int32 damage = atoi(damageStr);
+			if (!damage)
+				 {
+				handler->SendSysMessage(LANG_BAD_VALUE);
+				handler->SetSentErrorMessage(true);
+				return false;
+				}
+			
+				if (Player* player = handler->GetSession()->GetPlayer())
+				 {
+				GameObject* go = NULL;
+			
+					if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
+					 go = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guid, goData->id);
+				
+					if (!go)
+					 {
+					handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guid);
+					handler->SetSentErrorMessage(true);
+					return false;
+					}
+				
+					if (!go->IsDestructibleBuilding())
+					 {
+						 handler->SendSysMessage(LANG_INVALID_GAMEOBJECT_TYPE);
+					handler->SetSentErrorMessage(true);
+					return false;
+					}
+				
+					go->ModifyHealth(-damage, player);
+				handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guid, -damage, go->GetGOValue()->Building.Health);
+				}
+			
+				return true;
+			}
         if (!target || !handler->GetSession()->GetPlayer()->GetSelection())
         {
             handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);

@@ -1,12 +1,4 @@
-# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
-#
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#TER-Server
 
 file(GLOB_RECURSE sources_Accounts Accounts/*.cpp Accounts/*.h)
 file(GLOB_RECURSE sources_Anticheat Anticheat/*.cpp Anticheat/*.h)
@@ -49,6 +41,7 @@ file(GLOB_RECURSE sources_Tickets Tickets/*.cpp Tickets/*.h)
 file(GLOB_RECURSE sources_Warden Warden/*.cpp Warden/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
+file(GLOB_RECURSE sources_Cfbg Cfbg/*.cpp Cfbg/*.h)
 
 # Create game-libary
 
@@ -65,6 +58,7 @@ set(game_STAT_SRCS
   ${sources_Addons}
   ${sources_AI}
   ${sources_AuctionHouse}
+  ${sources_AuctionHouseBot}
   ${sources_Battlefield}
   ${sources_Battlegrounds}
   ${sources_Calendar}
@@ -100,6 +94,7 @@ set(game_STAT_SRCS
   ${sources_Warden}
   ${sources_Weather}
   ${sources_World}
+  ${sources_Cfbg}
 )
 
 include_directories(
@@ -136,6 +131,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/AI/ScriptedAI
   ${CMAKE_CURRENT_SOURCE_DIR}/AI/SmartScripts
   ${CMAKE_CURRENT_SOURCE_DIR}/AuctionHouse
+  ${CMAKE_CURRENT_SOURCE_DIR}/AuctionHouseBot
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlefield
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlefield/Zones
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds

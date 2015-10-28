@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef __BATTLEGROUNDQUEUE_H
 #define __BATTLEGROUNDQUEUE_H
@@ -42,6 +28,7 @@ struct GroupQueueInfo                                       // stores informatio
 {
     std::map<uint64, PlayerQueueInfo*> Players;             // player queue info map
     uint32  Team;                                           // Player team (ALLIANCE/HORDE)
+    uint32  OTeam;                                          // Player team (ALLIANCE/HORDE)
     BattlegroundTypeId BgTypeId;                            // battleground type id
     bool    IsRated;                                        // rated
     uint8   ArenaType;                                      // 2v2, 3v3, 5v5 or 0 when BG
@@ -62,9 +49,10 @@ enum BattlegroundQueueGroupTypes
     BG_QUEUE_PREMADE_ALLIANCE   = 0,
     BG_QUEUE_PREMADE_HORDE      = 1,
     BG_QUEUE_NORMAL_ALLIANCE    = 2,
-    BG_QUEUE_NORMAL_HORDE       = 3
+    BG_QUEUE_NORMAL_HORDE       = 3,
+    BG_QUEUE_MIXED              = 4
 };
-#define BG_QUEUE_GROUP_TYPES_COUNT 4
+#define BG_QUEUE_GROUP_TYPES_COUNT 5
 
 class Battleground;
 class BattlegroundQueue
@@ -75,6 +63,11 @@ class BattlegroundQueue
 
         void BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 arenaType = 0, bool isRated = false, uint32 minRating = 0);
         void UpdateEvents(uint32 diff);
+
+        bool FillXPlayersToBG(BattlegroundBracketId bracket_id, Battleground* bg, bool start = false);
+        typedef std::multimap<int32, GroupQueueInfo*> QueuedGroupMap;
+        int32 PreAddPlayers(QueuedGroupMap m_PreGroupMap, int32 MaxAdd, uint32 MaxInTeam);
+        bool CheckCrossFactionMatch(BattlegroundBracketId bracket_id, Battleground* bg);
 
         void FillPlayersToBG(Battleground* bg, BattlegroundBracketId bracket_id);
         bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam);

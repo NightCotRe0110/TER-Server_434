@@ -1,20 +1,6 @@
-                /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+/*
+TER-Server
+*/
 
 #include "BattlegroundAB.h"
 #include "World.h"
@@ -120,7 +106,7 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                 m_ReputationScoreTics[team] += BG_AB_TickPoints[points];
                 if (m_ReputationScoreTics[team] >= m_ReputationTics)
                 {
-                    (team == TEAM_ALLIANCE) ? RewardReputationToTeam(509, 10, ALLIANCE) : RewardReputationToTeam(510, 10, HORDE);
+                    RewardReputationToTeam(509, 510, 10, team == ALLIANCE ? ALLIANCE : HORDE);
                     m_ReputationScoreTics[team] -= m_ReputationTics;
                 }
                 if (m_HonorScoreTics[team] >= m_HonorTics)
@@ -203,7 +189,7 @@ void BattlegroundAB::AddPlayer(Player* player)
     //create score and add it to map, default values are set in the constructor
     BattlegroundABScore* sc = new BattlegroundABScore;
     PlayerScores[player->GetGUID()] = sc;
-    sc->BgTeam = player->GetBGTeam();
+    sc->BgTeam = player->GetTeam();
     sc->TalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 }
 

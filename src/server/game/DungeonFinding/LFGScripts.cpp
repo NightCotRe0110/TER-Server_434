@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2014 WoWSource 4.3.4
- *
- * Do Not Share The SourceCode
- * and read our WoWSource Terms
- *
- */
-
-/* ScriptData
-SDName: LFG
-SD%Complete: 100%
-SDComment: Fully Working
-SDCategory: LFG
-EndScriptData
+TER-Server
 */
 
 #include "Common.h"
@@ -189,9 +177,12 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
         if (method == GROUP_REMOVEMETHOD_LEAVE && state == LFG_STATE_DUNGEON &&
             players >= LFG_GROUP_KICK_VOTES_NEEDED)
             player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, true);
-        //else if (state == LFG_STATE_BOOT)
-            // Update internal kick cooldown of kicked
-
+		/*
+		if (method == GROUP_REMOVEMETHOD_LEAVE)
+			           // Add deserter flag
+        else if (state == LFG_STATE_BOOT)
+             Update internal kick cooldown of kicked
+			 */
         player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1), true);
         if (isLFG && player->GetMap()->IsDungeon())            // Teleport player out the dungeon
             sLFGMgr->TeleportPlayer(player, true);

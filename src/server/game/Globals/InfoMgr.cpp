@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "InfoMgr.h"
 
 void InfoMgr::Initialize()

@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #include "SharedDefines.h"
 #include "ArcheologyMgr.h"
 #include "DBCStores.h"

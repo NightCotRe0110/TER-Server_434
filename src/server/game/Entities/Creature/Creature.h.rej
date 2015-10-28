@@ -1,0 +1,12 @@
+diff a/src/server/game/Entities/Creature/Creature.h b/src/server/game/Entities/Creature/Creature.h	(rejected hunks)
+@@ -481,7 +481,5 @@
+         bool canCreatureAttack(Unit const* victim, bool force = true) const;
+-        bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster = NULL);
+-                                                            // redefine Unit::IsImmunedToSpell
+-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster = NULL) const;
+-                                                            // redefine Unit::IsImmunedToSpellEffect
+-        bool isElite() const
++		bool IsImmunedToSpell(SpellInfo const* spellInfo);                           // redefine Unit::IsImmunedToSpell
++		bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; // redefine Unit::IsImmunedToSpellEffect
++		bool isElite() const
+         {

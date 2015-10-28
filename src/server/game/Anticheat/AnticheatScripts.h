@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #ifndef SC_ACSCRIPTS_H
 #define SC_ACSCRIPTS_H
 

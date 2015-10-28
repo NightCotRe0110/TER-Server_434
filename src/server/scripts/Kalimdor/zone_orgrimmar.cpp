@@ -74,31 +74,6 @@ public:
     }
 };
 
-/*
-*/
-
-class npc_hellscream_demolisher : public CreatureScript
-{
-public:
-	npc_hellscream_demolisher() : CreatureScript("npc_hellscream_demolisher") { }
-
-
-
-	bool OnGossipHello(Player* pPlayer, Creature* pCreature){
-		if (pPlayer->GetQuestStatus(26294) == QUEST_STATUS_INCOMPLETE){
-			int GUID = pCreature->GetGUID();
-			if (((int)pCreature->GetGUID()) == 117179){
-				pPlayer->KilledMonsterCredit(42674, 1);
-				pPlayer->KilledMonsterCredit(42675, 1);
-				pCreature->DisappearAndDie();
-			}
-		}
-		return false;
-	}
-};
-
-
-
 /*######
 ## npc_shenthul
 ######*/
@@ -310,7 +285,6 @@ public:
 
 void AddSC_orgrimmar()
 {
-	new npc_hellscream_demolisher();
     new npc_neeru_fireblade();
     new npc_shenthul();
     new npc_thrall_warchief();

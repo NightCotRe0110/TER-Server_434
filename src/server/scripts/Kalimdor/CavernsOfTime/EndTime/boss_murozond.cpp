@@ -85,8 +85,13 @@ class boss_murozond : public CreatureScript
                 switch(action)
                 {
                     case ACTION_REWIND_TIME:
-                        
-                        --NumOfRewind;
+                        if (NumOfRewind == 0)
+                        {
+                            if (GameObject* go = me->FindNearestGameObject(209249, 300.0f))
+                                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        }
+                        else
+                            --NumOfRewind;
 
                         me->RemoveDynObject(101984);
 
@@ -233,84 +238,7 @@ class boss_murozond : public CreatureScript
         }
 };
 
-class npc_hourglass_of_time : public CreatureScript
-{
-	enum
-	{
-		SPELL_REWIND_TIME = 101591
-	};
-
-	struct npc_hourglass_of_timeAI : public BossAI
-	{
-		npc_hourglass_of_timeAI(Creature * creature) : BossAI(creature, BOSS_MUROZOND)
-		{
-			me->SetReactState(REACT_PASSIVE);
-		}
-
-		bool done;
-		uint32 CheckAura;
-		uint32 CheckAgain;
-		uint8 UsedCharge;
-
-		void Reset()
-		{
-			UsedCharge = 0;
-			CheckAgain = 0;
-			CheckAura = 1000;
-			done = false;
-		}
-
-		void UpdateAI(const uint32 diff)
-		{
-			if (!done)
-			{
-				Creature * muro = me->FindNearestCreature(NPC_MUROZOND, 100.0f, true);
-				if (muro)
-				{
-					if (CheckAura <= diff)
-					{
-						if (Player * player = me->FindNearestPlayer(100.0f, true))
-						    if (player->HasAura(SPELL_REWIND_TIME))
-						    {
-						    	muro->GetAI()->DoAction(ACTION_REWIND_TIME);
-						    	done = true;
-								CheckAgain = 6000;
-
-								if (UsedCharge == 4)
-								{
-									if (GameObject* go = me->FindNearestGameObject(209249, 300.0f))
-										go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-								}
-								else
-									UsedCharge++;
-						    }
-					}
-					else CheckAura -= diff;
-				}
-			}
-			else
-			{
-				if (CheckAgain <= diff)
-				{
-					CheckAura = 1000;
-					CheckAgain = 0;
-					done = false;
-				}
-				else CheckAgain -= diff;
-			}
-		}
-	};
-public:
-	npc_hourglass_of_time() : CreatureScript("npc_hourglass_of_time") {}
-
-	CreatureAI * GetAI(Creature * creature) const
-	{
-		return new npc_hourglass_of_timeAI(creature);
-	}
-};
-
 void AddSC_boss_murozond()
 {
     new boss_murozond;
-	new npc_hourglass_of_time;
 }

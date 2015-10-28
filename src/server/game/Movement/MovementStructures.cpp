@@ -1,19 +1,5 @@
 /*
-* Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
+TER-Server
 */
 
 #include "MovementStructures.h"
@@ -4479,6 +4465,49 @@ MovementStatusElements SplineMoveUnsetHover[] =
     MSEGuidByte1,
     MSEEnd,
 };
+
+MovementStatusElements const SplineMoveSetWaterWalk[] =
+{
+	MSEHasGuidByte6,
+		MSEHasGuidByte1,
+		MSEHasGuidByte4,
+		MSEHasGuidByte2,
+		MSEHasGuidByte3,
+		MSEHasGuidByte7,
+		MSEHasGuidByte5,
+		MSEHasGuidByte0,
+		MSEGuidByte0,
+		MSEGuidByte6,
+		MSEGuidByte3,
+		MSEGuidByte7,
+		MSEGuidByte4,
+		MSEGuidByte2,
+		MSEGuidByte5,
+		MSEGuidByte1,
+		MSEEnd,
+	};
+
+MovementStatusElements const SplineMoveSetLandWalk[] =
+{
+	MSEHasGuidByte5,
+		MSEHasGuidByte0,
+		MSEHasGuidByte4,
+		MSEHasGuidByte6,
+		MSEHasGuidByte7,
+		MSEHasGuidByte2,
+		MSEHasGuidByte3,
+		MSEHasGuidByte1,
+		MSEGuidByte5,
+		MSEGuidByte7,
+		MSEGuidByte3,
+		MSEGuidByte4,
+		MSEGuidByte1,
+		MSEGuidByte2,
+		MSEGuidByte0,
+		MSEGuidByte6,
+		MSEEnd,
+		};
+
 
 //4.3.4
 MovementStatusElements MovementHoverAck[] =

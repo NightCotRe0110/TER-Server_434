@@ -496,10 +496,11 @@ public:
 		return new npc_ghursha_mind_fogAI(pCreature);
 	}
 
-	struct npc_ghursha_mind_fogAI : public Scripted_NoMovementAI
+	struct npc_ghursha_mind_fogAI : public ScriptedAI
 	{
-		npc_ghursha_mind_fogAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+		npc_ghursha_mind_fogAI(Creature* pCreature) : ScriptedAI(pCreature)
 		{
+			SetCombatMovement(false);
 			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 			me->SetReactState(REACT_PASSIVE);

@@ -1,25 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
-/*
- * Scripts for spells with SPELLFAMILY_WARLOCK and SPELLFAMILY_GENERIC spells used by warlock players.
- * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_warl_".
- */
 
 #include "Player.h"
 #include "Pet.h"
@@ -869,63 +851,62 @@ class spell_warl_fel_synergy : public SpellScriptLoader
 /// Updated 4.3.4
 class spell_warl_haunt : public SpellScriptLoader
 {
-    public:
-        spell_warl_haunt() : SpellScriptLoader("spell_warl_haunt") { }
+public:
+	spell_warl_haunt() : SpellScriptLoader("spell_warl_haunt") { }
 
-        class spell_warl_haunt_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warl_haunt_SpellScript);
+	class spell_warl_haunt_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_warl_haunt_SpellScript);
 
-            void HandleOnHit()
-            {
-                if (Aura* aura = GetHitAura())
-                    if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
-                        aurEff->SetAmount(CalculatePct(aurEff->GetAmount(), GetHitDamage()));
-            }
+		void HandleOnHit()
+		{
+			if (Aura* aura = GetHitAura())
+				if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
+					aurEff->SetAmount(CalculatePct(aurEff->GetAmount(), GetHitDamage()));
+		}
 
-            void Register()
-            {
-                OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
-            }
-        };
+		void Register() override
+		{
+			OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
+		}
+	};
 
-        class spell_warl_haunt_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_haunt_AuraScript);
+	class spell_warl_haunt_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_warl_haunt_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_HAUNT_HEAL))
-                    return false;
-                return true;
-            }
+		bool Validate(SpellInfo const* /*spellInfo*/) override
+		{
+			if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_HAUNT_HEAL))
+				return false;
+			return true;
+		}
 
-            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 amount = aurEff->GetAmount();
-                    GetTarget()->CastCustomSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, &amount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
-                }
-            }
+		void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+		{
+			if (Unit* caster = GetCaster())
+			{
+				int32 amount = aurEff->GetAmount();
+				GetTarget()->CastCustomSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, &amount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+			}
+		}
 
-            void Register()
-            {
-                OnEffectRemove += AuraEffectApplyFn(spell_warl_haunt_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            }
-        };
+		void Register() override
+		{
+			OnEffectRemove += AuraEffectApplyFn(spell_warl_haunt_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+		}
+	};
 
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warl_haunt_SpellScript();
-        }
+	SpellScript* GetSpellScript() const override
+	{
+		return new spell_warl_haunt_SpellScript();
+	}
 
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_haunt_AuraScript();
-        }
+	AuraScript* GetAuraScript() const override
+	{
+		return new spell_warl_haunt_AuraScript();
+	}
 };
-
 // 755 - Health Funnel
 /// Updated 4.3.4
 class spell_warl_health_funnel : public SpellScriptLoader

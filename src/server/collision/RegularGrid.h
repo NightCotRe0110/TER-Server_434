@@ -1,3 +1,7 @@
+/*
+TER-Server
+*/
+
 #ifndef _REGULAR_GRID_H
 #define _REGULAR_GRID_H
 

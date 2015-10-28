@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
@@ -291,6 +277,10 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
             --diff;
     }
 
+	// Initialize loot duplicate count depending on raid difficulty
+	if (GetMap()->Is25ManRaid())
+	 loot.maxDuplicates = 3;
+	
     SetEntry(Entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
 
@@ -320,10 +310,11 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
 
     // Load creature equipment
-    if (!data || data->equipmentId == 0)                    // use default from the template
-        LoadEquipment(GetOriginalEquipmentId());
-    else if (data && data->equipmentId != 0)                // override, 0 means no equipment
-        LoadEquipment(data->equipmentId);
+	if (!data || data->equipmentId == 0)
+	 LoadEquipment(); // use default equipment (if available)
+	else if (data && data->equipmentId != 0)                // override, 0 means no equipment
+		LoadEquipment(data->equipmentId);
+	
 
     SetName(normalInfo->Name);                              // at normal entry always
 
@@ -1171,6 +1162,8 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, cinfo->attackpower);
 
+	sScriptMgr->Creature_SelectLevel(cinfo, this);
+
 }
 
 float Creature::_GetHealthMod(int32 Rank)
@@ -1466,6 +1459,15 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
             return false;
     }
 
+	// No aggro for grey creatures
+	if (who->m_ControlledByPlayer && sWorld->getBoolConfig(CONFIG_NO_GREY_AGGRO))
+		 {
+		uint32 playerlevel = who->getLevelForTarget(this);
+		uint32 creaturelevel = getLevelForTarget(who);
+		if (Trinity::XP::GetColorCode(playerlevel, creaturelevel) == XP_GRAY)
+			return false;
+		}
+	
     if (!canCreatureAttack(who, force))
         return false;
 
@@ -1517,7 +1519,7 @@ void Creature::setDeathState(DeathState s)
     if (s == JUST_DIED)
     {
         m_corpseRemoveTime = time(NULL) + m_corpseDelay;
-        m_respawnTime = time(NULL) + m_respawnDelay + m_corpseDelay;
+		m_respawnTime = time(NULL) + (m_respawnDelay / sWorld->getFloatConfig(CONFIG_RESPAWNSPEED)) + m_corpseDelay;
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
@@ -1525,6 +1527,10 @@ void Creature::setDeathState(DeathState s)
 
         SetTarget(0);                // remove target selection in any cases (can be set at aura remove in Unit::setDeathState)
         SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+
+		if (GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID)) // if creature is mounted on a virtual mount, remove it at death
+	    SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
+
         setActive(false);
 
         if (!isPet() && GetCreatureTemplate()->SkinLootId)
@@ -2091,10 +2097,12 @@ bool Creature::LoadCreaturesAddon(bool reload)
         SetByteValue(UNIT_FIELD_BYTES_1, 3, uint8((cainfo->bytes1 >> 24) & 0xFF));
 
         //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
-        //! If no inhabittype_fly (if no MovementFlag_DisableGravity flag found in sniffs)
+		//! If no inhabittype_fly (if no MovementFlag_DisableGravity or MovementFlag_CanFly flag found in sniffs)
+       //! Check using InhabitType as movement flags are assigned dynamically
+       //! basing on whether the creature is in air or not
         //! Set MovementFlag_Hover. Otherwise do nothing.
-        if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE1_FLAG_HOVER && !IsLevitating())
-            AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+		if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE1_FLAG_HOVER && !(GetCreatureTemplate()->InhabitType & INHABIT_AIR))
+			AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
     }
 
     if (cainfo->bytes2 != 0)

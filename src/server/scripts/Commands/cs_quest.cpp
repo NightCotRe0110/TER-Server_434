@@ -1,26 +1,7 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
-/* ScriptData
-Name: quest_commandscript
-%Complete: 100
-Comment: All quest related commands
-Category: commandscripts
-EndScriptData */
 
 #include "Chat.h"
 #include "ObjectMgr.h"
@@ -129,7 +110,7 @@ public:
         }
 
         // remove all quest entries for 'entry' from quest log
-        for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+		for (uint8 slot = 0; slot < sWorld->getIntConfig(CONFIG_QUESTS_9999); ++slot)
         {
             uint32 logQuest = player->GetQuestSlotQuestId(slot);
             if (logQuest == entry)
@@ -138,6 +119,12 @@ public:
 
                 // we ignore unequippable quest items in this case, its' still be equipped
                 player->TakeQuestSourceItem(logQuest, false);
+
+				if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+					 {
+				player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+					player->UpdatePvPState();
+					}
             }
         }
 

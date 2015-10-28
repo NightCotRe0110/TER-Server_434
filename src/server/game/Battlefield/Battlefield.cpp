@@ -1,19 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
@@ -162,16 +149,17 @@ bool Battlefield::Update(uint32 diff)
         // Kick players who chose not to accept invitation to the battle
         if (m_uiKickDontAcceptTimer <= diff)
         {
+			time_t now = time(NULL);
             for (int team = 0; team < 2; team++)
                 for (PlayerTimerMap::iterator itr = m_InvitedPlayers[team].begin(); itr != m_InvitedPlayers[team].end(); ++itr)
-                    if ((*itr).second <= time(NULL))
-                        KickPlayerFromBattlefield((*itr).first);
+					if (itr->second <= now)
+						 KickPlayerFromBattlefield(itr->first);
 
             InvitePlayersInZoneToWar();
             for (int team = 0; team < 2; team++)
                 for (PlayerTimerMap::iterator itr = m_PlayersWillBeKick[team].begin(); itr != m_PlayersWillBeKick[team].end(); ++itr)
-                    if ((*itr).second <= time(NULL))
-                        KickPlayerFromBattlefield((*itr).first);
+					if (itr->second <= now)
+						 KickPlayerFromBattlefield(itr->first);
 
             m_uiKickDontAcceptTimer = 1000;
         }
@@ -767,17 +755,15 @@ void BfGraveyard::GiveControlTo(TeamId team)
         m_SpiritGuide[1 - team]->SetVisible(false);
     if (m_SpiritGuide[team])
         m_SpiritGuide[team]->SetVisible(true);*/
-	if (team != NULL && m_ControlTeam != NULL)
-		m_ControlTeam = team;
-		// Teleport to other graveyard, player witch were on this graveyard
-		RelocateDeadPlayers();
-	//}
+
+    m_ControlTeam = team;
+    // Teleport to other graveyard, player witch were on this graveyard
+    RelocateDeadPlayers();
 }
 
 void BfGraveyard::RelocateDeadPlayers()
 {
     WorldSafeLocsEntry const* closestGrave = NULL;
-//	if (m_ResurrectQueue != NULL)
     for (GuidSet::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
     {
         Player* player = sObjectAccessor->FindPlayer(*itr);

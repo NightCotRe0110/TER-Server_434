@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
 #include "ScriptMgr.h"
@@ -254,9 +241,9 @@ class mob_nadox_eggs : public CreatureScript
 public:
     mob_nadox_eggs() : CreatureScript("mob_nadox_eggs") { }
 
-    struct mob_nadox_eggsAI : public Scripted_NoMovementAI
+	struct mob_nadox_eggsAI : public ScriptedAI
     {
-        mob_nadox_eggsAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		mob_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             creature->UpdateAllStats();

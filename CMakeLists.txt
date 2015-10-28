@@ -1,15 +1,7 @@
-# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
-#
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# TER-Server
 
 # Set projectname (must be done AFTER setting configurationtypes)
-project(WoWSource4.3.4)
+project(TER-Server)
 
 # CMake policies (can not be handled elsewhere)
 cmake_minimum_required(VERSION 2.8)
@@ -61,6 +53,10 @@ if( UNIX )
   find_package(Readline)
   find_package(ZLIB)
   find_package(BZip2)
+endif()
+
+if(NOT WITHOUT_GIT)
+  find_package(Git)
 endif()
 
 # Find revision ID and hash of the sourcetree

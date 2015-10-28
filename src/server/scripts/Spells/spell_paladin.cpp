@@ -1,24 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- * Scripts for spells with SPELLFAMILY_PALADIN and SPELLFAMILY_GENERIC spells used by paladin players.
- * Ordered alphabetically using scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_pal_".
+ *TER-Server_S
  */
 
 #include "Player.h"
@@ -63,8 +44,7 @@ enum PaladinSpells
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
 
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
-    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411,
-	SPELL_PALADIN_DIVINE_AVENGING_WRATH          = 31884,
+    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
 };
 
 enum PaladinGuardianOfAncientKingsSpells
@@ -1952,40 +1932,6 @@ class spell_pal_judgements_of_the_bold : public SpellScriptLoader
         }
 };
 
-/*#########
-# avenging wrath - 31884
-##########*/
-class spell_pal_avenging_wrath_heal_bonus : public SpellScriptLoader
-{
-public:
-	spell_pal_avenging_wrath_heal_bonus() : SpellScriptLoader("spell_pal_avenging_wrath_heal_bonus") { }
-
-	class spell_pal_avenging_wrath_heal_bonus_SpellScript : public SpellScript
-	{
-		PrepareSpellScript(spell_pal_avenging_wrath_heal_bonus_SpellScript);
-
-		void HandleHeal(SpellEffIndex /*effIndex*/)
-		{
-			Unit* caster = GetOriginalCaster();
-			if (caster->HasAura(SPELL_PALADIN_DIVINE_AVENGING_WRATH))
-			{
-				int32 heal = GetHitHeal();
-				SetHitHeal(heal * 1.2f);
-			}
-		}
-
-		void Register()
-		{
-			OnEffectHitTarget += SpellEffectFn(spell_pal_avenging_wrath_heal_bonus_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-		}
-	};
-
-	SpellScript* GetSpellScript() const
-	{
-		return new spell_pal_avenging_wrath_heal_bonus_SpellScript();
-	}
-};
-
 void AddSC_paladin_spell_scripts()
 {
 	new spell_pal_guardian_of_ancient_kings_retri();
@@ -2024,5 +1970,4 @@ void AddSC_paladin_spell_scripts()
     new spell_paladin_holy_radiance();
     new spell_pal_judgements_of_the_bold();
     new spell_pal_judgements_of_the_wise();
-	new spell_pal_avenging_wrath_heal_bonus();
 }

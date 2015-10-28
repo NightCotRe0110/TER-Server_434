@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "GameEventMgr.h"
 #include "World.h"
@@ -206,7 +192,7 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
                                                 //          0                   1                           2                   3       4       5           6           7
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, description, world_event FROM game_event");
+		QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, description, world_event, announce FROM game_event");
         if (!result)
         {
             mGameEvent.clear();
@@ -237,6 +223,7 @@ void GameEventMgr::LoadFromDB()
 
             pGameEvent.state        = (GameEventState)(fields[7].GetUInt8());
             pGameEvent.nextstart    = 0;
+			pGameEvent.announce = fields[8].GetUInt8();
 
             if (pGameEvent.length == 0 && pGameEvent.state == GAMEEVENT_NORMAL)                            // length>0 is validity check
             {
@@ -1105,14 +1092,10 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
 {
-    switch (sWorld->getIntConfig(CONFIG_EVENT_ANNOUNCE))
-    {
-        case 0:                                             // disable
-            break;
-        case 1:                                             // announce events
+			uint8 announce = mGameEvent[event_id].announce;
+			if (announce == 1 || (announce == 2 && sWorld->getIntConfig(CONFIG_EVENT_ANNOUNCE)))
             sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
-            break;
-    }
+    
 
     sLog->outInfo(LOG_FILTER_GAMEEVENTS, "GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
 
@@ -1368,7 +1351,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                 if (data2->equipmentId == 0)
-                    itr->second.equipement_id_prev = 1;
+					itr->second.equipement_id_prev = 1;
                 else if (data2->equipmentId != -1)
                     itr->second.equipement_id_prev = data->equipmentId;
                 itr->second.modelid_prev = displayID;

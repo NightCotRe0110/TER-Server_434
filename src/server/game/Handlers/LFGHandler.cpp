@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2014 WoWSource 4.3.4
- *
- * Do Not Share The SourceCode
- * and read our WoWSource Terms
- *
- */
-
-/* ScriptData
-SDName: LFG
-SD%Complete: 100%
-SDComment: Fully Working
-SDCategory: LFG
-EndScriptData
+TER-Server
 */
 
 #include "LFGMgr.h"
@@ -172,8 +160,10 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLfgProposalResultOpcode(WorldPacket& recvData)
 {
+    uint32 lfgGroupID;                                     // Internal lfgGroupID
     bool accept;                                           // Accept to join?
 
+    uint32 roles;
     uint32 ProposalID;
     recvData >> ProposalID;
     recvData.read_skip<uint32>();

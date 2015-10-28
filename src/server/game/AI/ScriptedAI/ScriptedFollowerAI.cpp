@@ -1,13 +1,6 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
-
-/* ScriptData
-SDName: FollowerAI
-SD%Complete: 50
-SDComment: This AI is under development
-SDCategory: Npc
-EndScriptData */
+/*
+TER-Server
+*/
 
 #include "ScriptedCreature.h"
 #include "ScriptedFollowerAI.h"
@@ -281,7 +274,7 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
 
     if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
-        sLog->outError(LOG_FILTER_TSCR, "FollowerAI attempt to StartFollow while already following.");
+     //   sLog->outError(LOG_FILTER_TSCR, "FollowerAI attempt to StartFollow while already following.");
         return;
     }
 

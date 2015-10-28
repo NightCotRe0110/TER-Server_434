@@ -1,0 +1,16 @@
+***************
+*** 19,24 ****
+  #include "G3D/G3DGameUnits.h"
+  #include "G3D/BinaryFormat.h"
+  #include <string>
+  
+  #ifdef G3D_OSX
+  #   include <CoreServices/CoreServices.h>
+--- 19,25 ----
+  #include "G3D/G3DGameUnits.h"
+  #include "G3D/BinaryFormat.h"
+  #include <string>
++ #include <sys/socket.h>
+  
+  #ifdef G3D_OSX
+  #   include <CoreServices/CoreServices.h>

@@ -1,32 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/*
-* Comment: No Waves atm and the doors spells are crazy...
-*
-* When your group enters the main room (the one after the bridge), you will notice a group of 3 Nerubians.
-* When you engage them, 2 more groups like this one spawn behind the first one - it is important to pull the first group back,
-* so you don't aggro all 3. Hadronox will be under you, fighting Nerubians.
-*
-* This is the timed gauntlet - waves of non-elite spiders
-* will spawn from the 3 doors located a little above the main room, and will then head down to fight Hadronox. After clearing the
-* main room, it is recommended to just stay in it, kill the occasional non-elites that will attack you instead of the boss, and wait for
-* Hadronox to make his way to you. When Hadronox enters the main room, she will web the doors, and no more non-elites will spawn.
-*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -205,5 +179,5 @@ public:
 
 void AddSC_boss_hadronox()
 {
-    new boss_hadronox;
+	new boss_hadronox();
 }

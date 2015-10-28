@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #include "DatabaseEnv.h"
 #include "Mail.h"
@@ -25,6 +11,7 @@
 #include "Unit.h"
 #include "BattlegroundMgr.h"
 #include "Item.h"
+#include "WorldSession.h"
 #include "AuctionHouseMgr.h"
 #include "CalendarMgr.h"
 
@@ -197,10 +184,10 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         expire_delay = DAY;
      // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else
-        if (m_COD)
-            expire_delay = 3 * DAY;
+		if (m_COD)   
+			expire_delay = sWorld->getIntConfig(CONFIG_MAIL_TRAU) * DAY;  //Наложеная почта
         else
-            expire_delay = pSender && pSender->isGameMaster() ? 90 * DAY : 30 * DAY;
+			expire_delay = pSender && pSender->isGameMaster() ? sWorld->getIntConfig(CONFIG_MAIL_PLAYER) * DAY : sWorld->getIntConfig(CONFIG_MAIL_GM) * DAY;    //Гм и игрок
 
     time_t expire_time = deliver_time + expire_delay;
 
@@ -283,3 +270,64 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         deleteIncludedItems(temp);
     }
 }
+
+void WorldSession::SendExternalMails()
+ {
+	 sLog->outDebug(LOG_FILTER_GENERAL, "External Mail> Sending mails in queue...");
+	
+	PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_EXTERNAL_MAIL);
+	PreparedQueryResult result = CharacterDatabase.Query(stmt);
+	if (!result)
+		 {
+			 sLog->outDebug(LOG_FILTER_GENERAL, "External Mail> No mails in queue...");
+		return;
+		}
+	
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+	
+		MailDraft* mail = NULL;
+	
+		do
+		 {
+		Field *fields = result->Fetch();
+		uint32 id = fields[0].GetUInt32();
+	uint32 receiver_guid = fields[1].GetUInt32();
+		std::string subject = fields[2].GetString();
+		std::string body = fields[3].GetString();
+		uint32 money = fields[4].GetUInt32();
+		uint32 itemId = fields[5].GetUInt32();
+		uint32 itemCount = fields[6].GetUInt32();
+		
+			Player *receiver = ObjectAccessor::FindPlayer(receiver_guid);
+		
+			mail = new MailDraft(subject, body);
+		
+			if (money)
+			{
+				sLog->outDebug(LOG_FILTER_GENERAL, "External Mail> Adding money");
+			mail->AddMoney(money);
+			}
+		
+			if (itemId)
+			{
+				sLog->outDebug(LOG_FILTER_GENERAL, "External Mail> Adding %u of item with id %u", itemCount, itemId);
+			if (Item* mailItem = Item::CreateItem(itemId, itemCount))
+				 {
+				mailItem->SaveToDB(trans);
+				mail->AddItem(mailItem);
+				}
+			}
+		
+		mail->SendMailTo(trans, receiver ? receiver : MailReceiver(receiver_guid), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_RETURNED);
+		delete mail;
+		
+		stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXTERNAL_MAIL);
+		stmt->setUInt32(0, id);
+		trans->Append(stmt);
+		
+		sLog->outDebug(LOG_FILTER_GENERAL, "External Mail> Mail sent");
+		} while (result->NextRow());
+		
+		CharacterDatabase.CommitTransaction(trans);
+		sLog->outDebug(LOG_FILTER_GENERAL, "External Mail> All Mails Sent...");
+		}

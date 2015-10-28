@@ -1,27 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
-
-/* Script Data Start
-SDName: Dalaran
-SDAuthor: WarHead, MaXiMiUS
-SD%Complete: 99%
-SDComment: For what is 63990+63991? Same function but don't work correct...
-SDCategory: Dalaran
-Script Data End */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -55,9 +34,9 @@ class npc_mageguard_dalaran : public CreatureScript
 public:
     npc_mageguard_dalaran() : CreatureScript("npc_mageguard_dalaran") { }
 
-    struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
+	struct npc_mageguard_dalaranAI : public ScriptedAI
     {
-        npc_mageguard_dalaranAI(Creature* creature) : Scripted_NoMovementAI(creature)
+		npc_mageguard_dalaranAI(Creature* creature) : ScriptedAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
@@ -139,8 +118,8 @@ enum eArchmageVargoth
     ITEM_FAMILAR_PET             = 44738
 };
 
-#define GOSSIP_TEXT_FAMILIAR_WELCOME "I have a book that might interest you. Would you like to take a look?"
-#define GOSSIP_TEXT_FAMILIAR_THANKS  "Thank you! I will be sure to notify you if I find anything else."
+#define GOSSIP_TEXT_FAMILIAR_WELCOME "У меня есть книги, которые могут вас заинтересовать. Хотели бы вы взглянуть?"
+#define GOSSIP_TEXT_FAMILIAR_THANKS  "Спасибо Вам! Я обязательно сообщу вам, если найду что-то еще."
 
 class npc_archmage_vargoth: public CreatureScript
 {
@@ -190,7 +169,7 @@ enum eHiraSnowdawn
     SPELL_COLD_WEATHER_FLYING       = 54197
 };
 
-#define GOSSIP_TEXT_TRAIN_HIRA "I seek training to ride a steed."
+#define GOSSIP_TEXT_TRAIN_HIRA "Я ищу учителя чтоб оседлать коня."
 
 class npc_hira_snowdawn: public CreatureScript
 {

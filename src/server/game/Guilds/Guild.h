@@ -1,20 +1,6 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+TER-Server
+*/
 
 #ifndef TRINITYCORE_GUILD_H
 #define TRINITYCORE_GUILD_H
@@ -252,9 +238,9 @@ struct GuildChallengeReward
 };
 
 GuildChallengeReward const challengeRewards[GUILD_CHALLENGE_MAX + 1] = {{       0,    0, 0,   0},       //NULL
-                                                                        {  300000,  250, 7, 125},       //GUILD_CHALLENGE_DUNGEON
-                                                                        { 3000000, 1000, 1, 500},       //GUILD_CHALLENGE_RAID
-                                                                        { 1500000,  500, 3, 250}};      //GUILD_CHALLENGE_RATED_BATTLGROUND
+                                                                        {  1000,  250, 7, 125},       //GUILD_CHALLENGE_DUNGEON
+                                                                        { 10000, 1000, 1, 500},       //GUILD_CHALLENGE_RAID
+                                                                        { 15000,  500, 3, 250}};      //GUILD_CHALLENGE_RATED_BATTLGROUND
 
 
 enum GuildEventLogTypes
@@ -879,7 +865,7 @@ public:
     std::string const& GetName() const { return m_name; }
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
-
+	bool SetName(std::string const& name);
     // Handle client commands
     void HandleRoster(WorldSession* session = NULL);
     void HandleQuery(WorldSession* session);

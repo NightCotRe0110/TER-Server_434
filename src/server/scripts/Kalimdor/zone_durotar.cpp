@@ -1,18 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ *TER-Server
  */
 
 #include "ScriptMgr.h"
@@ -163,7 +150,7 @@ enum SayDarkspear
 
 };
 
-#define GOSSIP_ITEM_1 "I'm ready to face my challange."
+#define GOSSIP_ITEM_1 "Я готов встретить свой вызов."
 
 class npc_darkspear_jailor : public CreatureScript
 {
@@ -315,7 +302,7 @@ float fNodeNagaPosition[2][3] =
     {-1150.114380f, -5527.809082f,  8.105021f},
 };
 
-#define GOSSIP_HELLO_PIT "I'm ready to face my challenge."
+#define GOSSIP_HELLO_PIT "Я готов встретить свой вызов.."
 
 class npc_jailor : public CreatureScript
 {
@@ -354,7 +341,7 @@ public:
                 Phase = 0;
 
             CAST_AI(npc_jailor::npc_jailorAI, pCreature->AI())->Phase = Phase;
-            pCreature->MonsterSay("Get in the pit and show us your stuff, $N", LANG_UNIVERSAL, pPlayer->GetGUID());
+            pCreature->MonsterSay("Залезай в яму и доставай нам наши вещи, $N", LANG_UNIVERSAL, pPlayer->GetGUID());
 
             pPlayer->KilledMonsterCredit(pCreature->GetEntry(), 0);
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -466,7 +453,7 @@ public:
                     pNaga->SetReactState(REACT_AGGRESSIVE);
                     pNaga->setFaction(14);
                     pNaga->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NON_ATTACKABLE);
-                    pNaga->MonsterSay("They sssend you to your death, youngling.", LANG_UNIVERSAL, NULL);
+                    pNaga->MonsterSay("Они посылают вас на верную смерть, малыш.", LANG_UNIVERSAL, NULL);
                     pNaga->GetMotionMaster()->MoveCharge(fNodeNagaPosition[Phase][0], fNodeNagaPosition[Phase][1], fNodeNagaPosition[Phase][2], 5);
                 }
             }
