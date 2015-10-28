@@ -1,0 +1,54 @@
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 7 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 1 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 5 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 6 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 13 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 8 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 12 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 9 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 10 AND Quality = 1;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 4 AND Quality = 1;
+
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 7 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 1 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 5 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 6 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 13 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 8 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 12 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 9 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 10 AND Quality = 2;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 4 AND Quality = 2;
+
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 7 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 1 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 5 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 6 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 13 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 8 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 12 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 9 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 10 AND Quality = 3;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 4 AND Quality = 3;
+
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 7 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 1 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 5 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 6 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 13 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 8 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 12 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 9 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 10 AND Quality = 4;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 4 AND Quality = 4;
+
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 7 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 1 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 5 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 6 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 13 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 8 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 12 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 9 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 10 AND Quality = 5;
+UPDATE `item_template` SET `stackable` = 200 WHERE class = 7 AND subclass = 4 AND Quality = 5;
