@@ -445,6 +445,7 @@ void AddSC_dragon_soul_teleport_and_transport();
 void AddSC_boss_unsleeping();
 void AddSC_boss_warmaster_blackhorn();
 void AddSC_boss_warlord();
+void AddSC_boss_deathwing_spine();
 void AddSC_boss_ultraxion();
 void AddSC_boss_morchok();
 void AddSC_boss_hagara();
@@ -1236,9 +1237,10 @@ void AddKalimdorScripts()
     AddSC_boss_perotharn();
     AddSC_well_of_eternity_teleport();	
 	
-    AddSC_instance_dragon_soul();   // Dragon Soul
+    AddSC_instance_dragon_soul();   // Душа Дракона
     AddSC_dragon_soul_teleport_and_transport();
     AddSC_boss_unsleeping();
+	AddSC_boss_deathwing_spine();
     AddSC_boss_warmaster_blackhorn();
     AddSC_boss_warlord();
     AddSC_boss_ultraxion();

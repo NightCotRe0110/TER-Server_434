@@ -277,6 +277,11 @@ Position const HeartOfMagicSpawnPos = { 755.351f, 1298.31f, 223.909f, 0.0f }; //
 
 #define TEN_MINUTES         (10*MINUTE*IN_MILLISECONDS)
 
+enum Achievements
+{
+    ACHIEV_TIMED_START_EVENT       = 20387
+};
+
 enum AreaIds
 {
     AREA_EYE_OF_ETERNITY         = 4500

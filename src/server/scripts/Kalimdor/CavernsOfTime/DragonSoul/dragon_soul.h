@@ -1,21 +1,6 @@
-/* Copyright (C) 2006 - 2015 ScriptDev2 <http://www.scriptdev2.com/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2015 TrinityCore R2
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
+/*
+TER-Server
+*/
 #ifndef DRAGON_SOUL_H_
 #define DRAGON_SOUL_H_
 
@@ -55,6 +40,16 @@ enum Data
     DATA_LESSER_CACHE_25N = 210161,
     DATA_LESSER_CACHE_10H = 210162,
     DATA_LESSER_CACHE_25H = 210163,
+
+	DATA_GUID_DEAHTWING_SPINE_GUID = 6,
+	DATA_GUID_DEAHTWING_RAGE = 7,
+
+	DATA_GUID_DWR_PLATE_1 = 8,
+	DATA_GUID_DWR_PLATE_2 = 9,
+	DATA_GUID_DWR_PLATE_3 = 10,
+	DATA_DWR_SPINE_STATE = 11,
+	DATA_DWR_TENDON_LEFT_HEALTH = 12,
+	DATA_DWR_TENDON_RIGHT_HEALTH = 13,
 };
 
 enum GameObject_
@@ -67,6 +62,9 @@ enum GameObject_
     GO_DEATHWING_LOOT_25N = 209895,
     GO_DEATHWING_LOOT_10H = 209896,
     GO_DEATHWING_LOOT_25H = 209897,
+	DWR_PLATE_1 = 209623,
+	DWR_PLATE_2 = 209631,
+	DWR_PLATE_3 = 209632,
 };
 
 enum Spell_aspect
@@ -86,8 +84,27 @@ enum Creatures
     NPC_HAGARA       = 55689,
     NPC_ULTRAXION    = 55294,
     NPC_WARMASTER    = 56427,
-    NPC_DEATHWING_1  = 56173,
+   // NPC_DEATHWING_1  = 56173,
     NPC_DEATHWING_2  = 0,
+
+	NPC_DEATHWING_SPINE = 53879,
+	NPC_DEATHWING_RAGE  = 56173,
+	NPC_GORIONA         = 56781,
+
+	NPC_GLOBULE_ACIDIC = 55862,
+	NPC_GLOBULE_BLACK = 55867,
+	NPC_GLOBULE_COBALT = 55866,
+	NPC_GLOBULE_CRIMSON = 55865,
+	NPC_GLOBULE_GLOWING = 55864,
+	NPC_GLOBULE_SHADOWED = 55863,
+	NPC_MANA_VOID2 = 38068,
+	NPC_FORGOTTEN_ONE2 = 56265,
+
+	NPC_SPINE_CORRUPTION = 56161,
+	NPC_SPINE_AMALGAMATION = 53890,
+	NPC_SPINE_BLOOD = 53889,
+	NPC_SPINE_TENDONS = 56575,
+	NPC_SPINE_SPAWNER = 53888,
 
     NPC_MAELSTROM_ALEXSTRASZA = 56099,
     NPC_MAELSTROM_TRALL       = 56103,

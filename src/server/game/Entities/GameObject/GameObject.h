@@ -623,6 +623,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
         GameObjectValue const* GetGOValue() const { return &m_goValue; }
+		void ActivateAnimation(uint32 anim);
 
         bool IsTransport() const;
         bool IsDynTransport() const;
@@ -775,7 +776,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         void CastSpell(Unit* target, uint32 spell);
         void SendCustomAnim(uint32 anim);
-        void ActivateAnimation(uint32 anim);
         bool IsInRange(float x, float y, float z, float radius, bool is3D = true) const;
 
         void ModifyHealth(int32 change, Unit* attackerOrHealer = NULL, uint32 spellId = 0);

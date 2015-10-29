@@ -939,6 +939,8 @@ class WorldObject : public Object, public WorldLocation
         void SetTransport(Transport* t) { m_transport = t; }
 
         MovementInfo m_movementInfo;
+		// Check LoS
+		bool m_checkLoS;
     protected:
         std::string m_name;
         bool m_isActive;

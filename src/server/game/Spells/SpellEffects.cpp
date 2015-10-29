@@ -4915,7 +4915,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
-void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
+void Spell::EffectActivateObject(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -4927,6 +4927,18 @@ void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
     activateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
 
     // int32 unk = m_spellInfo->Effects[effIndex].MiscValue; // This is set for EffectActivateObject spells; needs research
+	switch (m_spellInfo->Id)
+		 {
+		case 105847:
+		case 105848:
+		case 105363:
+		case 105385:
+		case 105366:
+	    case 105384:
+			if (gameObjTarget->GetEntry() == 209623 || gameObjTarget->GetEntry() == 209631 || gameObjTarget->GetEntry() == 209632)
+			 gameObjTarget->ActivateAnimation(m_spellInfo->Effects[effIndex].MiscValueB);
+		break;
+		}
 
     gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, 0, m_caster, gameObjTarget);
 }
