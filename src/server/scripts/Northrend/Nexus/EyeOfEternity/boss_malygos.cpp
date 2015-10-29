@@ -277,6 +277,11 @@ Position const HeartOfMagicSpawnPos = { 755.351f, 1298.31f, 223.909f, 0.0f }; //
 
 #define TEN_MINUTES         (10*MINUTE*IN_MILLISECONDS)
 
+enum Achievements
+	{
+	    ACHIEV_TIMED_START_EVENT = 20387
+	};
+
 enum AreaIds
 {
     AREA_EYE_OF_ETERNITY         = 4500
@@ -356,7 +361,7 @@ public:
             SetPhase(PHASE_NOT_STARTED, true);
             me->SetReactState(REACT_PASSIVE);
             if (instance)
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+				instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         uint32 GetData(uint32 data) const
@@ -561,7 +566,7 @@ public:
             Talk(SAY_START_P_ONE);
             DoCast(SPELL_BERSEKER); // periodic aura, first tick in 10 minutes
             if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+				instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void EnterEvadeMode()
