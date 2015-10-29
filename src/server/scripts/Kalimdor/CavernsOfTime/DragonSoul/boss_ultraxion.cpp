@@ -2,12 +2,6 @@
 TER-Server
 */
 
-/* ScriptData
-SDName: boss_ultraxion
-SD%Complete: 95%
-*/
-
-
 #include "ScriptPCH.h"
 #include "Containers.h"
 #include "dragon_soul.h" 

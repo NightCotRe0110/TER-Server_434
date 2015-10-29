@@ -6912,6 +6912,12 @@ ActionButton const* Player::GetActionButton(uint8 button)
 
 bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
+	if (!teleport && !isGameMaster() && abs(sqrtf(x*x + y*y) - sqrtf(m_positionX*m_positionX + m_positionY*m_positionY)) > 500.f)
+		 {
+		GetSession()->KickPlayer(0);
+		return false;
+		}
+
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 

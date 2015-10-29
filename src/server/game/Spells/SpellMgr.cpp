@@ -2788,6 +2788,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 //Crashes client on pressing ESC (Maybe because of ReqSpellFocus and GameObject)
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;
                 break;
+			case 66393: // ID - 66393 Rolling with my Homies: Summon Hot Rod
             case 1776: // Gouge
             case 1777:
             case 8629:
@@ -3301,10 +3302,56 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 30657: // Quake
                 spellInfo->Effects[EFFECT_0].TriggerSpell = 30571;
                 break;
+				// Душа Дракона - Разрушение
+			case 106005:
+				spellInfo->AttributesEx2 &= ~SPELL_ATTR2_CAN_TARGET_DEAD;
+				spellInfo->AttributesEx3 &= ~SPELL_ATTR3_DEATH_PERSISTENT;
+				break;
             case 30541: // Blaze (needs conditions entry)
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
                 break;
+				// DragonSoul - Plate's Spells
+				case 105847:
+					case 105848:
+						case 105363:
+						case 105385:
+								case 105366:
+									case 105384:
+										spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_GAMEOBJECT_TARGET);
+										break;
+										// Transport health/damage buff
+										case 49346: // 2
+											case 49464: // 2
+												spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+												spellInfo->Effects[EFFECT_2].TargetB = SpellImplicitTargetInfo();
+												break;
+												case 49460: // 1, 2
+													spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+													spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo();
+													
+													spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+													spellInfo->Effects[EFFECT_2].TargetB = SpellImplicitTargetInfo();
+													break;
+												case 56071: // 0, 1
+														spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+														spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
+														
+														spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+														spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo();
+														break;
+														case 60682: // 1
+															case 60683: // 1
+																case 60944: // 1
+																	case 60962: // 1
+																		case 60968: // 1
+																			case 62309: // 1
+																				case 65030: // 1
+																				case 65031: // 1
+																						spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
+																						spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo();
+																						break;
+
             case 63665: // Charge (Argent Tournament emote on riders)
             case 31298: // Sleep (needs target selection script)
             case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)

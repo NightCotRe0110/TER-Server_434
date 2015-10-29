@@ -1,27 +1,6 @@
-/* Copyright (C) 2006 - 2015 ScriptDev2 <http://www.scriptdev2.com/>
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2015 TrinityCore R2
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-
-/* ScriptData
-SDName: boss_deathwing
-SD%Complete: 50%
-SDComment: All abilities not implemented
-SDCategory: Kalimdor, CavernsOfTime, DragonSoul
-EndScriptData */
+/*
+TER-Server
+*/
 
 #include "ScriptPCH.h"
 #include "dragon_soul.h"
@@ -344,7 +323,7 @@ class npc_maelstrom_trall : public CreatureScript
 					{
 					    player->CLOSE_GOSSIP_MENU();
 						instance->SetData(DATA_ATTACK_DEATHWING, IN_PROGRESS);
-						creature->SummonCreature(NPC_DEATHWING_1, -11903.9f, 11989.1f, -113.204f, 2.16421f, TEMPSUMMON_TIMED_DESPAWN, 12000000);
+						creature->SummonCreature(NPC_DEATHWING_RAGE, -11903.9f, 11989.1f, -113.204f, 2.16421f, TEMPSUMMON_TIMED_DESPAWN, 12000000);
 						creature->SummonCreature(57694, -11967.1f, 11958.8f, -49.9822f, 2.16421f, TEMPSUMMON_CORPSE_DESPAWN, 6000000);
 						creature->SummonCreature(57686, -11852.1f, 12036.4f, -49.9821f, 2.16421f, TEMPSUMMON_CORPSE_DESPAWN, 6000000);
 						creature->SummonCreature(57696, -11913.8f, 11926.5f, -60.3749f, 2.16421f, TEMPSUMMON_CORPSE_DESPAWN, 6000000);

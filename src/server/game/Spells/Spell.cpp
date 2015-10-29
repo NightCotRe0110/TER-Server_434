@@ -7089,6 +7089,9 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
 			return true;
 	}
 
+	if (!target->m_checkLoS)
+		 return true;
+	
 	// todo: shit below shouldn't be here, but it's temporary
 	//Check targets for LOS visibility (except spells without range limitations)
 	switch (m_spellInfo->Effects[eff].Effect)

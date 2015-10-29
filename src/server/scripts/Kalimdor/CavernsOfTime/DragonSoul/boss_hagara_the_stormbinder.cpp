@@ -2,11 +2,6 @@
 TER-Server
 */
 
-/* ScriptData
-SDName: boss_hagara_the_stormbinder
-SD%Complete: 70%
-*/
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "dragon_soul.h"
