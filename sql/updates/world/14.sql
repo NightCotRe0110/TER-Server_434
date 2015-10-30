@@ -1,3 +1,5 @@
+
+
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=45180;
 
 --- Gossip ---
@@ -37,7 +39,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES (4518000, 9, 7, 0, 0, 0, 100, 0, 1, 1, 1, 1, 11, 82929, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Script - HJ Jump 2');
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES (4518000, 9, 8, 0, 0, 0, 100, 0, 600, 600, 600, 600, 41, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Script - HJ Despawn');
 
-UPDATE `creature_template` SET `AIName`='SmartAI', WHERE `entry`=44860;
+
+
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`='44860';
 
 -- smart script --
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES (44860, 0, 0, 0, 1, 0, 100, 0, 2, 3, 2, 3, 33, 47318, 0, 0, 0, 0, 0, 17, 0, 30, 0, 0, 0, 0, 0, 'Harrison Jones Take to Them Credit');
@@ -66,7 +70,9 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES (44862, 0, -8949.57, -1546.4, 94.4538, 'PE Player WP1');
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES (44862, 1, -8957.07, -1546.86, 95.5901, 'PE Player WP2');
 
-///This one have a cutscene, that i represent using SmartAI the best i could
+
+
+
 UPDATE `creature_template` SET `AIName`='SmartAI', `InhabitType`=7 WHERE `entry`=45299;
 
 --- Texts ---
@@ -152,22 +158,22 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=42465;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=43809;
 
---- Quest ---- ///in case of need
+--- Quest ---- 
 UPDATE `quest_template` SET `Method`=2, `Flags`=1048712, `RequiredNpcOrGo1`=44051, `RequiredNpcOrGoCount1`=1 WHERE `Id`=26752 LIMIT 1;
 
 --- Texts ---
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 0, 0, 'So small. So soft. It's a wonder you've even lasted this long down here, fleshling.', 12, 0, 100, 0, 0, 0, 'Therazane Says 1');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 1, 0, 'Or perhaps a testament to your abilities?', 12, 0, 100, 0, 0, 0, 'Therazane Says 2');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 2, 0, 'All of this for a piece of the World Pillar? What exactly shaman do you intend to do with it?', 12, 0, 100, 0, 0, 0, 'Therazane Says 3');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 3, 0, 'And what then? Will you leave Deepholm to its denizens?', 12, 0, 100, 0, 0, 0, 'Therazane Says 4');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 4, 0, 'I'm glad you're at least that perceptive.', 12, 0, 100, 0, 0, 0, 'Therazane Says 5');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 5, 0, 'I propose this: We will march on the Twilight cult and extinguish any utterings of Deathwing\'s name from this realm. Your Earthen Ring will march with us.', 12, 0, 100, 0, 0, 0, 'Therazane Says 6');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 6, 0, 'You do this, and I will send Gorsik to the temple with our piece of the World Pillar.', 12, 0, 100, 0, 0, 0, 'Therazane Says 7');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 7, 0, 'Seal the rift and leave this place.', 12, 0, 100, 0, 0, 0, 'Therazane Says 8');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 8, 0, 'Save your thanks. We march upon the Twilight Precipice as soon as our forces are gathered. I expect to see you on the battlefield.', 12, 0, 100, 0, 0, 0, 'Therazane Says 9');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (43809, 0, 0, 'We came here to seal da rift Deathwing tore into Azeroth. We need the World Pillar to repair da hole on dis side.', 12, 0, 100, 0, 0, 0, 'Torunscar Says 1');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (43809, 1, 0, 'We'll leave. We've no desire to be stayin' where we're not welcome.', 12, 0, 100, 0, 0, 0, 'Torunscar Says 2');
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (43809, 2, 0, 'We'll be doin' exactly that then. Ya have our tanks, Stonemother.', 12, 0, 100, 0, 0, 0, 'Torunscar Says 3');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 0, 0, 'So small. So soft. It\'s a wonder you\'ve even lasted this long down here, fleshling.', 12, 0, 100, 0, 0, 0, 'Therazane Says 1');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 1, 0, 'Or perhaps a testament to your abilities?', 12, 0, 100, 0, 0, 0, 'Therazane Says 2');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 2, 0, 'All of this for a piece of the World Pillar? What exactly shaman do you intend to do with it?', 12, 0, 100, 0, 0, 0, 'Therazane Says 3');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 3, 0, 'And what then? Will you leave Deepholm to its denizens?', 12, 0, 100, 0, 0, 0, 'Therazane Says 4');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 4, 0, 'I\'m glad you\'re at least that perceptive.', 12, 0, 100, 0, 0, 0, 'Therazane Says 5');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 5, 0, 'I propose this: We will march on the Twilight cult and extinguish any utterings of Deathwing\'s name from this realm. Your Earthen Ring will march with us.', 12, 0, 100, 0, 0, 0, 'Therazane Says 6');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 6, 0, 'You do this, and I will send Gorsik to the temple with our piece of the World Pillar.', 12, 0, 100, 0, 0, 0, 'Therazane Says 7');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 7, 0, 'Seal the rift and leave this place.', 12, 0, 100, 0, 0, 0, 'Therazane Says 8');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (42465, 8, 0, 'Save your thanks. We march upon the Twilight Precipice as soon as our forces are gathered. I expect to see you on the battlefield.', 12, 0, 100, 0, 0, 0, 'Therazane Says 9');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (43809, 0, 0, 'We came here to seal da rift Deathwing tore into Azeroth. We need the World Pillar to repair da hole on dis side.', 12, 0, 100, 0, 0, 0, 'Torunscar Says 1');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (43809, 1, 0, 'We\'ll leave. We\'ve no desire to be stayin\' where we\'re not welcome.', 12, 0, 100, 0, 0, 0, 'Torunscar Says 2');
+REPLACE INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES (43809, 2, 0, 'We\'ll be doin\' exactly that then. Ya have our tanks, Stonemother.', 12, 0, 100, 0, 0, 0, 'Torunscar Says 3');
 
 --- Waypoints ---
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES (43809, 0, 2343.67, 192.749, 179.918, 'Torunscar WP1');
