@@ -396,9 +396,6 @@ void World::LoadConfigSettings(bool reload)
 	}
 
 	///- Read the player limit and the Message of the day from the config file
-	m_int_configs[CONFIG_LOGIN_SERVER_SEC_START] = ConfigMgr::GetIntDefault("TER-Server.Start.password", 00000000); // default: 64869375
-	m_int_configs[CONFIG_LOGIN_SERVER_SEC] = ConfigMgr::GetIntDefault("TER-Server.password", 00000000);       //NULL                                             //new rev = new password
-	m_int_configs[CONFIG_LOGIN_SERVER_SEC_LOG] = ConfigMgr::GetIntDefault("TER-Server.password", 00000000);       //NULL
 	SetPlayerAmountLimit(ConfigMgr::GetIntDefault("TER-Server_player_max", 9999));
 	SetMotd(ConfigMgr::GetStringDefault("Server", "TER-Server крови"));
 

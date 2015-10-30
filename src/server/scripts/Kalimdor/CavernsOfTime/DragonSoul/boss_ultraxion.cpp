@@ -6,12 +6,12 @@ TER-Server
 #include "Containers.h"
 #include "dragon_soul.h" 
 
-#define TRALL_MENU "We are ready!"
-#define ASPECT_MENU_1 "Last Defender of Azeroth"
-#define ASPECT_MENU_2 "Revolution Time"
-#define ASPECT_MENU_3 "The essence nova"
-#define ASPECT_MENU_4 "The gift of life"
-#define ASPECT_MENU_5 "magical power"
+#define TRALL_MENU "Мы готовы!"
+#define ASPECT_MENU_1 "Последний защитник Азерота"
+#define ASPECT_MENU_2 "Революция Время"
+#define ASPECT_MENU_3 "Сущность звезды"
+#define ASPECT_MENU_4 "Дар жизни"
+#define ASPECT_MENU_5 "магическая сила"
 
 
 #define H_TARGETS_10 1
