@@ -3983,7 +3983,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             // ENDOF RUBY SANCTUM SPELLS
             //
 			case 57473: 
-			case 57430: 
+			case 57431:
 			case 56091:
 			case 56092: 
 			case 57090: 

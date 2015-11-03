@@ -107,6 +107,7 @@ Object::~Object()
     }
 
     delete [] m_uint32Values;
+	m_uint32Values = 0;
 
 }
 

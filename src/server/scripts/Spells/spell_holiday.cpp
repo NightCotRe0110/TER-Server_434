@@ -2,7 +2,6 @@
 TER-Server
  */
 
-
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -10,6 +9,7 @@ TER-Server
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
 #include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 
 // 45102 Romantic Picnic
 enum SpellsPicnic

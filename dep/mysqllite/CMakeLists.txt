@@ -1,32 +1,18 @@
-# Copyright (C) 2006 MySQL AB
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
-#
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# TER-Server
 
-# Include the platform-specific file.
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/os/Windows.cmake)
 
-# Add macros
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/character_sets.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/mysql_version.cmake)
 
-# Advanced options (mostly useless, but usually still in config.h, so they need to be set...)
 set(CYBOZU OFF)
 set(BACKUP_TEST OFF)
 set(ENABLED_LOCAL_INFILE ON)
 set(WITH_FAST_MUTEXES OFF)
 
-# Handle useful options - hardcode to ON/OFF
 set(ENABLED_PROFILING OFF)
 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG ENABLED_DEBUG_SYNC)
  
-# Set DBUG_OFF and other optional release-only flags for non-debug project types
 foreach(BUILD_TYPE RELEASE RELWITHDEBINFO MINSIZEREL)
   set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_${BUILD_TYPE} DBUG_OFF)
   if(WITH_FAST_MUTEXES)

@@ -1059,7 +1059,7 @@ public:
                 handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, moneyToAddMsg, handler->GetNameLink(target).c_str());
                 if (handler->needReportToTarget(target))
                     ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), moneyToAddMsg);
-                target->SetMoney(newmoney);
+				target->SetMoney(newmoney);
             }
         }
         else
