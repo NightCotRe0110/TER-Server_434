@@ -70,10 +70,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     // TODO: add targets.read() check
     Player* pUser = _player;
 
-    // ignore for remote control state
-    if (pUser->m_mover != pUser)
-        return;
-
     uint8 bagIndex, slot, castFlags;
     uint8 castCount;                                       // next cast if exists (single or not)
     uint64 itemGUID;
@@ -284,7 +280,13 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
         return;
 
     if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(guid))
+	{
+		        // ignore for remote control state
+			if (_player->m_mover != _player)
+				if (!(_player->IsOnVehicle(_player->m_mover) || _player->IsMounted()) && !obj->GetGOInfo()->IsUsableMounted())
+					return;
         obj->Use(_player);
+	}
 }
 
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)

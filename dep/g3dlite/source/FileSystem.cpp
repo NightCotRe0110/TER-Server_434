@@ -1,11 +1,5 @@
-/**
- @file FileSystem.cpp
- 
- @author Morgan McGuire, http://graphics.cs.williams.edu
- 
- @author  2002-06-06
- @edited  2010-04-10
- */
+//TER-Server
+
 #include "G3D/FileSystem.h"
 #include "G3D/System.h"
 #include "G3D/stringutils.h"

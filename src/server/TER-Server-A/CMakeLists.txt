@@ -21,11 +21,18 @@ set(TER-Server-A_SRCS
 )
 
 if( WIN32 )
+if ( MSVC )
 set(TER-Server-A_SRCS
     ${TER-Server-A_SRCS}
     ${sources_Debugging}
     TER-Server-A.rc
-)
+ )
+  else ( )
+    set(TER-Server-A_SRCS
+      ${TER-Server-A_SRCS}
+      ${sources_Debugging}
+    )
+  endif ()
 endif()
 
 include_directories(
@@ -70,10 +77,17 @@ target_link_libraries(TER-Server-A
 )
 
 if( WIN32 )
-  add_custom_command(TARGET TER-Server-A
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/TER-Server-A.conf ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-  )
+   if ( MSVC )
+    add_custom_command(TARGET TER-Server-A
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/TER-Server-A.conf ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif ( MINGW )
+    add_custom_command(TARGET TER-Server-A
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/TER-Server-A.conf ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
 endif()
 
 if( UNIX )

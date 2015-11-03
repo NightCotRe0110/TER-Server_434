@@ -1,13 +1,4 @@
-/**
- @file platform.h
-
- \#defines for platform specific issues.
-
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
-
- @created 2003-06-09
- @edited  2010-08-11
- */
+//TER-Server
 
 #ifndef G3D_platform_h
 #define G3D_platform_h

@@ -1,18 +1,4 @@
-/** 
-  @file System.cpp
- 
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
-
-  Note: every routine must call init() first.
-
-  There are two kinds of detection used in this file.  At compile
-  time, the _MSC_VER #define is used to determine whether x86 assembly
-  can be used at all.  At runtime, processor detection is used to
-  determine if we can safely call the routines that use that assembly.
-
-  @created 2003-01-25
-  @edited  2010-01-03
- */
+//TER-Server
 
 #include "G3D/platform.h"
 #include "G3D/System.h"

@@ -176,8 +176,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 lang = LANG_UNIVERSAL;
             else
             {
-                // send in universal language in two side iteration allowed mode
-                if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT))
+				Unit::AuraEffectList const& ModLangAuras = sender->GetAuraEffectsByType(SPELL_AURA_MOD_LANGUAGE);
+				if (!ModLangAuras.empty())
+					 lang = ModLangAuras.front()->GetMiscValue();
+				else if (HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
                     lang = LANG_UNIVERSAL;
                 else
                 {
@@ -200,11 +202,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                             break;
                     }
                 }
-
-                // but overwrite it by SPELL_AURA_MOD_LANGUAGE auras (only single case used)
-                Unit::AuraEffectList const& ModLangAuras = sender->GetAuraEffectsByType(SPELL_AURA_MOD_LANGUAGE);
-                if (!ModLangAuras.empty())
-                    lang = ModLangAuras.front()->GetMiscValue();
             }
 
             if (!sender->CanSpeak())
@@ -330,18 +327,16 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             Player* receiver = sObjectAccessor->FindPlayerByName(to);
 			if (!receiver || (!HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) &&
-				receiver->GetSession()->HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) &&
 				!receiver->isAcceptWhispers() && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
 			{
                 SendPlayerNotFoundNotice(to);
                 return;
             }
 
-			if (GetPlayer()->GetTeam() != receiver->GetTeam() &&
-				(!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) ||
-				!HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) ||
-				!receiver->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT)))
-				 {
+			if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) &&
+				!receiver->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
+
+			{
 			SendWrongFactionNotice();
 				return;
 				}

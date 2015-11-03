@@ -21,11 +21,18 @@ set(TER-Server-W_SRCS
 )
 
 if( WIN32 )
-  set(TER-Server-W_SRCS
-    ${TER-Server-W_SRCS}
-    ${sources_Debugging}
-    TER-Server-W.rc
-  )
+  if ( MSVC )
+    set(TER-Server-W_SRCS
+      ${TER-Server-W_SRCS}
+      ${sources_Debugging}
+      TER-Server-W.rc
+    )
+  else ( )
+    set(TER-Server-W_SRCS
+      ${TER-Server-W_SRCS}
+      ${sources_Debugging}
+    )
+  endif ()
 endif()
 
 include_directories(
@@ -168,10 +175,17 @@ target_link_libraries(TER-Server-W
 )
 
 if( WIN32 )
-  add_custom_command(TARGET TER-Server-W
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/TER-Server-W.conf ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-  )
+  if ( MSVC )
+    add_custom_command(TARGET TER-Server-W
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/TER-Server-W.conf ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif ( MINGW )
+    add_custom_command(TARGET TER-Server-W
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/TER-Server-W.conf ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
 endif()
 
 if( UNIX )
@@ -182,7 +196,6 @@ elseif( WIN32 )
   install(FILES TER-Server-W.conf DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 
-# Generate precompiled header
 if( USE_COREPCH )
   add_cxx_pch(TER-Server-W ${TER-Server-W_PCH_HDR} ${TER-Server-W_PCH_SRC})
 endif()
