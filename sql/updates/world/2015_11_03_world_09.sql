@@ -6,6 +6,11 @@ INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, 
 (20990, 0, 10, 33273, 42000, 4602.977, -1600.141, 156.7834, 0.7504916);
 SET @ObjectGuid := 6068; -- set by TDB staff
 DELETE FROM `gameobject` WHERE `id`=300009;
+DELETE FROM `gameobject` WHERE `guid`=6068;
+DELETE FROM `gameobject` WHERE `guid`=6069;
+DELETE FROM `gameobject` WHERE `guid`=6070;
+DELETE FROM `gameobject` WHERE `guid`=6071;
+DELETE FROM `gameobject` WHERE `guid`=6072;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (@ObjectGuid+0,300009,571,1,1, 4606.72, -1606.91, 156.659, 1.62734,0.0,0.0, 0.726811, 0.686837,300,0,1),
 (@ObjectGuid+1,300009,571,1,1, 4596.78, -1606.69, 156.659, 1.5488,0.0,0.0, 0.699286, 0.714842,300,0,1),

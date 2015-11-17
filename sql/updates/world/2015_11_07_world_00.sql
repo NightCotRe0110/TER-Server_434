@@ -1,4 +1,3 @@
-///Quest Done Nothing Wrong (Burning Steppes)///
 
 UPDATE `quest_template` SET `RequiredItemId1`=63114, `RequiredItemId2`=63116, `RequiredItemId3`=63117, `RequiredItemId4`=63119, `RequiredItemCount1`=1, `RequiredItemCount2`=1, `RequiredItemCount3`=1, `RequiredItemCount4`=1 WHERE `Id`=28417;
 UPDATE `quest_template` SET `RequiredItemId1`=63114, `RequiredItemId2`=63116, `RequiredItemId3`=63117, `RequiredItemId4`=63119, `RequiredItemCount1`=1, `RequiredItemCount2`=1, `RequiredItemCount3`=1, `RequiredItemCount4`=1 WHERE `Id`=28172;
