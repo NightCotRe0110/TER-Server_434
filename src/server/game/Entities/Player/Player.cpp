@@ -837,6 +837,9 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
+	for (uint8 i = 0; i < MAX_TIMERS; i++)
+	m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
+
     m_MirrorTimerFlags = UNDERWATER_NONE;
     m_MirrorTimerFlagsLast = UNDERWATER_NONE;
     m_isInWater = false;
