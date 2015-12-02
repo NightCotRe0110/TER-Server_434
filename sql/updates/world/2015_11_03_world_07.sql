@@ -1,1 +1,0 @@
-UPDATE `creature` SET `unit_flags`=320,`dynamicflags`=8 WHERE `id`=28859;

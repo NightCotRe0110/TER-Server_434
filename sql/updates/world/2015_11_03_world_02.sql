@@ -1,1 +1,0 @@
-UPDATE `quest_template` SET `SourceItemId` = 54453, `SourceItemCount` = 1 WHERE `Id` = 25473;
