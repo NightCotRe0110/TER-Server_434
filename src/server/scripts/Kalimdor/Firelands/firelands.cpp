@@ -206,12 +206,11 @@ class npc_firelands_ancient_lava_dweller: public CreatureScript
             return new npc_firelands_ancient_lava_dwellerAI(pCreature);
         }
 
-        struct npc_firelands_ancient_lava_dwellerAI: public ScriptedAI
+        struct npc_firelands_ancient_lava_dwellerAI: public Scripted_NoMovementAI
         {
                 npc_firelands_ancient_lava_dwellerAI(Creature* pCreature) :
-                        ScriptedAI(pCreature)
+                        Scripted_NoMovementAI(pCreature)
                 {
-					SetCombatMovement(false);
                 }
 
                 EventMap events;

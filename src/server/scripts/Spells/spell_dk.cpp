@@ -28,7 +28,11 @@ enum DeathKnightSpells
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
-    SPELL_DK_GLYPH_OF_SCOURGE_STRIKE            = 58642
+    SPELL_DK_GLYPH_OF_SCOURGE_STRIKE            = 58642,
+	SPELL_DK_GLYPH_OF_CHAINS_OF_ICE				= 58620,
+	SPELL_DK_GLYPH_OF_CHAINS_OF_ICE_DAMAGE		= 58621,
+	SPELL_DK_MERCILESS_COMBAT_RANK_1            = 49024,
+	SPELL_DK_MERCILESS_COMBAT_RANK_2            = 49538,
 };
 
 enum DeathKnightSpellIcons
@@ -104,7 +108,7 @@ class spell_dk_necrotic : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     int32 absorbAmount = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.7f;
-                //    caster->ApplyResilience(GetUnitOwner(), &absorbAmount, false);
+                    caster->ApplyResilience(GetUnitOwner(), &absorbAmount);
                     if (AuraEffect* necrotic = GetUnitOwner()->GetAuraEffect(73975, EFFECT_0, caster->GetGUID()))
                         absorbAmount += necrotic->GetAmount();
                     amount = int32(absorbAmount);
@@ -1581,6 +1585,117 @@ public:
     }
 };
 
+/*#########
+# Chains of ice - 45524
+##########*/
+class spell_dk_chains_of_ice : public SpellScriptLoader
+{
+public:
+	spell_dk_chains_of_ice() : SpellScriptLoader("spell_dk_chains_of_ice") { }
+
+	class spell_dk_chains_of_ice_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_dk_chains_of_ice_SpellScript);
+
+		void HandleOnHit()
+		{
+			if (Player* _player = GetCaster()->ToPlayer())
+				if (Unit* target = GetHitUnit())
+					if (_player->HasAura(SPELL_DK_GLYPH_OF_CHAINS_OF_ICE))
+						_player->CastSpell(target, SPELL_DK_GLYPH_OF_CHAINS_OF_ICE_DAMAGE, true);
+		}
+
+		void Register()
+		{
+			OnHit += SpellHitFn(spell_dk_chains_of_ice_SpellScript::HandleOnHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_dk_chains_of_ice_SpellScript();
+	}
+};
+
+/*#########
+# Glyph of chains of ice - 58620 
+# Glyph of chains of ice damage - 58621
+#########*/
+class spell_dk_glyph_chains_of_ice : public SpellScriptLoader
+{
+public:
+	spell_dk_glyph_chains_of_ice() : SpellScriptLoader("spell_dk_glyph_chains_of_ice") { }
+
+	class spell_dk_glyph_chains_of_ice_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_dk_glyph_chains_of_ice_SpellScript);
+
+		void CalculateDamage(SpellEffIndex /*effect*/)
+		{
+			// Formula: 0.08 to 0.13 * AP
+			if (Unit* caster = GetCaster())
+			{
+				int32 ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+				SetHitDamage(int32(0.01f * irand(8, 13) * ap));
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_dk_glyph_chains_of_ice::spell_dk_glyph_chains_of_ice_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_dk_glyph_chains_of_ice_SpellScript();
+	}
+};
+
+/*#########
+# Spell Merciless Combat rank 1 - 49024
+# Spell Merciless Combat rank 2 - 49538
+#########*/
+
+class spell_dk_merciless_combat : public SpellScriptLoader
+{
+public:
+	spell_dk_merciless_combat() : SpellScriptLoader("spell_dk_merciless_combat") { }
+
+	class spell_dk_merciless_combat_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_dk_merciless_combat_SpellScript);
+
+		void HandleOnHit()
+		{
+			if (Player* caster = GetCaster()->ToPlayer())
+			{
+				if (GetHitUnit()->GetHealthPct() <= 35.0f)
+				{
+					int32 damage = GetHitDamage();
+					if (caster->HasTalent(SPELL_DK_MERCILESS_COMBAT_RANK_1, caster->GetActiveSpec()))
+					{
+						SetHitDamage(uint32(damage * 1.06f));
+					}
+					else if (caster->HasTalent(SPELL_DK_MERCILESS_COMBAT_RANK_2, caster->GetActiveSpec()))
+					{
+						SetHitDamage(uint32(damage * 1.12f));
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnHit += SpellHitFn(spell_dk_merciless_combat_SpellScript::HandleOnHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_dk_merciless_combat_SpellScript();
+	}
+};
 
 void AddSC_deathknight_spell_scripts()
 {
@@ -1615,4 +1730,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_rune_weapon_scaling_02();
     new spell_dk_death_grip_dummy();
     new spell_dk_pillar_of_frost();
+	new spell_dk_chains_of_ice();
+	new spell_dk_glyph_chains_of_ice();
+	new spell_dk_merciless_combat();
 }

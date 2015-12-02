@@ -5,10 +5,6 @@
 #include "Chat.h"
 #include "BattlegroundQueue.h"
 
-/*####################################################################################
-###############################CROSSFACTION BATTLEGROUNDS#############################
-####################################################################################*/
-
 uint8 Unit::getRace(bool forceoriginal) const
 {
     if (GetTypeId() == TYPEID_PLAYER)

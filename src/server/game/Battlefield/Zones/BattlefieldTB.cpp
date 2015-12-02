@@ -6,26 +6,34 @@ TER-Server
 #include "SpellAuras.h"
 #include "GroupMgr.h"
 #include "Player.h"
+#include "BattlefieldWG.h"
 
 bool BattlefieldTB::SetupBattlefield()
 {
-    m_TypeId                     = BATTLEFIELD_TB;    //View enum BattlefieldTypes
+	m_TypeId                     = BATTLEFIELD_TB;    //View enum BattlefieldTypes
     m_BattleId                   = BATTLEFIELD_BATTLEID_TB;
     m_ZoneId                     = 5095; // Tol Barad
     m_MapId                      = 732;  // Map X
+
+
+	m_Map = sMapMgr->FindMap(m_MapId, 0);
+
     m_MaxPlayer                  = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MAX);
     m_IsEnabled                     = sWorld->getBoolConfig(CONFIG_TOL_BARAD_ENABLE);
     m_MinPlayer                  = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MIN);
     m_MinLevel                   = sWorld->getIntConfig(CONFIG_TOL_BARAD_PLR_MIN_LVL);
     m_BattleTime                 = sWorld->getIntConfig(CONFIG_TOL_BARAD_BATTLETIME)*60*1000;   // Time of battle (in ms)
     m_NoWarBattleTime            = sWorld->getIntConfig(CONFIG_TOL_BARAD_NOBATTLETIME)*60*1000; // Time between to battle (in ms)
+
     m_TimeForAcceptInvite        = 20; // in second
     m_StartGroupingTimer         = 15*60*1000; // in ms
     m_StartGrouping=false;
+
     KickPositionA.Relocate(-363.897f, 1047.931f, 22, 0);
     KickPositionA.m_mapId        = m_MapId;
     KickPositionH.Relocate(-609.336f, 1392.194f, 21.5f, 0);
     KickPositionH.m_mapId        = m_MapId;
+
     RegisterZone(m_ZoneId);
     m_Data32.resize(BATTLEFIELD_TB_DATA_MAX);
     m_saveTimer                  = 60000;
@@ -34,16 +42,17 @@ bool BattlefieldTB::SetupBattlefield()
     SetGraveyardNumber(BATTLEFIELD_TB_GY_MAX);
 
     //Load from db
-    if(( sWorld->getWorldState(5387) == 0 ) && (sWorld->getWorldState(5384) == 0) && (sWorld->getWorldState(TBClockWorldState[0]) == 0 ))
+	if ((sWorld->getWorldState(5387/*BATTLEFIELD_WG_WORLD_STATE_ACTIVE*/) == 0) && (sWorld->getWorldState(5384) == 0) 
+		&& (sWorld->getWorldState(ClockWorldState[0]) == 0))
     {
         sWorld->setWorldState(5387, false);
         sWorld->setWorldState(5384, urand(0, 1));
-        sWorld->setWorldState(TBClockWorldState[0], m_NoWarBattleTime);
+        sWorld->setWorldState(ClockWorldState[0], m_NoWarBattleTime);
     }
 
-        m_WarTime                = sWorld->getWorldState(5387);
+       // m_WarTime                = sWorld->getWorldState(5387);
         m_DefenderTeam           = (TeamId)sWorld->getWorldState(5384);
-        m_Timer                  = sWorld->getWorldState(TBClockWorldState[0]);
+        m_Timer                  = sWorld->getWorldState(ClockWorldState[0]);
     if(m_WarTime)
     {
         m_WarTime = false;
@@ -53,18 +62,17 @@ bool BattlefieldTB::SetupBattlefield()
     for(uint8 i=0; i<BATTLEFIELD_TB_GY_MAX; i++)
     {
         BfGraveyardTB* gy = new BfGraveyardTB(this);
-        if (TBGraveYard[i].startcontrol == TEAM_NEUTRAL)
-        {
-            // In no war time Gy is control by defender
-            gy->Init(45079, 45066, TBGraveYard[i].x, TBGraveYard[i].y, TBGraveYard[i].z, TBGraveYard[i].o, m_DefenderTeam, TBGraveYard[i].guid);
-        }
-        else
-            gy->Init(45079, 45066, TBGraveYard[i].x, TBGraveYard[i].y, TBGraveYard[i].z, TBGraveYard[i].o, TBGraveYard[i].startcontrol, TBGraveYard[i].guid);
-        gy->SetTextId(TBGraveYard[i].textid);
+		if (TBGraveYard[i].startcontrol == TEAM_NEUTRAL)
+		{
+			// In no war time Gy is control by defender
+			gy->Initialize(m_DefenderTeam, TBGraveYard[i].guid);
+		}
+		else
+			gy->Initialize(TBGraveYard[i].startcontrol, TBGraveYard[i].guid);
         m_GraveyardList[i] = gy;
     }
 
-    // Pop des gameobject et creature du TBWorkShop
+    // Spawn gameobjects and npc's
     for(uint8 i = 0; i<TB_MAX_WORKSHOP; i++)
     {
         BfTBWorkShopData* ws = new BfTBWorkShopData(this); // Create new object
@@ -156,6 +164,12 @@ bool BattlefieldTB::SetupBattlefield()
     }
     return true;
 }
+void BattlefieldTB::FillInitialWorldStates(WorldPacket& data)
+{
+	data << uint32(BATTLEFIELD_WG_WORLD_STATE_SHOW_WORLDSTATE) << uint32(IsWarTime() ? 1 : 0);
+	for (uint32 i = 0; i < 2; ++i)
+		data << ClockWorldState[i] << uint32(time(NULL) + (m_Timer / 1000));
+}
 
 bool BattlefieldTB::Update(uint32 diff)
 {
@@ -225,7 +239,7 @@ void BattlefieldTB::OnBattleStart()
     // Update graveyard (in no war time all graveyard is to deffender, in war time, depend of base)
     for(TBWorkShop::const_iterator itr = WorkShopList.begin(); itr != WorkShopList.end(); ++itr)
     {
-        if ((*itr))
+        if ((*itr) != NULL)
             (*itr)->UpdateGraveYardAndWorkshop();
     }
 

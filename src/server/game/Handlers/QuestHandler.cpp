@@ -279,7 +279,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
     if (!quest)
         return;
     Object* object = _player;
-    if (!quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT) && !quest->HasFlag(QUEST_FLAGS_TRACKING))
+    if (!quest->HasFlag(QUEST_FLAGS_AUTO_SUBMIT) && !quest->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
     {
         object = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
         if (!object || !object->hasInvolvedQuest(questId))
@@ -300,7 +300,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
     if (_player->CanRewardQuest(quest, reward, true))
     {
         _player->RewardQuest(quest, reward, object);
-		if (quest->HasFlag(QUEST_FLAGS_TRACKING))
+        if (quest->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
         {
             _player->PlayerTalkClass->ClearMenus();
         }
@@ -400,7 +400,7 @@ void WorldSession::HandleQuestLogSwapQuest(WorldPacket& recvData)
     uint8 slot1, slot2;
     recvData >> slot1 >> slot2;
 
-	if (slot1 == slot2 || slot1 >= sWorld->getIntConfig(CONFIG_QUESTS_9999) || slot2 >= sWorld->getIntConfig(CONFIG_QUESTS_9999))
+    if (slot1 == slot2 || slot1 >= MAX_QUEST_LOG_SIZE || slot2 >= MAX_QUEST_LOG_SIZE)
         return;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_SWAP_QUEST slot 1 = %u, slot 2 = %u", slot1, slot2);
@@ -415,23 +415,17 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUESTLOG_REMOVE_QUEST slot = %u", slot);
 
-	if (slot < sWorld->getIntConfig(CONFIG_QUESTS_9999))
+    if (slot < MAX_QUEST_LOG_SIZE)
     {
         if (uint32 questId = _player->GetQuestSlotQuestId(slot))
         {
             if (!_player->TakeQuestSourceItem(questId, true))
                 return;                                     // can't un-equip some items, reject quest cancel
 
-			if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+            if (const Quest *quest = sObjectMgr->GetQuestTemplate(questId))
             {
                 if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED))
                     _player->RemoveTimedQuest(questId);
-
-				if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-					 {
-					_player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
-					_player->UpdatePvPState();
-					}
             }
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player

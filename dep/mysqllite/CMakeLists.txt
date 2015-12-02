@@ -5,14 +5,17 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/os/Windows.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/character_sets.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/mysql_version.cmake)
 
+# Advanced options (mostly useless, but usually still in config.h, so they need to be set...)
 set(CYBOZU OFF)
 set(BACKUP_TEST OFF)
 set(ENABLED_LOCAL_INFILE ON)
 set(WITH_FAST_MUTEXES OFF)
 
+# Handle useful options - hardcode to ON/OFF
 set(ENABLED_PROFILING OFF)
 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG ENABLED_DEBUG_SYNC)
  
+# Set DBUG_OFF and other optional release-only flags for non-debug project types
 foreach(BUILD_TYPE RELEASE RELWITHDEBINFO MINSIZEREL)
   set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_${BUILD_TYPE} DBUG_OFF)
   if(WITH_FAST_MUTEXES)

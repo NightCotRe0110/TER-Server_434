@@ -17,38 +17,38 @@
 
 /************* Quotes and Sounds ***********************/
 // Gossip for when a player clicks Akama
-#define GOSSIP_ITEM           "Мы готовы встретиться с Иллидианом"
+#define GOSSIP_ITEM           "We are ready to face Illidan"
 
 // Yells for/by Akama
-#define SAY_AKAMA_BEWARE      "Будьте осторожны друзья, предатель рядом."
+#define SAY_AKAMA_BEWARE      "Be wary friends, The Betrayer meditates in the court just beyond."
 #define SOUND_AKAMA_BEWARE    11388
-#define SAY_AKAMA_MINION      "Проходите, мои друзья. Пора разобраться с этим предателем, как он заслуживает!"
+#define SAY_AKAMA_MINION      "Come, my minions. Deal with this traitor as he deserves!"
 #define SOUND_AKAMA_MINION    11465
-#define SAY_AKAMA_LEAVE       "Я разберусь с этими скотами. Начинайте сейчас, друзья! Осаждайте предателя!"
+#define SAY_AKAMA_LEAVE       "I'll deal with these mongrels. Strike now, friends! Strike at the betrayer!"
 #define SOUND_AKAMA_LEAVE     11390
 
 // Self explanatory
-char const*  SAY_KILL1        = "Должно быть он рядом, для того чтобы попробовать вкус моих лезвий?!";
+char const*  SAY_KILL1        = "Who shall be next to taste my blades?!";
 #define SOUND_KILL1           11473
-char const*  SAY_KILL2        = "Это слишком легко!";
+char const*  SAY_KILL2        = "This is too easy!";
 #define SOUND_KILL2           11472
 
 // I think I'll fly now and let my subordinates take you on
-#define SAY_TAKEOFF           "Я не буду трогать такой сброд как вы!"
+#define SAY_TAKEOFF           "I will not be touched by rabble such as you!"
 #define SOUND_TAKEOFF         11479
-#define SAY_SUMMONFLAMES      "Во пламя Аззинота!"
+#define SAY_SUMMONFLAMES      "Behold the flames of Azzinoth!"
 #define SOUND_SUMMONFLAMES    11480
 
 // When casting Eye Blast. Demon Fire will be appear on places that he casts this
-#define SAY_EYE_BLAST         "Пристально смотреть в глаза предателя!"
+#define SAY_EYE_BLAST         "Stare into the eyes of the Betrayer!"
 #define SOUND_EYE_BLAST       11481
 
 // kk, I go big, dark and demon on you.
-#define SAY_MORPH             "Вся власть... демона внутри!"
+#define SAY_MORPH             "Behold the power... of the demon within!"
 #define SOUND_MORPH           11475
 
 // I KILL!
-#define SAY_ENRAGE            "Вы и так потеряли слишком много времени, смертные, теперь вы падете!"
+#define SAY_ENRAGE            "You've wasted too much time mortals, now you shall fall!"
 #define SOUND_ENRAGE          11474
 
 enum Spells
@@ -463,6 +463,9 @@ public:
         boss_illidan_stormrageAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
             DoCast(me, SPELL_DUAL_WIELD, true);
         }
 
@@ -524,6 +527,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             me->setActive(true);
+			EnterPhase(PHASE_NORMAL);
             DoZoneInCombat();
         }
 
@@ -1861,8 +1865,8 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
 
     me->SetDisplayId(21135);
     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+    /*me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);*/
     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
     me->SetDisableGravity(false);
     me->setActive(false);

@@ -10,7 +10,10 @@ TER-Server
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+
+/*######
+## npc_draenei_survivor
+######*/
 
 enum draeneiSurvivor
 {

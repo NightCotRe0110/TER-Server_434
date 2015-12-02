@@ -44,7 +44,8 @@ enum PaladinSpells
     SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
 
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
-    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
+    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411,
+	SPELL_PALADIN_DIVINE_AVENGING_WRATH          = 31884,
 };
 
 enum PaladinGuardianOfAncientKingsSpells
@@ -1932,6 +1933,40 @@ class spell_pal_judgements_of_the_bold : public SpellScriptLoader
         }
 };
 
+/*#########
+# avenging wrath - 31884
+##########*/
+class spell_pal_avenging_wrath_heal_bonus : public SpellScriptLoader
+{
+public:
+	spell_pal_avenging_wrath_heal_bonus() : SpellScriptLoader("spell_pal_avenging_wrath_heal_bonus") { }
+
+	class spell_pal_avenging_wrath_heal_bonus_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_pal_avenging_wrath_heal_bonus_SpellScript);
+
+		void HandleHeal(SpellEffIndex /*effIndex*/)
+		{
+			Unit* caster = GetOriginalCaster();
+			if (caster->HasAura(SPELL_PALADIN_DIVINE_AVENGING_WRATH))
+			{
+				int32 heal = GetHitHeal();
+				SetHitHeal(heal * 1.2f);
+			}
+		}
+
+		void Register()
+		{
+			OnEffectHitTarget += SpellEffectFn(spell_pal_avenging_wrath_heal_bonus_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_pal_avenging_wrath_heal_bonus_SpellScript();
+	}
+};
+
 void AddSC_paladin_spell_scripts()
 {
 	new spell_pal_guardian_of_ancient_kings_retri();
@@ -1970,4 +2005,5 @@ void AddSC_paladin_spell_scripts()
     new spell_paladin_holy_radiance();
     new spell_pal_judgements_of_the_bold();
     new spell_pal_judgements_of_the_wise();
+	new spell_pal_avenging_wrath_heal_bonus();
 }

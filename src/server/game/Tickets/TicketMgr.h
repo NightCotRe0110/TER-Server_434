@@ -79,7 +79,7 @@ class GmTicket
 {
 public:
     GmTicket();
-	GmTicket(Player* player, WorldPacket& recvData);
+    explicit GmTicket(Player* player, WorldPacket& recvData);
     ~GmTicket();
 
     bool IsClosed() const { return _closedBy; }
@@ -116,8 +116,7 @@ public:
         else if (_escalatedStatus == TICKET_UNASSIGNED)
             _escalatedStatus = TICKET_ASSIGNED;
     }
-	void SetClosedBy(int64 value) { _closedBy = value; }
-	void SetCompleted() { _completed = true; }
+    void SetClosedBy(const int64& value) { _closedBy = value; }
     void SetMessage(std::string const& message)
     {
         _message = message;

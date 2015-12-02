@@ -458,7 +458,7 @@ void BattlegroundSA::AddPlayer(Player* player)
     }
     SendTransportInit(player);
     PlayerScores[player->GetGUID()] = sc;
-    sc->BgTeam = player->GetTeam();
+	sc->BgTeam = player->GetTeam();
     sc->TalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 }
 

@@ -972,12 +972,11 @@ class npc_web_rip: public CreatureScript
         {
         }
 
-        struct npc_web_ripAI: public ScriptedAI
+        struct npc_web_ripAI: public Scripted_NoMovementAI
         {
                 npc_web_ripAI(Creature* creature) :
-                        ScriptedAI(creature)
+                        Scripted_NoMovementAI(creature)
                 {
-					SetCombatMovement(false);
                 }
 
                 void JustDied(Unit* /*killer*/)

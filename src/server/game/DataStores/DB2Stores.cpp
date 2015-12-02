@@ -4,21 +4,19 @@ TER-Server
 
 #include "DB2Stores.h"
 #include "DB2fmt.h"
-#include "DB2Utility.h"
 #include "Common.h" 
 #include "Log.h" 
 
 #include <map>
-DB2Storage<ItemEntry> sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
-DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
-DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
-DB2Storage<ItemSparseEntry> sItemSparseStore(ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
-DB2Storage<KeyChainEntry> sKeyChainStore(KeyChainfmt);
+
+DB2Storage <ItemEntry> sItemStore(Itemfmt);
+DB2Storage <ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
+DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
+DB2Storage <ItemSparseEntry> sItemSparseStore (ItemSparsefmt);
+DB2Storage <KeyChainEntry> sKeyChainStore(KeyChainfmt); 
 
 typedef std::list<std::string> StoreProblemList1;
 
-typedef std::map<uint32 /*hash*/, DB2StorageBase*> DB2StorageMap;
-DB2StorageMap DB2Stores;
 uint32 DB2FilesCount = 0;
 
 static bool LoadDB2_assert_print(uint32 fsize, uint32 rsize, std::string const& filename)
@@ -61,7 +59,6 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, std::str
         else
             errlist.push_back(db2_filename);
     }
-	DB2Stores[storage.GetHash()] = &storage;
 }
 
 void LoadDB2Stores(std::string const& dataPath)
@@ -102,12 +99,3 @@ void LoadDB2Stores(std::string const& dataPath)
 
     sLog->outInfo(LOG_FILTER_GENERAL, ">> Initialized %d DB2 data stores.", DB2FilesCount);
 }
-
-DB2StorageBase const* GetDB2Storage(uint32 type)
- {
-	DB2StorageMap::const_iterator itr = DB2Stores.find(type);
-	if (itr != DB2Stores.end())
-		 return itr->second;
-	
-		return NULL;
-	}

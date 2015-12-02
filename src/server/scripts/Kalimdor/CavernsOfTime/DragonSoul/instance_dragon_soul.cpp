@@ -24,22 +24,11 @@ public:
         uint64 WarmasterGUID;
         uint64 PortalGUID;
 
-		uint64 DEAHTWING_SPINE_GUID;
-		uint64 DEAHTWING_RAGE_GUID;
-
         uint64 Maelstrom_trall;
         uint64 Maelstrom_kalecgos;
         uint64 Maelstrom_ysera;
         uint64 Maelstrom_nozdormy;
         uint64 Maelstrom_alexstrasza;
-
-		uint64 DWR_PLATE_1_GUID;
-		uint64 DWR_PLATE_2_GUID;
-		uint64 DWR_PLATE_3_GUID;
-
-		uint32 DWR_SPINE_STATE;
-		uint32 DWR_TENDON_LEFT_HEALTH;
-		uint32 DWR_TENDON_RIGHT_HEALTH;
 
         uint64 Aspect_Of_MagicGUID;
         uint64 AlexstraszaGUID;
@@ -62,15 +51,6 @@ public:
             UltraxionGUID  = 0;
             WarmasterGUID  = 0;
             PortalGUID     = 0;
-			DEAHTWING_SPINE_GUID = 0;
-			DEAHTWING_RAGE_GUID = 0;
-
-			DWR_PLATE_1_GUID = 0;
-			DWR_PLATE_2_GUID = 0;
-			DWR_PLATE_3_GUID = 0;
-			DWR_SPINE_STATE = 0;
-			DWR_TENDON_LEFT_HEALTH = 0;
-			DWR_TENDON_RIGHT_HEALTH = 0;
 
             Maelstrom_trall       = 0;
             Maelstrom_kalecgos    = 0;
@@ -145,6 +125,9 @@ public:
             case NPC_MAELSTROM_ALEXSTRASZA: 
                 Maelstrom_alexstrasza = creature->GetGUID(); 
 				break;
+			case NPC_DEATHWING_1:
+				DeathwingGUID = creature->GetGUID();
+                break;
 			case NPC_ARM_TENTACLE_1:
 				arm_tentacle_1 = creature->GetGUID();
                 break;
@@ -157,51 +140,13 @@ public:
 			case NPC_WING_TENTACLE_2:
 				wing_tentacle_2 = creature->GetGUID();
                 break;
-			case NPC_DEATHWING_SPINE:
-				DEAHTWING_SPINE_GUID = creature->GetGUID();
-				break;
-			case NPC_DEATHWING_RAGE:
-				DEAHTWING_RAGE_GUID = creature->GetGUID();
-				break;
             }
         }
-
-		void OnGameObjectCreate(GameObject* go) {
-			switch (go->GetEntry()) {
-			case DWR_PLATE_1:
-				DWR_PLATE_1_GUID = go->GetGUID();
-				break;
-			case DWR_PLATE_2:
-				DWR_PLATE_2_GUID = go->GetGUID();
-				break;
-			case DWR_PLATE_3:
-				DWR_PLATE_3_GUID = go->GetGUID();
-				break;
-				// Deathwing Spine - Greater Cache of the Aspects
-			case 209894:
-			case 209895:
-			case 209896:
-			case 209897:
-				if (GetBossState(NPC_DEATHWING_SPINE) != DONE)
-					go->SetPhaseMask(128, true);
-				break;
-			}
-		}
 
 		void SetData(uint32 type, uint32 data)
 		{
 			switch (type)
 			{
-			case DATA_DWR_SPINE_STATE:
-				DWR_SPINE_STATE = data;
-				break;
-			case DATA_DWR_TENDON_LEFT_HEALTH:
-				DWR_TENDON_LEFT_HEALTH = data;
-				break;
-			case DATA_DWR_TENDON_RIGHT_HEALTH:
-				DWR_TENDON_RIGHT_HEALTH = data;
-				break;
-
 			case DATA_DAMAGE_DEATHWING:
 				if(data == DONE)
 					if(Creature* creature = instance->GetCreature(DeathwingGUID))
@@ -249,14 +194,8 @@ public:
 			{
 				case NPC_MAELSTROM_TRALL:
 					return Maelstrom_trall;
-				case NPC_DEATHWING_RAGE:
+				case NPC_DEATHWING_1:
 					return DeathwingGUID;
-				case DATA_DWR_SPINE_STATE:
-					return DWR_SPINE_STATE;
-				case DATA_DWR_TENDON_LEFT_HEALTH:
-					return DWR_TENDON_LEFT_HEALTH;
-				case DATA_DWR_TENDON_RIGHT_HEALTH:
-					return DWR_TENDON_RIGHT_HEALTH;
 			}
 
 			return 0;
@@ -276,10 +215,7 @@ public:
                 case BOSS_WARMASTER:
 				case BOSS_DEATHWING:
 					break;
-				case NPC_DEATHWING_SPINE:
-				case NPC_DEATHWING_RAGE:
                 case BOSS_ULTRAXION:
-
                     if(state == DONE)
                         if(Creature* creature = instance->GetCreature(Trall_Vs_UltraxionGUID))
 							creature->SummonCreature(NPC_PORTAL_SKYFIRE, -1802.141f, -2364.638f, 340.796f, 5.234f, TEMPSUMMON_CORPSE_DESPAWN, 900000);

@@ -149,17 +149,16 @@ bool Battlefield::Update(uint32 diff)
         // Kick players who chose not to accept invitation to the battle
         if (m_uiKickDontAcceptTimer <= diff)
         {
-			time_t now = time(NULL);
             for (int team = 0; team < 2; team++)
                 for (PlayerTimerMap::iterator itr = m_InvitedPlayers[team].begin(); itr != m_InvitedPlayers[team].end(); ++itr)
-					if (itr->second <= now)
-						 KickPlayerFromBattlefield(itr->first);
+                    if ((*itr).second <= time(NULL))
+                        KickPlayerFromBattlefield((*itr).first);
 
             InvitePlayersInZoneToWar();
             for (int team = 0; team < 2; team++)
                 for (PlayerTimerMap::iterator itr = m_PlayersWillBeKick[team].begin(); itr != m_PlayersWillBeKick[team].end(); ++itr)
-					if (itr->second <= now)
-						 KickPlayerFromBattlefield(itr->first);
+                    if ((*itr).second <= time(NULL))
+                        KickPlayerFromBattlefield((*itr).first);
 
             m_uiKickDontAcceptTimer = 1000;
         }
@@ -755,15 +754,17 @@ void BfGraveyard::GiveControlTo(TeamId team)
         m_SpiritGuide[1 - team]->SetVisible(false);
     if (m_SpiritGuide[team])
         m_SpiritGuide[team]->SetVisible(true);*/
-
-    m_ControlTeam = team;
-    // Teleport to other graveyard, player witch were on this graveyard
-    RelocateDeadPlayers();
+	if (team != NULL && m_ControlTeam != NULL)
+		m_ControlTeam = team;
+		// Teleport to other graveyard, player witch were on this graveyard
+		RelocateDeadPlayers();
+	//}
 }
 
 void BfGraveyard::RelocateDeadPlayers()
 {
     WorldSafeLocsEntry const* closestGrave = NULL;
+//	if (m_ResurrectQueue != NULL)
     for (GuidSet::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
     {
         Player* player = sObjectAccessor->FindPlayer(*itr);

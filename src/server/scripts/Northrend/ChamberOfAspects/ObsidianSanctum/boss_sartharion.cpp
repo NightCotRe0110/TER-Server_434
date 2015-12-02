@@ -1467,11 +1467,10 @@ public:
         return new mob_twilight_eggsAI(creature);
     }
 
-	struct mob_twilight_eggsAI : public ScriptedAI
+    struct mob_twilight_eggsAI : public Scripted_NoMovementAI
     {
-		mob_twilight_eggsAI(Creature* creature) : ScriptedAI(creature)
+        mob_twilight_eggsAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-			SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 
@@ -1590,11 +1589,11 @@ public:
         return new npc_twilight_fissureAI(creature);
     }
 
-	struct npc_twilight_fissureAI : public ScriptedAI
+    struct npc_twilight_fissureAI : public Scripted_NoMovementAI
     {
-		npc_twilight_fissureAI(Creature* creature) : ScriptedAI(creature)
+        npc_twilight_fissureAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-			SetCombatMovement(false);
+            Reset();
         }
 
         uint32 VoidBlast_Timer;

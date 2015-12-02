@@ -1815,6 +1815,55 @@ Wed Jan 11 15:41:00 UTC 2012  Simon Massey  <simon dot massey at prismtech dot c
         Is supposed to define ACE_SIZE_T_FORMAT_SPECIFIER_ASCII and ACE_SSIZE_T_FORMAT_SPECIFIER_ASCII
         correctly for this platform. The old logic was "If already defined - redefine, but if not
         defined don't define" and wrong. The point of providing the definition of these SIZE_T format
+        sprule.
+
+          This is a merge of work done in the 'ace-mpc_performance'
+          branch.
+
+Mon Jan 16 10:33:37 UTC 2012  Martin Corino  <mcorino@remedy.nl>
+
+        * ace/config-win32-common.h:
+        * ace/config-win32-mingw.h:
+          Moved MinGW specific block to common because the macros
+          it concerns are tested there already.
+
+Mon Jan 16 09:01:20 UTC 2012  Martin Corino  <mcorino@remedy.nl>
+
+        * ace/config-win32-mingw.h:
+          Fixed incorrectly placed macro test.
+
+Sun Jan 15 19:15:48 UTC 2012  Martin Corino  <mcorino@remedy.nl>
+
+        * ace/config-win32-mingw.h:
+          Add some customizations and corrections to support using
+          --std=c++0x with MinGW32.
+
+Fri Jan 13 23:25:59 UTC 2012  Jeff Parsons <j.parsons@vanderbilt.edu>
+
+        * THANKS:
+
+          Added Michael Frommberger <michael dot frommberger at gmx dot net>
+
+Wed Jan 11 20:43:47 UTC 2012  Martin Corino  <mcorino@remedy.nl>
+
+        * ace/config-freebsd.h:
+        * ace/config-win32-common.h:
+        * ace/config-win32-mingw.h:
+        * ace/os_include/os_signal.h:
+          Added ACE_LACKS_SIGSET_T to be able to distinguish between the
+          type and the functions being provided or not.
+
+Wed Jan 11 18:43:50 UTC 2012  Martin Corino  <mcorino@remedy.nl>
+
+        * ace/config-win32-mingw.h:
+          Fixed typo.
+
+Wed Jan 11 15:41:00 UTC 2012  Simon Massey  <simon dot massey at prismtech dot com>
+
+        * ace/config-sunos5.10.h:
+        Is supposed to define ACE_SIZE_T_FORMAT_SPECIFIER_ASCII and ACE_SSIZE_T_FORMAT_SPECIFIER_ASCII
+        correctly for this platform. The old logic was "If already defined - redefine, but if not
+        defined don't define" and wrong. The point of providing the definition of these SIZE_T format
         specifiers is to provide them if they are not set.
 
 Wed Jan 11 14:36:43 UTC 2012  Martin Corino  <mcorino@remedy.nl>
@@ -1886,56 +1935,7 @@ Tue Jan  3 18:34:18 UTC 2012  Johnny Willemsen  <jwillemsen@remedy.nl>
 
         * docs/bczar/bczar.html:
           Added package
-
-Tue Jan  3 13:51:18 UTC 2012  Johnny Willemsen  <jwillemsen@remedy.nl>
-
-        * bin/performance_stats.sh:
-          Create source directory
-
-Tue Jan  3 12:52:04 UTC 2012  Johnny Willemsen  <jwillemsen@remedy.nl>
-
-        * bin/performance_stats.sh:
-        * bin/topinfo_iorsize_stats.sh:
-        * bin/topinfo_simple_stats.sh:
-        * bin/topinfo_stats.sh:
-        * bin/footprint_stats.sh:
-          Converting them to support a flat layout
-
-Tue Jan  3 12:40:43 UTC 2012  Johnny Willemsen  <jwillemsen@remedy.nl>
-
-        * html/Stats/detailed_footprint.shtml:
-        * html/Stats/detailed_performance.shtml:
-        * html/Stats/footer.html:
-        * html/Stats/index.shtml:
-        * html/Stats/navigation.html:
-          Updated links, docu, status
-
-        * html/Stats/compilation.shtml:
-          Removed this file.
-
-Sat Dec 31 22:12:53 UTC 2011  Douglas C. Schmidt  <schmidt@dre.vanderbilt.edu>
-
-        * ace/Timer_Wheel_T.cpp: Changed the call to "delete root" in the
-          destructor to "this->free_node (root)" so the ACE_Timer_Wheel_T
-          will work properly when provided a custom allocator.  Thanks to
-          Koh <k_onishi at mtj dot biglobe dot ne dot jp> for reporting
-          this bug and providing a fix.
-
-Fri Dec 30 10:13:59 UTC 2011  Johnny Willemsen  <jwillemsen@remedy.nl>
-
-        * ace/config-linux.h:
-          Added support for ulibc, thanks to Chong Wuk Pak
-          <chong dot pak at lmco dot com> for providing the patch. This fixes
-          bugzilla 3999
-
-Thu Dec 29 17:29:06 UTC 2011  Douglas C. Schmidt  <schmidt@dre.vanderbilt.edu>
-
-        * ace/Mem_Map.cpp (ACE_Mem_Map::map_it): Fixed a missing '('.  Thanks to Johnny for reporting this.
-
-Thu Dec 29 15:14:45 UTC 2011  Douglas C. Schmidt  <schmidt@dre.vanderbilt.edu>
-
-        * ace/Mem_Map.cpp (ACE_Mem_Map::map_it): Further improved the
-          error checking.  Thanks to JaeSung Lee <berise at gmail dot
+aeSung Lee <berise at gmail dot
           com> for suggesting this.
 
 Tue Dec 27 15:19:56 UTC 2011  Douglas C. Schmidt  <schmidt@dre.vanderbilt.edu>

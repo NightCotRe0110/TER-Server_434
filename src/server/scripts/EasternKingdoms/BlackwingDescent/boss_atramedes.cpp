@@ -773,12 +773,13 @@ public:
             creature->AddAura(SPELL_NOISY, player);
             creature->CastSpell(player, SPELL_RESONATING_PLAYER, true);
 
-            Map::PlayerList const &PlayerList = creature->GetMap()->GetPlayers();
+          /*  Map::PlayerList const &PlayerList = creature->GetMap()->GetPlayers();
 
             if (!PlayerList.isEmpty())
               for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                if (Player* playr = i->getSource())
-                    playr->AddAura(SPELL_SOUND_AURA, playr); // reset the bar.
+                if (Player* playr = i->getSource())*/
+			creature->GetInstanceScript()->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUND_AURA);
+			creature->GetInstanceScript()->DoAddAuraOnPlayers(SPELL_SOUND_AURA);
 
             creature->setDeathState(JUST_DIED);
         }

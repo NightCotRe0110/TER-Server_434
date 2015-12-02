@@ -13,8 +13,8 @@ namespace lfg
 enum LFGEnum
 {
     LFG_TANKS_NEEDED                             = 1,
-    LFG_HEALERS_NEEDED                           = 0,
-    LFG_DPS_NEEDED                               = 0
+    LFG_HEALERS_NEEDED                           = 1,
+    LFG_DPS_NEEDED                               = 3
 };
 
 enum LfgRoles

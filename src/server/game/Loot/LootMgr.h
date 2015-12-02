@@ -13,7 +13,6 @@ TER-Server
 
 #include <map>
 #include <vector>
-#include <list>
 
 enum RollType
 {
@@ -61,7 +60,6 @@ enum PermissionTypes
 
 enum LootType
 {
-	LOOT_NONE                   = 0,
     LOOT_CORPSE                 = 1,
     LOOT_PICKPOCKETING          = 2,
     LOOT_FISHING                = 3,
@@ -72,8 +70,7 @@ enum LootType
     LOOT_MILLING                = 8,
 
     LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
-    LOOT_INSIGNIA               = 21,                       // unsupported by client, sending LOOT_CORPSE instead
-	LOOT_FISHING_JUNK           = 22                        // unsupported by client, sending LOOT_FISHING instead
+    LOOT_INSIGNIA               = 21                        // unsupported by client, sending LOOT_CORPSE instead
 };
 
 // type of Loot Item in Loot View
@@ -162,8 +159,8 @@ class LootTemplate;
 typedef std::vector<QuestItem> QuestItemList;
 typedef std::vector<LootItem> LootItemList;
 typedef std::map<uint32, QuestItemList*> QuestItemMap;
-typedef std::list<LootStoreItem*> LootStoreItemList;
-typedef std::unordered_map<uint32, LootTemplate*> LootTemplateMap;
+typedef std::vector<LootStoreItem> LootStoreItemList;
+typedef UNORDERED_MAP<uint32, LootTemplate*> LootTemplateMap;
 
 typedef std::set<uint32> LootIdSet;
 
@@ -206,14 +203,11 @@ class LootStore
 class LootTemplate
 {
     class LootGroup;                                       // A set of loot definitions for items (refs are not allowed inside)
-	typedef std::vector<LootGroup*> LootGroups;
+    typedef std::vector<LootGroup> LootGroups;
 
     public:
-		LootTemplate() { }
-		~LootTemplate();
-
         // Adds an entry to the group (at loading stage)
-		void AddEntry(LootStoreItem* item);
+        void AddEntry(LootStoreItem& item);
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
         void CopyConditions(ConditionList conditions);
@@ -233,10 +227,6 @@ class LootTemplate
     private:
         LootStoreItemList Entries;                          // not grouped only
         LootGroups        Groups;                           // groups have own (optimised) processing, grouped entries go there
-
-		// Objects of this class must never be copied, we are storing pointers in container
-		LootTemplate(LootTemplate const&);
-		LootTemplate& operator=(LootTemplate const&);
 };
 
 //=====================================================
@@ -285,14 +275,13 @@ struct Loot
     uint8 unlootedCount;
     uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
-	uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
     // GUIDLow of container that holds this loot (item_instance.entry)
-    // Only set for inventory items that can be right-click looted
+    //  Only set for inventory items that can be right-click looted
     uint32 containerID;
 
-	Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0) {}
-	~Loot() { clear(); }
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), containerID(0) {}
+    ~Loot() { clear(); }
 
     // For deleting items at loot removal since there is no backward interface to the Item()
     void DeleteLootItemFromContainerItemDB(uint32 itemID);
@@ -325,7 +314,6 @@ struct Loot
         gold = 0;
         unlootedCount = 0;
         roundRobinPlayer = 0;
-		loot_type = LOOT_NONE;
         i_LootValidatorRefManager.clearReferences();
     }
 

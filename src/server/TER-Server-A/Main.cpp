@@ -83,10 +83,18 @@ extern int main(int argc, char **argv)
         printf("Verify that the file exists and has \'[TER-Server-A]\' written in the top of the file!\n");
         return 1;
     }
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, " (TER-Server-крови)");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
 
-    sLog->outInfo(LOG_FILTER_AUTHSERVER, "%s (TER-Server-A)", _FULLVERSION);
-    sLog->outInfo(LOG_FILTER_AUTHSERVER, "<Ctrl-C> to stop.\n");
-    sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", cfg_file);
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, " ********    ********     ********");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, " ********    ******       ***   ***");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      **           ***   *** ");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      ******       ********  ");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      **           ***   ***");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      ******       ***    ***");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ----      *******      ****   ****");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "TER-Server-крови       TER884 C O R E ");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "mail & Skype: ter884.markin@yandex.ru");
 
     sLog->outWarn(LOG_FILTER_AUTHSERVER, "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
 

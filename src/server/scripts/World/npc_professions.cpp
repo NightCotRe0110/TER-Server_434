@@ -10,15 +10,25 @@ TER-Server
 #include "SpellInfo.h"
 #include "WorldSession.h"
 
-#define TALK_MUST_UNLEARN_WEAPON    "Вы должны забыть вашу текущую специализацию, прежде чем я смогу вам помочь. Идите в Эверлок в зимних ключах и ищите помощи там."
+/*
+A few notes for future developement:
+- A full implementation of gossip for GO's is required. They must have the same scripting capabilities as creatures. Basically,
+there is no difference here (except that default text is chosen with `gameobject_template`.`data3` (for GO type2, different dataN for a few others)
+- It's possible blacksmithing still require some tweaks and adjustments due to the way we _have_ to use reputation.
+*/
 
-#define TALK_HAMMER_LEARN           "Ах, когдато Вы были закаленным ветераном. Я знаю, что вы способны, вы просто должны спросить, и я научу вас пути Дробящего оружия."
-#define TALK_AXE_LEARN              "Ах, когдато Вы были закаленным ветераном. Я знаю, что вы способны, вы просто должны спросить, и я научу вас пути  Секир."
-#define TALK_SWORD_LEARN            "Ах, когдато Вы были закаленным ветераном. Я знаю, что вы способны, вы просто должны спросить, и я научу вас пути  Мечей."
+/*###
+# to be removed from here (->ncp_text). This is data for database projects.
+###*/
+#define TALK_MUST_UNLEARN_WEAPON    "You must forget your weapon type specialty before I can help you. Go to Everlook in Winterspring and seek help there."
 
-#define TALK_HAMMER_UNLEARN         "Забыв свой путь дробящего оружия-это не льзя делать не обдуманно. Если вы решите отказаться от него вы забудете все рецепты, которые требуют создавать дробящее оружие!"
-#define TALK_AXE_UNLEARN            "Забыв свой путь секир оружия-это не льзя делать не обдуманно. Если вы решите отказаться от него вы забудете все рецепты, которые требуют создавать секиры!"
-#define TALK_SWORD_UNLEARN          "Забыв свой путь мечей оружия-это не льзя делать не обдуманно. Если вы решите отказаться от него вы забудете все рецепты, которые требуют создавать мечи!"
+#define TALK_HAMMER_LEARN           "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the hammersmith."
+#define TALK_AXE_LEARN              "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the axesmith."
+#define TALK_SWORD_LEARN            "Ah, a seasoned veteran you once were. I know you are capable, you merely need to ask and I shall teach you the way of the swordsmith."
+
+#define TALK_HAMMER_UNLEARN         "Forgetting your Hammersmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Hammersmithing to create!"
+#define TALK_AXE_UNLEARN            "Forgetting your Axesmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Axesmithing to create!"
+#define TALK_SWORD_UNLEARN          "Forgetting your Swordsmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Swordsmithing to create!"
 
 /*###
 # generic defines
@@ -32,46 +42,46 @@ TER-Server
 # gossip item and box texts
 ###*/
 
-#define GOSSIP_LEARN_POTION         "Пожалуйста, научите меня, как стать мастером зелий"
-#define GOSSIP_UNLEARN_POTION       "Желаю отучиться от мастера зелий"
-#define GOSSIP_LEARN_TRANSMUTE      "Пожалуйста, научите меня, как стать мастером трансмофикации"
-#define GOSSIP_UNLEARN_TRANSMUTE    "Желаю отучиться от мастера трансмофикации"
-#define GOSSIP_LEARN_ELIXIR         "Пожалуйста, научите меня, как стать мастером элексиров"
-#define GOSSIP_UNLEARN_ELIXIR       "Желаю отучиться от мастера элексиров"
+#define GOSSIP_LEARN_POTION         "Please teach me how to become a Master of Potions, Lauranna"
+#define GOSSIP_UNLEARN_POTION       "I wish to unlearn Potion Mastery"
+#define GOSSIP_LEARN_TRANSMUTE      "Please teach me how to become a Master of Transmutations, Zarevhi"
+#define GOSSIP_UNLEARN_TRANSMUTE    "I wish to unlearn Transmutation Mastery"
+#define GOSSIP_LEARN_ELIXIR         "Please teach me how to become a Master of Elixirs, Lorokeem"
+#define GOSSIP_UNLEARN_ELIXIR       "I wish to unlearn Elixir Mastery"
 
-#define BOX_UNLEARN_ALCHEMY_SPEC    "Ты действительно хочешь отучиться от своей алхимической специальности и потерять все связанные с ней рецепты? \n Стоимость: "
+#define BOX_UNLEARN_ALCHEMY_SPEC    "Do you really want to unlearn your alchemy specialty and lose all associated recipes? \n Cost: "
 
-#define GOSSIP_WEAPON_LEARN         "Пожалуйста, научи меня, как стать оружейником"
-#define GOSSIP_WEAPON_UNLEARN       "Я не хочу быть больше оружейником"
-#define GOSSIP_ARMOR_LEARN          "Пожалуйста, научи меня, как стать бронивеком"
-#define GOSSIP_ARMOR_UNLEARN        "Я не хочу быть больше бронивеком"
+#define GOSSIP_WEAPON_LEARN         "Please teach me how to become a Weaponsmith"
+#define GOSSIP_WEAPON_UNLEARN       "I wish to unlearn the art of Weaponsmithing"
+#define GOSSIP_ARMOR_LEARN          "Please teach me how to become a Armorsmith"
+#define GOSSIP_ARMOR_UNLEARN        "I wish to unlearn the art of Armorsmithing"
 
-#define GOSSIP_UNLEARN_SMITH_SPEC   "Желаю отучиться от своей специальности кузнеца"
-#define BOX_UNLEARN_ARMORORWEAPON   "Ты действительно хочешь отучиться от своей специальности кузнеца и потерять все связанные с ней рецепты? \n Стоиость: "
+#define GOSSIP_UNLEARN_SMITH_SPEC   "I wish to unlearn my blacksmith specialty"
+#define BOX_UNLEARN_ARMORORWEAPON   "Do you really want to unlearn your blacksmith specialty and lose all associated recipes? \n Cost: "
 
-#define GOSSIP_LEARN_HAMMER         "Пожалуйста, научи меня, как стать кузнецом дробящего оружия"
-#define GOSSIP_UNLEARN_HAMMER       "Желаю отучиться от кузнеца дробящего оружия"
-#define GOSSIP_LEARN_AXE            "Пожалуйста, научи меня, как стать кузнецом секир"
-#define GOSSIP_UNLEARN_AXE          "Желаю отучиться от кузнеца секир"
-#define GOSSIP_LEARN_SWORD          "Пожалуйста, научи меня, как стать кузнецом мечей"
-#define GOSSIP_UNLEARN_SWORD        "Желаю отучиться от кузнеца мечей"
+#define GOSSIP_LEARN_HAMMER         "Please teach me how to become a Hammersmith, Lilith"
+#define GOSSIP_UNLEARN_HAMMER       "I wish to unlearn Hammersmithing"
+#define GOSSIP_LEARN_AXE            "Please teach me how to become a Axesmith, Kilram"
+#define GOSSIP_UNLEARN_AXE          "I wish to unlearn Axesmithing"
+#define GOSSIP_LEARN_SWORD          "Please teach me how to become a Swordsmith, Seril"
+#define GOSSIP_UNLEARN_SWORD        "I wish to unlearn Swordsmithing"
 
-#define BOX_UNLEARN_WEAPON_SPEC     "Ты действительно хочешь отучиться от своей специальности кузнеца и потерять все связанные с ней рецепты? \n Стоимость: "
+#define BOX_UNLEARN_WEAPON_SPEC     "Do you really want to unlearn your weaponsmith specialty and lose all associated recipes? \n Cost: "
 
-#define GOSSIP_UNLEARN_DRAGON       "Желаю отучиться от плетения шкур драконов"
-#define GOSSIP_UNLEARN_ELEMENTAL    "Желаю отучиться от плетения на основе элементалей"
-#define GOSSIP_UNLEARN_TRIBAL       "Желаю отучиться от плетенного кожевничества"
+#define GOSSIP_UNLEARN_DRAGON       "I wish to unlearn Dragonscale Leatherworking"
+#define GOSSIP_UNLEARN_ELEMENTAL    "I wish to unlearn Elemental Leatherworking"
+#define GOSSIP_UNLEARN_TRIBAL       "I wish to unlearn Tribal Leatherworking"
 
-#define BOX_UNLEARN_LEATHER_SPEC    "Ты действительно хочешь отучиться от своей специальности кожевника и потерять все связанные с ней рецепты? \n Стоимость: "
+#define BOX_UNLEARN_LEATHER_SPEC    "Do you really want to unlearn your leatherworking specialty and lose all associated recipes? \n Cost: "
 
-#define GOSSIP_LEARN_SPELLFIRE      "Пожалуйста, научи меня, как стать портным по тканям"
-#define GOSSIP_UNLEARN_SPELLFIRE    "Желаю отучиться от портного по тканям"
-#define GOSSIP_LEARN_MOONCLOTH      "Пожалуйста, научи меня, как стать портным по лунной ткане"
-#define GOSSIP_UNLEARN_MOONCLOTH    "Желаю отучиться от портного по лунной ткане"
-#define GOSSIP_LEARN_SHADOWEAVE     "Пожалуйста, научи меня, как стать портным по темным нитям"
-#define GOSSIP_UNLEARN_SHADOWEAVE   "Желаю отучиться от портного по темным нитям"
+#define GOSSIP_LEARN_SPELLFIRE      "Please teach me how to become a Spellcloth tailor"
+#define GOSSIP_UNLEARN_SPELLFIRE    "I wish to unlearn Spellfire Tailoring"
+#define GOSSIP_LEARN_MOONCLOTH      "Please teach me how to become a Mooncloth tailor"
+#define GOSSIP_UNLEARN_MOONCLOTH    "I wish to unlearn Mooncloth Tailoring"
+#define GOSSIP_LEARN_SHADOWEAVE     "Please teach me how to become a Shadoweave tailor"
+#define GOSSIP_UNLEARN_SHADOWEAVE   "I wish to unlearn Shadoweave Tailoring"
 
-#define BOX_UNLEARN_TAILOR_SPEC     "Ты действительно хочешь отучиться от своей специальности портного и потерять все связанные с ней рецепты? \n Стоимость: "
+#define BOX_UNLEARN_TAILOR_SPEC     "Do you really want to unlearn your tailoring specialty and lose all associated recipes? \n Cost: "
 
 /*###
 # spells defines
@@ -217,7 +227,7 @@ bool EquippedOk(Player* player, uint32 spellId)
             if (item && item->GetTemplate()->RequiredSpell == reqSpell)
             {
                 //player has item equipped that require specialty. Not allow to unlearn, player has to unequip first
-                sLog->outDebug(LOG_FILTER_TSCR, "Игрок попытамлся отучиться от заклинания %u, по оборудованию %u is успешно.", reqSpell, item->GetEntry());
+                sLog->outDebug(LOG_FILTER_TSCR, "player attempt to unlearn spell %u, but item %u is equipped.", reqSpell, item->GetEntry());
                 return false;
             }
         }
@@ -755,9 +765,9 @@ enum eEngineeringTrinkets
     SPELL_TO_TOSHLEY            = 36955,
 };
 
-#define GOSSIP_ITEM_ZAP         "Этот габарит слишком опасный! Как я смогу сделать это один?"
-#define GOSSIP_ITEM_JHORDY      "Я должен построить Маяк за этот чудесный прибор!"
-#define GOSSIP_ITEM_KABLAM      "Неизвестно"
+#define GOSSIP_ITEM_ZAP         "This Dimensional Imploder sounds dangerous! How can I make one?"
+#define GOSSIP_ITEM_JHORDY      "I must build a beacon for this marvelous device!"
+#define GOSSIP_ITEM_KABLAM      "[PH] Unknown"
 
 class npc_engineering_tele_trinket : public CreatureScript
 {

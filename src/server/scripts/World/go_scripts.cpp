@@ -932,12 +932,10 @@ enum SoulWellData
     SPELL_CREATE_FEL_HEALTH_STONE_R2    = 58898,
 };
 
-
-
 class go_soulwell : public GameObjectScript
 {
-public:
-	go_soulwell() : GameObjectScript("go_soulwell") {}
+    public:
+        go_soulwell() : GameObjectScript("go_soulwell") {}
 
         struct go_soulwellAI : public GameObjectAI
         {

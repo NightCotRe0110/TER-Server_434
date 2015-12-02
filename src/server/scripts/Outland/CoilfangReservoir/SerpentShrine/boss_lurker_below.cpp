@@ -18,7 +18,7 @@
 #define SPELL_SUBMERGE      37550
 #define SPELL_EMERGE        20568
 
-#define EMOTE_SPOUT "Луркеров делает глубокий вдох."
+#define EMOTE_SPOUT "The Lurker Below takes a deep breath."
 
 #define SPOUT_DIST  100
 
@@ -57,11 +57,10 @@ public:
         return new boss_the_lurker_belowAI (creature);
     }
 
-	struct boss_the_lurker_belowAI : public ScriptedAI
+    struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
     {
-		boss_the_lurker_belowAI(Creature* creature) : ScriptedAI(creature), Summons(me)
+        boss_the_lurker_belowAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
         {
-			SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 
@@ -132,10 +131,11 @@ public:
             Summons.DespawnAll();
         }
 
-		void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* who)
         {
             if (instance)
                 instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
+            Scripted_NoMovementAI::EnterCombat(who);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -347,11 +347,10 @@ public:
         return new mob_coilfang_ambusherAI (creature);
     }
 
-	struct mob_coilfang_ambusherAI : public ScriptedAI
+    struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
     {
-		mob_coilfang_ambusherAI(Creature* creature) : ScriptedAI(creature)
+        mob_coilfang_ambusherAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-			SetCombatMovement(false);
         }
 
         uint32 MultiShotTimer;

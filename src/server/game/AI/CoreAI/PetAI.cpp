@@ -434,6 +434,10 @@ void PetAI::HandleReturnMovement()
     if (me->isCharmed() || me->HasUnitState(UNIT_STATE_CHARGING))
         return;
 
+	// no charm info and no victim
+	if (!me->GetCharmInfo())
+		return;
+
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->HasCommandState(COMMAND_MOVE_TO))
     {
         if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning())

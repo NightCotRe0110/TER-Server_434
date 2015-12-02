@@ -91,12 +91,11 @@ Map* MapManager::CreateBaseMap(uint32 id)
     {
         TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
-		MapEntry const* entry = sMapStore.LookupEntry(id);
-		ASSERT(entry);
-		
-			if (entry->Instanceable())
+        const MapEntry* entry = sMapStore.LookupEntry(id);
+        if (entry && entry->Instanceable())
+        {
             map = new MapInstanced(id, i_gridCleanUpDelay);
-        
+        }
         else
         {
             map = new Map(id, i_gridCleanUpDelay, 0, REGULAR_DIFFICULTY);

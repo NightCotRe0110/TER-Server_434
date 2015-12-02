@@ -60,7 +60,8 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (GetPlayer()->IsInWorld())
     {
 		if (sLog != NULL && oldMap != NULL && oldMap->GetId() != NULL && newMap != NULL && newMap->GetMapName() != NULL
-			&& loc.GetMapId() != NULL){
+			&& loc.GetMapId() != NULL)
+		{
 			sLog->outError(LOG_FILTER_NETWORKIO, "%u is still in world when teleported from map %u to new map %u",
 				oldMap->GetId(), newMap ? newMap->GetMapName() : "Unknown", loc.GetMapId());
 			oldMap->RemovePlayerFromMap(GetPlayer(), false);
@@ -163,7 +164,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
     GetPlayer()->UpdateZone(newzone, newarea);
 
-	if (GetPlayer()->pvpInfo.IsHostile)
+    if (GetPlayer()->pvpInfo.inHostileArea)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true); // honorless target
     else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
         GetPlayer()->UpdatePvP(false, false);
@@ -227,7 +228,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)
 
     if (old_zone != newzone)
     {
-		if (plMover->pvpInfo.IsHostile)
+        if (plMover->pvpInfo.inHostileArea)
             plMover->CastSpell(plMover, 2479, true); // honorless target
         else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
             plMover->UpdatePvP(false, false);
@@ -667,7 +668,6 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvPacket)
 {
 	sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_HOVER_ACK");
-
 
 	MovementInfo info;
 	info.ReadFromPacket(recvPacket);

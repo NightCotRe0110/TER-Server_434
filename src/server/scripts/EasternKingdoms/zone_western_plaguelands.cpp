@@ -226,12 +226,9 @@ public:
         return new npc_andorhal_towerAI (creature);
     }
 
-	struct npc_andorhal_towerAI : public ScriptedAI
+    struct npc_andorhal_towerAI : public Scripted_NoMovementAI
     {
-		npc_andorhal_towerAI(Creature* creature) : ScriptedAI(creature)
-			 {
-			SetCombatMovement(false);
-			}
+        npc_andorhal_towerAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
         void MoveInLineOfSight(Unit* who)
         {

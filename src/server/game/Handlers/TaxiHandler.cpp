@@ -171,12 +171,6 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
     {
         uint32 node;
         recvData >> node;
-		if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(node) && !GetPlayer()->isTaxiCheater())
-			 {
-			SendActivateTaxiReply(ERR_TAXINOTVISITED);
-			recvData.rfinish();
-			return;
-			}
         nodes.push_back(node);
     }
 
@@ -266,7 +260,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
         GetPlayer()->m_taxi.ClearTaxiDestinations();        // not destinations, clear source node
 
     GetPlayer()->CleanupAfterTaxiFlight();
-	if (GetPlayer()->pvpInfo.IsHostile)
+    if (GetPlayer()->pvpInfo.inHostileArea)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 }
 
@@ -286,15 +280,6 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleActivateTaxiOpcode - Unit (GUID: %u) not found or you can't interact with it.", uint32(GUID_LOPART(guid)));
         return;
     }
-
-	if (!GetPlayer()->isTaxiCheater())
-		 {
-		if (!GetPlayer()->m_taxi.IsTaximaskNodeKnown(nodes[0]) || !GetPlayer()->m_taxi.IsTaximaskNodeKnown(nodes[1]))
-			 {
-			SendActivateTaxiReply(ERR_TAXINOTVISITED);
-			return;
-			}
-		}
 
     GetPlayer()->ActivateTaxiPathTo(nodes, npc);
 }

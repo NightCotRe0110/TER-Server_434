@@ -41,30 +41,27 @@ void SystemMgr::LoadScriptTexts()
 
         if (iId >= 0)
         {
-       //     sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` is not a negative value.", iId);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` is not a negative value.", iId);
             continue;
         }
 
         if (iId > TEXT_SOURCE_RANGE || iId <= TEXT_SOURCE_RANGE*2)
         {
-      //      sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` is out of accepted entry range for table.", iId);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` is out of accepted entry range for table.", iId);
             continue;
         }
 
         if (temp.uiSoundId)
         {
             if (!sSoundEntriesStore.LookupEntry(temp.uiSoundId))
-			{ }
-       //         sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` has soundId %u but sound does not exist.", iId, temp.uiSoundId);
+                sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` has soundId %u but sound does not exist.", iId, temp.uiSoundId);
         }
 
         if (!GetLanguageDescByID(temp.uiLanguage))
-		{ }
-          //  sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` using Language %u but Language does not exist.", iId, temp.uiLanguage);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` using Language %u but Language does not exist.", iId, temp.uiLanguage);
 
         if (temp.uiType > CHAT_TYPE_ZONE_YELL)
-		{ }
-      //      sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` has Type %u but this Chat Type does not exist.", iId, temp.uiType);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `script_texts` has Type %u but this Chat Type does not exist.", iId, temp.uiType);
 
         m_mTextDataMap[iId] = temp;
         ++uiCount;
@@ -106,30 +103,27 @@ void SystemMgr::LoadScriptTextsCustom()
 
         if (iId >= 0)
         {
-       //     sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` is not a negative value.", iId);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` is not a negative value.", iId);
             continue;
         }
 
         if (iId > TEXT_SOURCE_RANGE*2 || iId <= TEXT_SOURCE_RANGE*3)
         {
-        //    sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` is out of accepted entry range for table.", iId);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` is out of accepted entry range for table.", iId);
             continue;
         }
 
         if (temp.uiSoundId)
         {
             if (!sSoundEntriesStore.LookupEntry(temp.uiSoundId))
-			{ }
-        //        sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` has soundId %u but sound does not exist.", iId, temp.uiSoundId);
+                sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` has soundId %u but sound does not exist.", iId, temp.uiSoundId);
         }
 
         if (!GetLanguageDescByID(temp.uiLanguage))
-		{ }
-       //     sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` using Language %u but Language does not exist.", iId, temp.uiLanguage);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` using Language %u but Language does not exist.", iId, temp.uiLanguage);
 
         if (temp.uiType > CHAT_TYPE_ZONE_YELL)
-		{ }
-        //    sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` has Type %u but this Chat Type does not exist.", iId, temp.uiType);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: Entry %i in table `custom_texts` has Type %u but this Chat Type does not exist.", iId, temp.uiType);
 
         m_mTextDataMap[iId] = temp;
         ++uiCount;
@@ -184,13 +178,12 @@ void SystemMgr::LoadScriptWaypoints()
 
         if (!pCInfo)
         {
-       //     sLog->outError(LOG_FILTER_SQL, "TSCR: DB table script_waypoint has waypoint for non-existant creature entry %u", temp.uiCreatureEntry);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: DB table script_waypoint has waypoint for non-existant creature entry %u", temp.uiCreatureEntry);
             continue;
         }
 
         if (!pCInfo->ScriptID)
-		{ }
-       //     sLog->outError(LOG_FILTER_SQL, "TSCR: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", temp.uiCreatureEntry);
+            sLog->outError(LOG_FILTER_SQL, "TSCR: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", temp.uiCreatureEntry);
 
         m_mPointMoveMap[uiEntry].push_back(temp);
         ++count;

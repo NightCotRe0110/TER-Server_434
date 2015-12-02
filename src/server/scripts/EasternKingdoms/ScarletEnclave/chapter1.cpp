@@ -716,6 +716,15 @@ public:
     {
         return new npc_salanar_the_horsemanAI(creature);
     }
+	bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest){
+		if (quest->GetQuestId() == 12687){
+			player->learnSpell(33388, true);
+			player->learnSpell(33391, true);
+			player->learnSpell(48778, true);
+		}
+		return true;
+	}
+
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
     {
@@ -742,6 +751,7 @@ public:
                 }
             }
         }
+
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -1093,7 +1103,8 @@ public:
 
         void InitCartQuest(Player* who)
         {
-            carGUID = who->GetVehicleBase()->GetGUID();
+			if (who!=NULL)
+				carGUID = me->FindNearestCreature(28817, 100, true)->GetGUID();
             InitWaypoint();
             Start(false, false, who->GetGUID());
             SetDespawnAtFar(false);
@@ -1184,7 +1195,7 @@ public:
             if (Creature* miner = player->SummonCreature(NPC_SCARLET_MINER, 2383.869629f, -5900.312500f, 107.996086f, player->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1))
             {
                 player->CastSpell(player, SPELL_HIDE_IN_MINE_CAR, true);
-                if (Creature* car = player->GetVehicleCreatureBase())
+                if (Creature* car = player->FindNearestCreature(28817, true) )
                 {
                     if (car->GetEntry() == NPC_MINE_CAR)
                     {

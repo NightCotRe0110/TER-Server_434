@@ -285,34 +285,36 @@ class boss_kaelthas : public CreatureScript
 
             uint64 m_auiAdvisorGuid[MAX_ADVISORS];
 
-            void Reset()
-            {
-                Fireball_Timer = 5000+rand()%10000;
-                ArcaneDisruption_Timer = 45000;
-                MindControl_Timer = 40000;
-                Phoenix_Timer = 50000;
-                ShockBarrier_Timer = 60000;
-                FlameStrike_Timer = 30000;
-                GravityLapse_Timer = 20000;
-                GravityLapse_Phase = 0;
-                NetherBeam_Timer = 8000;
-                NetherVapor_Timer = 10000;
-                PyrosCasted = 0;
-                Phase = 0;
-                InGravityLapse = false;
-                IsCastingFireball = false;
-                ChainPyros = false;
+			void Reset()
+			{
+				if (!me->FindNearestPlayer(200.0f, true)){
+				Fireball_Timer = 5000 + rand() % 10000;
+				ArcaneDisruption_Timer = 45000;
+				MindControl_Timer = 40000;
+				Phoenix_Timer = 50000;
+				ShockBarrier_Timer = 60000;
+				FlameStrike_Timer = 30000;
+				GravityLapse_Timer = 20000;
+				GravityLapse_Phase = 0;
+				NetherBeam_Timer = 8000;
+				NetherVapor_Timer = 10000;
+				PyrosCasted = 0;
+				Phase = 0;
+				InGravityLapse = false;
+				IsCastingFireball = false;
+				ChainPyros = false;
 
-                if (me->isInCombat())
-                    PrepareAdvisors();
+				if (me->isInCombat())
+					PrepareAdvisors();
 
-                summons.DespawnAll();
+				summons.DespawnAll();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                if (instance)
-                    instance->SetData(DATA_KAELTHASEVENT, 0);
+				if (instance)
+					instance->SetData(DATA_KAELTHASEVENT, 0);
+			}
             }
 
             void PrepareAdvisors()
@@ -365,38 +367,31 @@ class boss_kaelthas : public CreatureScript
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                     PhaseSubphase = 0;
-                    Phase_Timer = 23000;
+                    Phase_Timer = 7000;
                     Phase = 1;
                 }
             }
 
-            void MoveInLineOfSight(Unit* who)
-            {
-                if (!me->HasUnitState(UNIT_STATE_STUNNED) && me->canCreatureAttack(who))
-                {
-                    if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
-                        return;
+			void MoveInLineOfSight(Unit* pWho) override
+			{
+				if (Phase == 0 && pWho->GetTypeId() == TYPEID_PLAYER && !((Player*)pWho)->isGameMaster() &&
+					me->IsWithinDistInMap(pWho, me->GetAttackDistance(pWho)) && me->IsWithinLOSInMap(pWho))
+				{
+					//DoScriptText(SAY_INTRO, m_creature);
+					Phase = 1;
 
-                    float attackRadius = me->GetAttackDistance(who);
-                    if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
-                    {
-                        if (!me->GetVictim() && Phase >= 4)
-                        {
-                            who->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
-                            AttackStart(who);
-                        }
-                        else if (me->GetMap()->IsDungeon())
-                        {
-                            if (instance && !instance->GetData(DATA_KAELTHASEVENT) && !Phase)
-                                StartEvent();
+					// Set the player in combat with the boss
+					pWho->SetInCombatWith(me);
+					me->AddThreat(pWho, 0.0f);
 
-                            who->SetInCombatWith(me);
-                            me->AddThreat(who, 0.0f);
-                        }
-                    }
-                }
-            }
+					if (instance){
+						instance->SetData(DATA_KAELTHASEVENT, IN_PROGRESS);
+						StartEvent();
+					}
+				}
+			}
 
+       
             void EnterCombat(Unit* /*who*/)
             {
                 if (instance && !instance->GetData(DATA_KAELTHASEVENT) && !Phase)
@@ -429,6 +424,7 @@ class boss_kaelthas : public CreatureScript
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+				me->GetMotionMaster()->MovePoint(1, me->GetPositionX(), me->GetPositionY(), 48.73f);
 
                 Talk(SAY_DEATH);
 
@@ -453,16 +449,14 @@ class boss_kaelthas : public CreatureScript
                     {
                         Unit* target = NULL;
                         Creature* Advisor = NULL;
-
                         //Subphase switch
                         switch (PhaseSubphase)
                         {
                             //Subphase 1 - Start
                             case 0:
-                                if (Phase_Timer <= diff)
+								if (Phase_Timer <= diff)
                                 {
                                     Talk(SAY_INTRO_THALADRED);
-
                                     //start advisor within 7 seconds
                                     Phase_Timer = 7000;
                                     ++PhaseSubphase;
@@ -610,8 +604,8 @@ class boss_kaelthas : public CreatureScript
                                 }
                                 break;
                         }
+						break;
                     }
-                    break;
 
                     case 2:
                     {
@@ -922,19 +916,9 @@ class boss_kaelthas : public CreatureScript
 
                                     case 3:
                                         //Remove flight
-                                        for (i = threatlist.begin(); i != threatlist.end(); ++i)
-                                        {
-                                            if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
-                                            {
-                                                //Using packet workaround
-                                                WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
-                                                data.append(unit->GetPackGUID());
-                                                data << uint32(0);
-                                                unit->SendMessageToSet(&data, true);
-                                            }
-                                        }
-
-                                        me->RemoveAurasDueToSpell(SPELL_NETHER_VAPOR);
+                                       
+										me->GetMotionMaster()->MovePoint(1, me->GetPositionX(), me->GetPositionY(), 48.73f);
+										me->RemoveAurasDueToSpell(SPELL_NETHER_VAPOR);
                                         InGravityLapse = false;
                                         GravityLapse_Timer = 60000;
                                         GravityLapse_Phase = 0;
@@ -1383,12 +1367,9 @@ class mob_kael_flamestrike : public CreatureScript
             : CreatureScript("mob_kael_flamestrike")
         {
         }
-		struct mob_kael_flamestrikeAI : public ScriptedAI
+        struct mob_kael_flamestrikeAI : public Scripted_NoMovementAI
         {
-			mob_kael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
-				 {
-			SetCombatMovement(false);
-				}
+            mob_kael_flamestrikeAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
             uint32 Timer;
             bool Casting;

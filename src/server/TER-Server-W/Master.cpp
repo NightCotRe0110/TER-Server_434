@@ -106,17 +106,17 @@ int Master::Run()
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, " (TER-Server-РєСЂРѕРІРё)");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, " (TER-Server-крови)");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, " ********    ********     ********");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, " ********    ******       ***   ***");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      **           ***   *** ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      ******       ********  ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      **           ***   ***");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      ******       ***    ***");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ----      *******      ****   ****");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "TER-Server-РєСЂРѕРІРё       TER884 C O R E ");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, " ********    ********     ********");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, " ********    ******       ***   ***");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      **           ***   *** ");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      ******       ********  ");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      **           ***   ***");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ****      ******       ***    ***");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "   ----      *******      ****   ****");
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "TER-Server-крови       TER884 C O R E ");
 	sLog->outInfo(LOG_FILTER_WORLDSERVER, "mail & Skype: ter884.markin@yandex.ru");
 
     /// worldserver PID file creation

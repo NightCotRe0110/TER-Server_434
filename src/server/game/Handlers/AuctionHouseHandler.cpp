@@ -147,11 +147,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         recvData >> itemGUIDs[i];
         recvData >> count[i];
 
-		if (!itemGUIDs[i] || !count[i] || count[i] > 1000)
-		{
-			recvData.rfinish();
-			return;
-		}
+        if (!itemGUIDs[i] || !count[i] || count[i] > 1000 )
+            return;
     }
 
     recvData >> bid;
@@ -160,12 +157,6 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 
     if (!bid || !etime)
         return;
-	if (bid > MAX_MONEY_AMOUNT || buyout > MAX_MONEY_AMOUNT)
-		 {
-		sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Player %s (GUID %u) attempted to sell item with higher price than max gold amount.", _player->GetName().c_str(), _player->GetGUIDLow());
-		SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
-		return;
-		}
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -240,7 +231,6 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
              if (itemGUIDs[i] == itemGUIDs[j])
              {
                  SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
-				 recvData.rfinish();
                  return;
              }
          }
@@ -284,7 +274,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         // Required stack size of auction matches to current item stack size, just move item to auctionhouse
         if (itemsCount == 1 && item->GetCount() == count[i])
         {
-			if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
+            if (GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
             {
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
                     GetPlayerName().c_str(), GetAccountId(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetCount());
@@ -333,7 +323,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
                 return;
             }
 
-			if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
+            if (GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
             {
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
                     GetPlayerName().c_str(), GetAccountId(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetCount());

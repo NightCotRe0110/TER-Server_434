@@ -22,7 +22,6 @@ TER-Server
 #include "Pet.h"
 #include "LFG.h"
 #include "GroupMgr.h"
-#include "MMapFactory.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -220,9 +219,8 @@ public:
 
         uint32 zoneId, areaId;
         object->GetZoneAndAreaId(zoneId, areaId);
-		uint32 mapId = object->GetMapId();
 
-		MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+        MapEntry const* mapEntry = sMapStore.LookupEntry(object->GetMapId());
         AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zoneId);
         AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(areaId);
 
@@ -241,9 +239,8 @@ public:
         int gridX = 63 - gridCoord.x_coord;
         int gridY = 63 - gridCoord.y_coord;
 
-		uint32 haveMap = Map::ExistMap(mapId, gridX, gridY) ? 1 : 0;
-		uint32 haveVMap = Map::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
-		uint32 haveMMap = (MMAP::MMapFactory::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
+        uint32 haveMap = Map::ExistMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
+        uint32 haveVMap = Map::ExistVMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
 
         if (haveVMap)
         {
@@ -256,13 +253,13 @@ public:
             handler->PSendSysMessage("no VMAP available for area info");
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-			mapId, (mapEntry ? mapEntry->name : "<unknown>"),
+            object->GetMapId(), (mapEntry ? mapEntry->name : "<unknown>"),
             zoneId, (zoneEntry ? zoneEntry->area_name : "<unknown>"),
             areaId, (areaEntry ? areaEntry->area_name : "<unknown>"),
             object->GetPhaseMask(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
             cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
-			zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap, haveMMap);
+            zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
 
         LiquidData liquidStatus;
         ZLiquidStatus status = map->getLiquidStatus(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);
@@ -709,8 +706,8 @@ public:
 
         if (target)
         {
-			target->ResurrectPlayer(target->GetSession()->HasPermission(RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
-			target->SpawnCorpseBones();
+            target->ResurrectPlayer(!AccountMgr::IsPlayerAccount(target->GetSession()->GetSecurity()) ? 1.0f : 0.5f);
+            target->SpawnCorpseBones();
             target->SaveToDB();
         }
         else
@@ -912,7 +909,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         // save GM account without delay and output message
-		if (handler->GetSession()->HasPermission(RBAC_PERM_COMMANDS_SAVE_WITHOUT_DELAY))
+        if (!AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
         {
             if (Player* target = handler->getSelectedPlayer())
                 target->SaveToDB();
@@ -973,8 +970,8 @@ public:
 
     static bool HandleUnstuckCommand(ChatHandler* handler, char const* args)
     {
-		// No args required for players
-		if (handler->GetSession() && !handler->GetSession()->HasPermission(RBAC_PERM_COMMANDS_USE_UNSTUCK_WITH_ARGS))
+        //No args required for players
+        if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
         {
             // 7355: "Stuck"
             if (Player* player = handler->GetSession()->GetPlayer())
@@ -1604,8 +1601,8 @@ public:
 
         std::string userName    = handler->GetTrinityString(LANG_ERROR);
         std::string eMail       = handler->GetTrinityString(LANG_ERROR);
-		std::string muteReason = "";
-		std::string muteBy = "";
+        std::string muteReason  = "";
+        std::string muteBy      = "";
         std::string lastIp      = handler->GetTrinityString(LANG_ERROR);
         uint32 security         = 0;
         std::string lastLogin   = handler->GetTrinityString(LANG_ERROR);
@@ -1638,7 +1635,7 @@ public:
                 EndianConvertReverse(ip);
 #endif
 
-				PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
+                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_IP2NATION_COUNTRY);
 
                 stmt->setUInt32(0, ip);
 
@@ -1685,7 +1682,7 @@ public:
         }
 
         if (muteTime > 0)
-			handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str(), muteBy.c_str(), muteReason.c_str());
+            handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str(), muteBy.c_str(), muteReason.c_str());
 
         if (banTime >= 0)
             handler->PSendSysMessage(LANG_PINFO_BAN, banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "permanently", bannedby.c_str(), banreason.c_str());
@@ -1798,13 +1795,19 @@ public:
 	    result = CharacterDatabase.Query(stmt);
 		if (result)
 		    {
-				Field* fields = result->Fetch();
-				
-				uint32 guildId = fields[0].GetUInt32();
-				std::string guildName = fields[1].GetString();
-				std::string guildRank = fields[2].GetString();
-				std::string note = fields[3].GetString();
-				std::string officeNote = fields[4].GetString();
+			    uint32 guildId = 0;
+			    std::string guildName = "";
+			    std::string guildRank = "";
+			    std::string note = "";
+			    std::string officeNote = "";
+			    
+			    Field* fields = result->Fetch();
+			    guildId = fields[0].GetUInt32();
+			    guildName = fields[1].GetString();
+			    //rankId           = fields[2].GetUInt8();
+			    guildRank = fields[3].GetString();
+			    note = fields[4].GetString();
+			    officeNote = fields[5].GetString();
 			    
 			    handler->PSendSysMessage(LANG_PINFO_GUILD_INFO, guildName.c_str(), guildId, guildRank.c_str(), note.c_str(), officeNote.c_str());
 			}
@@ -1952,9 +1955,7 @@ public:
 
         stmt->setString(1, muteReasonStr.c_str());
         stmt->setString(2, muteBy.c_str());
-		stmt->setString(1, muteReasonStr.c_str());
-		stmt->setString(2, muteBy.c_str());
-		stmt->setUInt32(3, accountId);
+        stmt->setUInt32(1, accountId);
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
@@ -2154,69 +2155,6 @@ public:
             return false;
 
         Unit* target = handler->getSelectedUnit();
-		char* str = strtok((char*)args, " ");
-		
-			if (strcmp(str, "go") == 0)
-			 {
-			char* guidStr = strtok(NULL, " ");
-			if (!guidStr)
-				 {
-				handler->SendSysMessage(LANG_BAD_VALUE);
-				handler->SetSentErrorMessage(true);
-				return false;
-				}
-			
-				int32 guid = atoi(guidStr);
-			if (!guid)
-				 {
-				handler->SendSysMessage(LANG_BAD_VALUE);
-				handler->SetSentErrorMessage(true);
-				return false;
-				}
-			
-			char* damageStr = strtok(NULL, " ");
-			if (!damageStr)
-				 {
-				handler->SendSysMessage(LANG_BAD_VALUE);
-				handler->SetSentErrorMessage(true);
-				return false;
-				}
-			
-				int32 damage = atoi(damageStr);
-			if (!damage)
-				 {
-				handler->SendSysMessage(LANG_BAD_VALUE);
-				handler->SetSentErrorMessage(true);
-				return false;
-				}
-			
-				if (Player* player = handler->GetSession()->GetPlayer())
-				 {
-				GameObject* go = NULL;
-			
-					if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
-					 go = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guid, goData->id);
-				
-					if (!go)
-					 {
-					handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guid);
-					handler->SetSentErrorMessage(true);
-					return false;
-					}
-				
-					if (!go->IsDestructibleBuilding())
-					 {
-						 handler->SendSysMessage(LANG_INVALID_GAMEOBJECT_TYPE);
-					handler->SetSentErrorMessage(true);
-					return false;
-					}
-				
-					go->ModifyHealth(-damage, player);
-				handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guid, -damage, go->GetGOValue()->Building.Health);
-				}
-			
-				return true;
-			}
         if (!target || !handler->GetSession()->GetPlayer()->GetSelection())
         {
             handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);

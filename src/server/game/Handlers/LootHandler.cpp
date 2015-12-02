@@ -23,7 +23,7 @@ TER-Server
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
-	Player* player = GetPlayer();
+    Player* player = GetPlayer();
     uint64 lguid = player->GetLootGUID();
     Loot* loot = NULL;
     uint8 lootSlot = 0;
@@ -404,8 +404,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
         }
         else
         {
-			// Only delete item if no loot or money (unlooted loot is saved to db) or if it isn't an openable item
-			if (pItem->loot.isLooted() || !(proto->Flags & ITEM_PROTO_FLAG_OPENABLE))
+            if (pItem->loot.isLooted()) // Only delete item if no loot or money (unlooted loot is saved to db)
                 player->DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
         }
         return;                                             // item can be looted only single player

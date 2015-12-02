@@ -180,7 +180,7 @@ typedef std::map<uint32, AchievementCriteriaDataSet> AchievementCriteriaDataMap;
 struct AchievementReward
 {
     uint32 titleId[2];
-	uint32 itemId;
+    uint32 itemId;
     uint32 sender;
     std::string subject;
     std::string text;

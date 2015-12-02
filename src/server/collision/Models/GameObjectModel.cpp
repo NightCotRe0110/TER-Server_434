@@ -35,9 +35,7 @@ ModelList model_list;
 
 void LoadGameObjectModelList()
 {
-#ifndef NO_CORE_FUNCS
     uint32 oldMSTime = getMSTime();
-#endif
     FILE* model_list_file = fopen((sWorld->GetDataPath() + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb");
     if (!model_list_file)
     {

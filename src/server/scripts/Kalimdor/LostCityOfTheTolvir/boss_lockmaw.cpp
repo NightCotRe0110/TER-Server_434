@@ -43,7 +43,10 @@ enum Spells
     SPELL_VICIOUS             = 81677,
     SPELL_SUMMON_CROCOLISK    = 84242,
     SPELL_SUMMON_AUGH         = 84808,
-    SPELL_SUMMON_AUGH_2       = 84809
+    SPELL_SUMMON_AUGH_2       = 84809,
+	SPELL_CAMOUFLAGE = 105341,
+	SPELL_CAMOUFLAGE_REMOVE = 105541
+
 };
 
 enum Events
@@ -119,7 +122,7 @@ public:
             summons.Summon(summon);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* killer)
         {
             summons.DespawnAll();
             instance->SetData(DATA_LOCKMAW_EVENT, DONE);
@@ -127,6 +130,16 @@ public:
 
             if (!IsHeroic())
                 instance->SetData(DATA_AUGH_EVENT, DONE);
+			else{
+				if (Creature* c = me->FindNearestCreature(49045, 300.0f, true)){
+					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+					c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+					c->AddThreat(killer, 100.0f);
+					c->AI()->DoAction(0);
+					c->SetTarget(killer->GetGUID());
+					me->AllLootRemovedFromCorpse();
+				}
+			}
         }
 
         void EnterCombat(Unit* /*Who*/)
@@ -241,12 +254,21 @@ public:
         {
             instance = creature->GetInstanceScript();
             isBoss = (creature->GetEntry() == BOSS_AUGH ? true : false);
-            if (!isBoss)
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+			DoCast(me, SPELL_CAMOUFLAGE, true);
+
+            //if (!isBoss)
+		
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void Reset ()
         {
+			if (Creature* c = me->FindNearestCreature(43614, 300.0f, false)){
+				c->Respawn(true);
+				c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+			}
+			DoCast(me, SPELL_CAMOUFLAGE, true);
+
             if (isBoss)
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
@@ -261,6 +283,16 @@ public:
                 me->DespawnOrUnsummon(1000);
             }
         }
+
+		void DoAction(const int32 action){
+			DoCast(me, SPELL_CAMOUFLAGE_REMOVE, true);
+			if (Creature* c = me->FindNearestCreature(43614, 300.0f, false)){
+				me->GetMotionMaster()->MovePoint(0, c->GetPositionX(), c->GetPositionY(), c->GetPositionZ());
+				me->AddAura(SPELL_WHIRLWIND, me);
+			}
+				
+
+		}
 
         void IsSummonedBy(Unit* /*who*/)
         {
@@ -290,6 +322,7 @@ public:
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 instance->SetData(DATA_AUGH_EVENT, DONE);
+
             }
         }
 

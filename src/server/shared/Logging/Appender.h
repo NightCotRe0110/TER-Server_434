@@ -58,7 +58,6 @@ enum LogFilterType
     LOG_FILTER_SOAP                              = 42,
     LOG_FILTER_BAD_OPCODE_HANDLER                = 43,
     LOG_FILTER_KICK                              = 44,
-	LOG_FILTER_RBAC                              = 45,
     MAX_LOG_FILTER
 };
 

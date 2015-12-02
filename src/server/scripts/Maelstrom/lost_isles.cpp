@@ -2359,6 +2359,22 @@ public:
     }
 };
 
+// 288 cinematic + spell to org
+class npc_sassy_handwrench : public CreatureScript
+{
+public:
+	npc_sassy_handwrench() : CreatureScript("npc_sassy_handwrench") { }
+
+	bool OnGossipHello(Player* player, Creature* creature) override
+	{
+			// 1440.35 -5014.26 12.2184 1.75891  orgrimmar
+			player->TeleportTo(1, 1440.35f, -5014.26f, 12.2184f, 1.75891f);
+			// cinematic id is 288
+			player->SendMovieStart(288);
+		return true;
+	}
+};
+
 void AddSC_lost_isle()
 {
     new npc_Zapnozzle();
@@ -2400,4 +2416,5 @@ void AddSC_lost_isle()
     new npc_grilly_2();
     new npc_Prince();
     new npc_boot();
+	new npc_sassy_handwrench();
 }

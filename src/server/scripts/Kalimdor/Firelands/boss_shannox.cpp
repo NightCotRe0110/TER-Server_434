@@ -1240,12 +1240,11 @@ class npc_immolation_trap: public CreatureScript
             return new npc_immolation_trapAI(creature);
         }
 
-        struct npc_immolation_trapAI: public ScriptedAI
+        struct npc_immolation_trapAI: public Scripted_NoMovementAI
         {
                 npc_immolation_trapAI(Creature *c) :
-                        ScriptedAI(c)
+                        Scripted_NoMovementAI(c)
                 {
-					SetCombatMovement(false);
                     instance = me->GetInstanceScript();
                     tempTarget = NULL;
                     me->SetReactState(REACT_PASSIVE);
@@ -1353,12 +1352,11 @@ class npc_crystal_trap: public CreatureScript
             return new npc_crystal_trapAI(creature);
         }
 
-        struct npc_crystal_trapAI: public ScriptedAI
+        struct npc_crystal_trapAI: public Scripted_NoMovementAI
         {
                 npc_crystal_trapAI(Creature *c) :
-                        ScriptedAI(c)
+                        Scripted_NoMovementAI(c)
                 {
-					SetCombatMovement(false);
                     instance = me->GetInstanceScript();
                     tempTarget = NULL;
                     myPrison = NULL;

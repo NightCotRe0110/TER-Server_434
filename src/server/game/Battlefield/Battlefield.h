@@ -60,7 +60,7 @@ class BfGraveyard;
 
 typedef std::set<uint64> GuidSet;
 typedef std::vector<BfGraveyard*> GraveyardVect;
-typedef std::map<uint64, time_t> PlayerTimerMap;
+typedef std::map<uint64, uint32> PlayerTimerMap;
 
 class BfCapturePoint
 {

@@ -509,9 +509,11 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
             return;                                 // cheating?
 
 		// 1v1 Arena. Player can't join arena when forbidden talents are used.
-		if (bgQueueTypeId == BATTLEGROUND_QUEUE_5v5 && Arena1v1CheckTalents(_player) == false)
+
+	if (bgQueueTypeId == BATTLEGROUND_QUEUE_5v5 && Arena1v1CheckTalents(_player) == false)
+
 			 return;
-		
+
         if (!_player->InBattleground())
             _player->SetBattlegroundEntryPoint();
 

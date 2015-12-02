@@ -896,12 +896,9 @@ class npc_lord_darius_crowley_c1 : public CreatureScript
 		EVENT_NEXT_WAVE = 4,
 	};
 
-	struct npc_lord_darius_crowleyAI : public ScriptedAI
+	struct npc_lord_darius_crowleyAI : public Scripted_NoMovementAI
 	{
-		npc_lord_darius_crowleyAI(Creature* c) : ScriptedAI(c), Summons(me) 
-		{
-			SetCombatMovement(false);
-		}
+		npc_lord_darius_crowleyAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me) {}
 
 		Player* m_player;
 
@@ -4215,7 +4212,6 @@ enum qTKO_AG
 	QUEST_EXODUS = 24438,
 
 	SPELL_ZONE_SPECIFIC_19 = 74096,
-	SPELL_ZONE_SPECIFIC_11 = 69484,
 	SPELL_CATACLYSM_TYPE_1 = 80133,
 	SPELL_CATACLYSM_TYPE_2 = 68953,
 	SPELL_CATACLYSM_TYPE_3 = 80134,
@@ -4233,7 +4229,6 @@ public:
 		if (quest->GetQuestId() == QUEST_THE_KINGS_OBSERVATORY)
 		{
 			player->CastSpell(player, SPELL_CATACLYSM_TYPE_3, true);
-			player->CastSpell(player, SPELL_ZONE_SPECIFIC_11, true);
 			player->SaveToDB();
 		}
 
@@ -4255,7 +4250,6 @@ public:
 			player->RemoveAura(59087);
 			player->RemoveAura(59074);
 			player->RemoveAura(59073);
-			player->CastSpell(player, SPELL_ZONE_SPECIFIC_11, true);
 			player->SaveToDB();
 		}
 

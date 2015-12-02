@@ -67,7 +67,7 @@ public:
 
         /// @todo this should be handled in map, maybe add a summon function in map
         // There is no other way afaik...
-		void SpawnGameObject(uint32 entry, Position const& pos)
+        void SpawnGameObject(uint32 entry, Position& pos)
         {
             GameObject* go = new GameObject;
             if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, instance,
@@ -88,22 +88,31 @@ public:
                 case GO_NEXUS_RAID_PLATFORM:
                     platformGUID = go->GetGUID();
                     break;
-				case GO_FOCUSING_IRIS_10:
-                case GO_FOCUSING_IRIS_25:
+                case GO_FOCUSING_IRIS_10:
+                    if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                    {
                         irisGUID = go->GetGUID();
                         go->GetPosition(&focusingIrisPosition);
-                    
+                    }
+                    break;
+                case GO_FOCUSING_IRIS_25:
+                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                    {
+                        irisGUID = go->GetGUID();
+                        go->GetPosition(&focusingIrisPosition);
+                    }
                     break;
                 case GO_EXIT_PORTAL:
                     exitPortalGUID = go->GetGUID();
                     go->GetPosition(&exitPortalPosition);
                     break;
                 case GO_HEART_OF_MAGIC_10:
+                    if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                        heartOfMagicGUID = go->GetGUID();
                     break;
                 case GO_HEART_OF_MAGIC_25:
-					heartOfMagicGUID = go->GetGUID();
-					break;
-					default:
+                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                        heartOfMagicGUID = go->GetGUID();
                     break;
             }
         }
@@ -148,10 +157,10 @@ public:
             if (eventId == EVENT_FOCUSING_IRIS)
             {
                 if (Creature* alexstraszaBunny = instance->GetCreature(alexstraszaBunnyGUID))
-                
+                {
                     alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
-				if (GameObject* iris = instance->GetGameObject(irisGUID))
-					 iris->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    instance->GetGameObject(irisGUID)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                }
 
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
                     malygos->AI()->DoAction(0); // ACTION_LAND_ENCOUNTER_START

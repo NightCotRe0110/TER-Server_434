@@ -421,11 +421,16 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             case SPELLFAMILY_WARLOCK:
             {
 				// Soulburn Healthstone
+
 				if (m_spellInfo->Id == 6262)
-			{
-					if (m_caster->HasAura(74434))
-					 m_caster->CastSpell(m_caster, 79437, true); // Soulburn: Healthstone
-			}
+
+					 {
+
+				if (m_caster->HasAura(74434))
+
+						 m_caster->CastSpell(m_caster, 79437, true); // Soulburn: Healthstone
+
+					}
 			// Incinerate Rank 1 & 2
                 if ((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID == 2128)
                 {
@@ -474,174 +479,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     }
                 }
             }
-			// Smite
-			if (m_spellInfo->Id == 585)
-				 {
-				                    // Train of Thought Rank 2
-					if (m_caster->HasAura(92297))
-					 {
-					if (AuraEffect* aurEff = m_caster->GetAuraEffect(92297, 0))
-						 {
-						                            // 100% to reduce cooldown of Penance by 0.5 secs
-							if (m_caster->ToPlayer()->HasSpellCooldown(47540))
-							 {
-							int32 cooldown = -500;
-							uint32 newCooldownDelay = m_caster->ToPlayer()->GetSpellCooldownDelay(47540);
-							
-								if (newCooldownDelay < uint32(cooldown / -1000) + 1)
-								 newCooldownDelay = 0;
-							else
-								 newCooldownDelay += cooldown / 1000;
-							
-								m_caster->ToPlayer()->AddSpellCooldown(47540, 0, uint32(time(NULL) + newCooldownDelay));
-							
-								WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
-							data << uint32(47540);                  // Spell ID
-							data << uint64(m_caster->GetGUID());              // Player GUID
-							data << int32(-500);                // Cooldown mod in milliseconds
-							m_caster->ToPlayer()->GetSession()->SendPacket(&data);
-							}
-						}
-					}
-				                   // Train of Thought Rank 1
-					else if (m_caster->HasAura(92295))
-					 {
-					if (AuraEffect* aurEff = m_caster->GetAuraEffect(92295, 0))
-						 {
-						                            // 50% to reduce cooldown of Penance by 0.5 secs
-							if (roll_chance_i(50))
-							 {
-							if (m_caster->ToPlayer()->HasSpellCooldown(47540))
-								{
-								int32 cooldown = -500;
-								uint32 newCooldownDelay = m_caster->ToPlayer()->GetSpellCooldownDelay(47540);
-								
-									if (newCooldownDelay < uint32(cooldown / -1000) + 1)
-									 newCooldownDelay = 0;
-								else
-									 newCooldownDelay += cooldown / 1000;
-								
-									m_caster->ToPlayer()->AddSpellCooldown(47540, 0, uint32(time(NULL) + newCooldownDelay));
-								
-									WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
-								data << uint32(47540);                  // Spell ID
-								data << uint64(m_caster->GetGUID());              // Player GUID
-								data << int32(-500);                // Cooldown mod in milliseconds
-								m_caster->ToPlayer()->GetSession()->SendPacket(&data);
-								}
-							}
-						}
-					}
-				
-					                    // Evangelism: Rank 1
-					if (Aura* evan1 = m_caster->GetAura(81659))
-					 {
-					m_caster->CastSpell(m_caster, 81660, true);
-					                        //Trigger to activate archangel
-					m_caster->CastSpell(m_caster, 87154, true);
-					m_caster->RemoveAurasDueToSpell(87118);
-					m_caster->RemoveAurasDueToSpell(87117);
-					}
-				                   // Evangelism: Rank 2
-					if (Aura* evan2 = m_caster->GetAura(81662))
-					 {
-					m_caster->CastSpell(m_caster, 81661, true);
-					                        //Trigger to activate archangel
-					m_caster->CastSpell(m_caster, 87154, true);
-					m_caster->RemoveAurasDueToSpell(87118);
-					m_caster->RemoveAurasDueToSpell(87117);
-					}
-				if (m_caster->HasAura(14751)) // Chakra
-				 {
-					m_caster->CastSpell(m_caster, 81209, true);
-					m_caster->RemoveAurasDueToSpell(14751);
-					}
-				if (m_caster->HasAura(81749)) // Atonement rank 2
-					 {
-					int32 bp = damage;
-					m_caster->CastCustomSpell(unitTarget, 81751, &bp, NULL, NULL, true);
-					}
-				if (m_caster->HasAura(14523)) // Atonement rank 1
-					 {
-					int32 bp = damage / 2;
-					m_caster->CastCustomSpell(unitTarget, 81751, &bp, NULL, NULL, true);
-					}
-				}
-			                // Shadow Word: Death - deals damage equal to damage done to caster
-				if ((m_spellInfo->Id == 32379))
-				 {
-				int32 back_damage = m_caster->SpellDamageBonusDone(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
-				                    // Pain and Suffering reduces damage
-					if (AuraEffect * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 2874, 0))
-					 AddPct(back_damage, -aurEff->GetAmount());
-				
-					if (back_damage < int32(unitTarget->GetHealth()))
-					 m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
-				
-					if (unitTarget->HealthBelowPct(25))
-					 damage *= 3;
-				if (m_caster->HasAura(33371)) // Mind melt rank 2
-					 {
-					if (unitTarget->HealthBelowPct(25))
-					 AddPct(damage, 30);
-					}
-				if (m_caster->HasAura(14910)) // Mind melt rank 1
-					 {
-					if (unitTarget->HealthBelowPct(25))
-					 AddPct(damage, 15);
-					}
-				}
-			                // Mind Blast - applies Mind Trauma if:
-				else if (m_spellInfo->Id == 8092)
-				 {
-				                    // We are in Shadow Form
-					if (m_caster->GetShapeshiftForm() == FORM_SHADOW)
-					                        // We have Improved Mind Blast
-					if (AuraEffect * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 95, 0))
-					                            // Chance has been successfully rolled
-					if (roll_chance_i(aurEff->GetAmount()))
-					 m_caster->CastSpell(unitTarget, 48301, true);
-				
-					                    // Shadow Orb
-					if (Aura* shadowOrb = m_caster->GetAura(77487))
-					 {
-					float incr = 0.10f;
-					if (m_caster->HasAura(77486)) // Shadow Orb Mastery
-						 {
-						float mastery = m_caster->ToPlayer()->GetFloatValue(PLAYER_MASTERY);
-						incr += 0.0145*mastery;
-						}
-					damage += incr * shadowOrb->GetStackAmount();
-					m_caster->CastSpell(m_caster, 95799, true);
-					m_caster->RemoveAurasDueToSpell(77487);
-					}
-				
-					                    //Remove Mind Melt
-				m_caster->RemoveAurasDueToSpell(87160);
-				m_caster->RemoveAurasDueToSpell(81292);
-				}
-			              // Mind Spike
-				if (m_spellInfo->Id == 73510)
-				 {
-				                    // Shadow Orb
-					if (Aura* shadowOrb = m_caster->GetAura(77487))
-					 {
-					float incr = 0.10f;
-					if (m_caster->HasAura(77486)) // Shadow Orb Mastery
-						 {
-						float mastery = m_caster->ToPlayer()->GetFloatValue(PLAYER_MASTERY);
-						incr += 0.0145*mastery;
-						}
-					damage += incr * shadowOrb->GetStackAmount();
-					m_caster->CastSpell(m_caster, 95799, true);
-					m_caster->RemoveAurasDueToSpell(77487);
-					}
-				if (m_caster->HasAura(14751)) // Chakra
-					 {
-					m_caster->CastSpell(m_caster, 81209, true);
-					m_caster->RemoveAurasDueToSpell(14751);
-					}
-				}
             case SPELLFAMILY_DRUID:
             {
                 // Wild Mushroom damage
@@ -736,6 +573,20 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_HUNTER:
             {
+				switch (m_spellInfo->Id)
+                {    
+					// PETS BASIC ATTACK
+                    case 17253: // Bite
+                    case 16827: // Claw
+                    case 49966: // Smack
+                    case 53508: // Wolverine Bite
+                    {
+                        if (Unit* owner = m_caster->GetOwner())
+                            damage += int32((owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.4f) / 2);
+                         break;
+                    }
+                }
+
                 //Gore
                 if (m_spellInfo->SpellIconID == 1578)
                 {
@@ -775,14 +626,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         case SPELLFAMILY_GENERIC:
             switch (m_spellInfo->Id)
             {
-				// Quest teritorial fetish
-			case 72070:
-			{
-				if (Creature * fetish = unitTarget->FindNearestCreature(38003, 5.0f))
-					if (!fetish->HasAura(72072))
-						fetish->AddAura(72072, fetish);
-			}
-
                 case 96934: // Blessing of Khaz'goroth
                 case 97127: // Blessing of Khaz'goroth (H)
                 {
@@ -883,18 +726,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 20271: // Judgement
                     m_caster->CastSpell(unitTarget, 85064, true);
                     break;
-					// Guardian of Ancient Kings
-					case 86150:
-						{
-							if (m_caster->ToPlayer()->HasSpell(20473))          // Holy Shock
-								 m_caster->CastSpell(m_caster, 86669, true);
-							if (m_caster->ToPlayer()->HasSpell(85256))          // Templar's Verdict
-								 m_caster->CastSpell(m_caster, 86698, true);
-							if (m_caster->ToPlayer()->HasSpell(31935))          // Avenger's shield
-								 m_caster->CastSpell(m_caster, 86659, true);
-							return;
-							}
-						case 31789:                                 // Righteous Defense (step 1)
+                case 31789:                                 // Righteous Defense (step 1)
                 {
                     // Clear targets for eff 1
                     for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
@@ -1148,9 +980,10 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
     {
-		values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
-		values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
-		values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
+        // maybe need to set value only when basepoints == 0?
+        values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
+        values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
+        values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
     }
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
@@ -1756,127 +1589,6 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
 
         int32 addhealth = damage;
 
-		if (m_spellInfo->Id == 81751 && unitTarget->GetGUID() == caster->GetGUID()) // Atonement
-			 {
-			addhealth = int32(addhealth / 2); // Reduce heal if caster == target
-			}
-
-		switch (m_spellInfo->Id)
-			 {
-			case 139: // Renew
-				{
-					if (caster->HasAura(81206)) // Chakra: Sanctuary
-						 addhealth += addhealth * 0.15f;
-				break;
-					}
-				case 2050: // Heal
-				case 32546: // Binding Heal
-					case 2061: // Flash Heal
-							{
-								if (caster->HasAura(14751)) // Chakra
-									 {
-									caster->CastSpell(caster, 81208, true); // Chakra: Serenity
-									caster->RemoveAurasDueToSpell(14751);
-									}
-								else if (caster->HasAura(81208))
-									 if (unitTarget->GetAura(139))
-									 unitTarget->GetAura(139)->RefreshDuration();
-								break;
-								}
-							case 2060: // Greater Heal
-								{
-									addhealth += int32(addhealth * 0.937f);
-									if (caster->HasAura(14751)) // Chakra
-										 {
-										caster->CastSpell(caster, 81208, true); // Chakra: Serenity
-										caster->RemoveAurasDueToSpell(14751);
-										}
-									else if (caster->HasAura(81208))
-										 if (unitTarget->GetAura(139))
-										 unitTarget->GetAura(139)->RefreshDuration();
-									
-										                // Train of Thought Rank 2
-										if (caster->HasAura(92297))
-										 {
-										if (AuraEffect* aurEff = caster->GetAuraEffect(92297, 0))
-											 {
-											                        // 100% to reduce cooldown of Inner Focus by 5 secs
-												if (caster->ToPlayer()->HasSpellCooldown(89485))
-												 {
-												int32 cooldown = -5000;
-												uint32 newCooldownDelay = caster->ToPlayer()->GetSpellCooldownDelay(89485);
-												
-													if (newCooldownDelay < uint32(cooldown / -1000) + 1)
-													 newCooldownDelay = 0;
-												else
-													 newCooldownDelay += cooldown / 1000;
-												
-													caster->ToPlayer()->AddSpellCooldown(89485, 0, uint32(time(NULL) + newCooldownDelay));
-												
-												WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
-												data << uint32(89485);                  // Spell ID
-												data << uint64(caster->GetGUID());              // Player GUID
-												data << int32(-5000);                // Cooldown mod in milliseconds
-												caster->ToPlayer()->GetSession()->SendPacket(&data);
-												}
-											}
-										}
-									                // Train of Thought Rank 1
-										else if (caster->HasAura(92295))
-										 {
-										if (AuraEffect* aurEff = caster->GetAuraEffect(92295, 0))
-										 {
-											                        // 50% to reduce cooldown of Inner Focus by 5 secs
-												if (roll_chance_i(50))
-												 {
-												if (caster->ToPlayer()->HasSpellCooldown(89485))
-													 {
-													int32 cooldown = -5000;
-													uint32 newCooldownDelay = caster->ToPlayer()->GetSpellCooldownDelay(89485);
-													
-														if (newCooldownDelay < uint32(cooldown / -1000) + 1)
-														 newCooldownDelay = 0;
-													else
-														 newCooldownDelay += cooldown / 1000;
-													
-														caster->ToPlayer()->AddSpellCooldown(89485, 0, uint32(time(NULL) + newCooldownDelay));
-													
-													WorldPacket data(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
-													data << uint32(89485);                  // Spell ID
-													data << uint64(caster->GetGUID());              // Player GUID
-													data << int32(-5000);                // Cooldown mod in milliseconds
-													caster->ToPlayer()->GetSession()->SendPacket(&data);
-													}
-												}
-											}
-										}
-									break;
-									}
-								case 596: // Prayer of Healing
-									{
-										if (caster->HasAura(14751)) // If chakra is up
-											 {
-											caster->CastSpell(caster, 81206, true); // Chakra: Sanctuary
-											caster->RemoveAurasDueToSpell(14751);
-											}
-										if (caster->HasAura(47509)) // Divine Aegis rank 1
-											 {
-											int32 bp = addhealth * 0.1f;
-											caster->CastCustomSpell(caster, 47753, &bp, NULL, NULL, true);
-											}
-										if (caster->HasAura(47511)) // Divine Aegis rank 2
-											 {
-											int32 bp = addhealth * 0.2f;
-											caster->CastCustomSpell(caster, 47753, &bp, NULL, NULL, true);
-											}
-										if (caster->HasAura(47515)) // Divine Aegis rank 3
-											 {
-											int32 bp = addhealth * 0.3f;
-											caster->CastCustomSpell(caster, 47753, &bp, NULL, NULL, true);
-											}
-										break;
-										}
-									}
         // Vessel of the Naaru (Vial of the Sunwell trinket)
         if (m_spellInfo->Id == 45064)
         {
@@ -2258,6 +1970,12 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
             level_diff = m_caster->getLevel() - 60;
             level_multiplier = 4;
             break;
+		case 82726:                                         // Fervor
+		{
+			if (Unit* pet = m_caster->GetGuardianPet())
+				pet->CastSpell(pet, 82726, true); // Also give +50 focus to pet
+			break;
+		}
         case 63375:                                         // Primal Wisdom
         case 68082:                                         // Glyph of Seal of Command
         case 20167:                                         // Seal of Insight
@@ -2395,7 +2113,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 return;
 
             case GAMEOBJECT_TYPE_QUESTGIVER:
-				player->PrepareGossipMenu(gameObjTarget, gameObjTarget->GetGOInfo()->questgiver.gossipID, true);
+                player->PrepareGossipMenu(gameObjTarget, gameObjTarget->GetGOInfo()->questgiver.gossipID);
                 player->SendPreparedGossip(gameObjTarget);
                 return;
 
@@ -3165,8 +2883,8 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         if (!item_owner)
             return;
 
-		if (item_owner != p_caster && p_caster->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
-		{
+        if (item_owner != p_caster && !AccountMgr::IsPlayerAccount(p_caster->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+        {
             sLog->outCommand(p_caster->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
                 p_caster->GetName().c_str(), p_caster->GetSession()->GetAccountId(),
                 itemTarget->GetTemplate()->Name1.c_str(), itemTarget->GetEntry(),
@@ -3230,8 +2948,8 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
     if (!item_owner)
         return;
 
-	if (item_owner != p_caster && p_caster->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
-	{
+    if (item_owner != p_caster && !AccountMgr::IsPlayerAccount(p_caster->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+    {
         sLog->outCommand(p_caster->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
             p_caster->GetName().c_str(), p_caster->GetSession()->GetAccountId(),
             itemTarget->GetTemplate()->Name1.c_str(), itemTarget->GetEntry(),
@@ -3312,8 +3030,8 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
     if (!item_owner)
         return;
 
-	if (item_owner != p_caster && p_caster->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
-	{
+    if (item_owner != p_caster && !AccountMgr::IsPlayerAccount(p_caster->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+    {
         sLog->outCommand(p_caster->GetSession()->GetAccountId(), "GM %s (Account: %u) enchanting(temp): %s (Entry: %d) for player: %s (Account: %u)",
             p_caster->GetName().c_str(), p_caster->GetSession()->GetAccountId(),
             itemTarget->GetTemplate()->Name1.c_str(), itemTarget->GetEntry(),
@@ -3375,6 +3093,16 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     // prepare visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
 
+	// relocate
+
+	float px, py, pz;
+
+	unitTarget->GetClosePoint(px, py, pz, pet->GetObjectSize(), PET_FOLLOW_DIST, pet->GetFollowAngle());
+
+	pet->Relocate(px, py, pz, unitTarget->GetOrientation());
+
+	
+
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
 
@@ -3419,10 +3147,43 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
     Pet* OldSummon = owner->GetPet();
 
-    Pet* oldPet = owner->GetPet();
+    /*Pet* oldPet = owner->GetPet();*/
 
-    if (oldPet && owner->GetTypeId() == TYPEID_PLAYER)
-        owner->ToPlayer()->RemovePet(oldPet, (oldPet->getPetType() == HUNTER_PET ? PET_SLOT_DELETED : PET_SLOT_NOT_IN_SLOT));
+	// if pet requested type already exist
+	if (OldSummon)
+	{
+		if (petentry == 0 || OldSummon->GetEntry() == petentry)
+		{
+			// pet in corpse state can't be summoned
+			if (OldSummon->isDead())
+				return;
+
+			ASSERT(OldSummon->GetMap() == owner->GetMap());
+
+			//OldSummon->GetMap()->Remove(OldSummon->ToCreature(), false);
+
+			float px, py, pz;
+			owner->GetClosePoint(px, py, pz, OldSummon->GetObjectSize());
+
+			OldSummon->NearTeleportTo(px, py, pz, OldSummon->GetOrientation());
+			//OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
+			//OldSummon->SetMap(owner->GetMap());
+			//owner->GetMap()->Add(OldSummon->ToCreature());
+
+			if (owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled())
+				owner->ToPlayer()->PetSpellInitialize();
+
+			return;
+		}
+
+		if (OldSummon && owner->GetTypeId() == TYPEID_PLAYER)
+			owner->ToPlayer()->RemovePet(OldSummon, (OldSummon->getPetType() == HUNTER_PET ? PET_SLOT_ACTUAL_PET_SLOT : PET_SLOT_NOT_IN_SLOT));
+		else
+			return;
+	}
+
+    /*if (oldPet && owner->GetTypeId() == TYPEID_PLAYER)
+        owner->ToPlayer()->RemovePet(oldPet, (oldPet->getPetType() == HUNTER_PET ? PET_SLOT_DELETED : PET_SLOT_NOT_IN_SLOT));*/
 
     if (owner->getClass() == CLASS_HUNTER && m_spellInfo->SpellIconID == 455)
     {
@@ -3551,7 +3312,24 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     switch (m_spellInfo->SpellFamilyName)
     {
-     
+        case SPELLFAMILY_GENERIC:
+        {
+            switch (m_spellInfo->Id)
+            {
+                case 69055:     // Saber Lash
+                case 70814:     // Saber Lash
+                {
+                    uint32 count = 0;
+                    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        if (ihit->effectMask & (1 << effIndex))
+                            ++count;
+
+                    totalDamagePercentMod /= count;
+                    break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_WARRIOR:
         {
             // Devastate
@@ -3700,7 +3478,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Blood-Caked Strike - Blood-Caked Blade
             if (m_spellInfo->SpellIconID == 1736)
             {
-				AddPct(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 50.0f);
+                AddPct(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 12.5f);
                 break;
             }
             // Heart Strike
@@ -4863,22 +4641,40 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
         return;
 
 	// if player is dead without death timer is teleported to graveyard, otherwise not apply the effect
+
 	if (target->isDead())
+
 		 {
+
 		if (!target->GetDeathTimer())
-			target->RepopAtGraveyard();
+
+			 target->RepopAtGraveyard();
+
 		
+
 			return;
-		}
-	// the player dies
-	// the player dies if hearthstone is in cooldown, else the player is teleported to home
-	if (target->HasSpellCooldown(8690))
-		 {
-		target->Kill(target);
-		return;
+
 		}
 
+		// the player dies
+
+			// the player dies if hearthstone is in cooldown, else the player is teleported to home
+
+		if (target->HasSpellCooldown(8690))
+
+		 {
+
+		target->Kill(target);
+
+		return;
+
+		}
+
+	
+
 		target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), TELE_TO_SPELL);;
+
+
     // homebind location is loaded always
     // target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
 
@@ -4915,7 +4711,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
-void Spell::EffectActivateObject(SpellEffIndex effIndex)
+void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -4927,18 +4723,6 @@ void Spell::EffectActivateObject(SpellEffIndex effIndex)
     activateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
 
     // int32 unk = m_spellInfo->Effects[effIndex].MiscValue; // This is set for EffectActivateObject spells; needs research
-	switch (m_spellInfo->Id)
-		 {
-		case 105847:
-		case 105848:
-		case 105363:
-		case 105385:
-		case 105366:
-	    case 105384:
-			if (gameObjTarget->GetEntry() == 209623 || gameObjTarget->GetEntry() == 209631 || gameObjTarget->GetEntry() == 209632)
-			 gameObjTarget->ActivateAnimation(m_spellInfo->Effects[effIndex].MiscValueB);
-		break;
-		}
 
     gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, 0, m_caster, gameObjTarget);
 }
@@ -5394,7 +5178,7 @@ void Spell::EffectQuestComplete(SpellEffIndex effIndex)
             return;
 
         uint16 logSlot = player->FindQuestSlot(questId);
-		if (logSlot < sWorld->getIntConfig(CONFIG_QUESTS_9999))
+        if (logSlot < MAX_QUEST_LOG_SIZE)
             player->AreaExploredOrEventHappens(questId);
         else if (player->CanTakeQuest(quest, false))    // never rewarded before
             player->CompleteQuest(questId);             // quest not in log - for internal use
@@ -5491,8 +5275,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-		// Spell is not using explicit target - no generated path
-		if (m_preGeneratedPath.GetPathType() == PATHFIND_BLANK)
+        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
         {
             Position pos;
             unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
@@ -5610,7 +5393,7 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
         return;
 
     // remove all quest entries for 'entry' from quest log
-	for (uint8 slot = 0; slot < sWorld->getIntConfig(CONFIG_QUESTS_9999); ++slot)
+    for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
     {
         uint32 logQuest = player->GetQuestSlotQuestId(slot);
         if (logQuest == quest_id)
@@ -5619,12 +5402,6 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
 
             // we ignore unequippable quest items in this case, it's still be equipped
             player->TakeQuestSourceItem(logQuest, false);
-
-			if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-				 {
-				player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-				player->UpdatePvPState();
-				}
         }
     }
 
@@ -6285,12 +6062,6 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
     Pet* pet = unitTarget->CreateTamedPetFrom(creatureEntry, m_spellInfo->Id);
     if (!pet)
         return;
-
-	    // relocate
-	float px, py, pz;
-	unitTarget->GetClosePoint(px, py, pz, pet->GetObjectSize(), PET_FOLLOW_DIST, pet->GetFollowAngle());
-	pet->Relocate(px, py, pz, unitTarget->GetOrientation());
-	
 
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());

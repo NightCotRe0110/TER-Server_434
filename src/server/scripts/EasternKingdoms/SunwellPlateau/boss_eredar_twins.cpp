@@ -326,12 +326,10 @@ public:
         return new boss_alythessAI (creature);
     };
 
-	struct boss_alythessAI : public ScriptedAI
+    struct boss_alythessAI : public Scripted_NoMovementAI
     {
-		boss_alythessAI(Creature* creature) : ScriptedAI(creature)
+        boss_alythessAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-			SetCombatMovement(false);
-
             instance = creature->GetInstanceScript();
             IntroStepCounter = 10;
         }
@@ -401,8 +399,9 @@ public:
         void AttackStart(Unit* who)
         {
             if (!me->isInCombat())
-            
-				ScriptedAI::AttackStart(who);
+            {
+                Scripted_NoMovementAI::AttackStart(who);
+            }
         }
 
         void MoveInLineOfSight(Unit* who)

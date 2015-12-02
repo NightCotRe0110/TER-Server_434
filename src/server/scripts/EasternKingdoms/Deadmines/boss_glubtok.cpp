@@ -442,11 +442,10 @@ class npc_glubtok_main_platter : public CreatureScript
 public:
     npc_glubtok_main_platter() : CreatureScript("npc_glubtok_main_platter") { }
 
-    struct npc_glubtok_main_platterAI : public ScriptedAI
+    struct npc_glubtok_main_platterAI : public Scripted_NoMovementAI
     {
-        npc_glubtok_main_platterAI(Creature* creature) : ScriptedAI(creature)
+        npc_glubtok_main_platterAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
-			SetCombatMovement(false);
             _turnTimer = 100;
             me->SetDisableGravity(true);
         }
@@ -537,12 +536,9 @@ class npc_glubtok_secondary_platter : public CreatureScript
 public:
     npc_glubtok_secondary_platter() : CreatureScript("npc_glubtok_secondary_platter") { }
 
-    struct npc_glubtok_secondary_platterAI : public ScriptedAI
+    struct npc_glubtok_secondary_platterAI : public Scripted_NoMovementAI
     {
-        npc_glubtok_secondary_platterAI(Creature* creature) : ScriptedAI(creature)
-		{
-			SetCombatMovement(false);
-		}
+        npc_glubtok_secondary_platterAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
         void DoAction(int32 const actionID)
         {

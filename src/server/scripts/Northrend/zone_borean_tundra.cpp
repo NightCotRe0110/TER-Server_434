@@ -710,13 +710,12 @@ public:
                     switch (IntroPhase)
                     {
                         case 1:
-							if (Player* player = GetPlayerForEscort())
-								 Talk(SAY_START_1);
+                            Talk(SAY_START_1);
                             IntroPhase = 2;
                             IntroTimer = 7500;
                             break;
                         case 2:
-							Talk(SAY_START_2);
+                            Talk(SAY_END_1);
                             IntroPhase = 3;
                             IntroTimer = 7500;
                             break;
@@ -726,13 +725,12 @@ public:
                             IntroTimer = 0;
                             break;
                         case 4:
-							Talk(SAY_END_1);
+                            Talk(SAY_START_2);
                             IntroPhase = 5;
                             IntroTimer = 8000;
                             break;
                         case 5:
-							if (Player* player = GetPlayerForEscort())
-								Talk(SAY_END_2);
+                            Talk(SAY_END_2);
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
@@ -2209,9 +2207,9 @@ class npc_warmage_coldarra : public CreatureScript
 public:
     npc_warmage_coldarra() : CreatureScript("npc_warmage_coldarra") { }
 
-	struct npc_warmage_coldarraAI : public ScriptedAI
+    struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
     {
-		npc_warmage_coldarraAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_warmage_coldarraAI(Creature* creature) : Scripted_NoMovementAI(creature){}
 
         uint32 m_uiTimer;                 //Timer until recast
 

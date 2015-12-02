@@ -636,11 +636,11 @@ class mob_bullet_controller : public CreatureScript
     public:
         mob_bullet_controller() : CreatureScript("mob_bullet_controller") { }
 
-		struct mob_bullet_controllerAI : public ScriptedAI
+        struct mob_bullet_controllerAI : public Scripted_NoMovementAI
         {
-			mob_bullet_controllerAI(Creature* creature) : ScriptedAI(creature)
+            mob_bullet_controllerAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-				SetCombatMovement(false);
+                Reset();
             }
 
             void Reset()

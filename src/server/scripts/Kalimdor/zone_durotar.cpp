@@ -150,7 +150,7 @@ enum SayDarkspear
 
 };
 
-#define GOSSIP_ITEM_1 "Я готов встретить свой вызов."
+#define GOSSIP_ITEM_1 "I'm ready to face my challange."
 
 class npc_darkspear_jailor : public CreatureScript
 {
@@ -302,7 +302,7 @@ float fNodeNagaPosition[2][3] =
     {-1150.114380f, -5527.809082f,  8.105021f},
 };
 
-#define GOSSIP_HELLO_PIT "Я готов встретить свой вызов.."
+#define GOSSIP_HELLO_PIT "I'm ready to face my challenge."
 
 class npc_jailor : public CreatureScript
 {
@@ -341,7 +341,7 @@ public:
                 Phase = 0;
 
             CAST_AI(npc_jailor::npc_jailorAI, pCreature->AI())->Phase = Phase;
-            pCreature->MonsterSay("Залезай в яму и доставай нам наши вещи, $N", LANG_UNIVERSAL, pPlayer->GetGUID());
+            pCreature->MonsterSay("Get in the pit and show us your stuff, $N", LANG_UNIVERSAL, pPlayer->GetGUID());
 
             pPlayer->KilledMonsterCredit(pCreature->GetEntry(), 0);
             pPlayer->CLOSE_GOSSIP_MENU();
@@ -453,7 +453,7 @@ public:
                     pNaga->SetReactState(REACT_AGGRESSIVE);
                     pNaga->setFaction(14);
                     pNaga->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NON_ATTACKABLE);
-                    pNaga->MonsterSay("Они посылают вас на верную смерть, малыш.", LANG_UNIVERSAL, NULL);
+                    pNaga->MonsterSay("They sssend you to your death, youngling.", LANG_UNIVERSAL, NULL);
                     pNaga->GetMotionMaster()->MoveCharge(fNodeNagaPosition[Phase][0], fNodeNagaPosition[Phase][1], fNodeNagaPosition[Phase][2], 5);
                 }
             }

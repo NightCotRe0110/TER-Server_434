@@ -6,12 +6,12 @@ TER-Server
 #include "Containers.h"
 #include "dragon_soul.h" 
 
-#define TRALL_MENU "Мы готовы!"
-#define ASPECT_MENU_1 "Последний защитник Азерота"
-#define ASPECT_MENU_2 "Революция Время"
-#define ASPECT_MENU_3 "Сущность звезды"
-#define ASPECT_MENU_4 "Дар жизни"
-#define ASPECT_MENU_5 "магическая сила"
+#define TRALL_MENU "We are ready!"
+#define ASPECT_MENU_1 "Last Defender of Azeroth"
+#define ASPECT_MENU_2 "Revolution Time"
+#define ASPECT_MENU_3 "The essence nova"
+#define ASPECT_MENU_4 "The gift of life"
+#define ASPECT_MENU_5 "magical power"
 
 
 #define H_TARGETS_10 1
@@ -28,14 +28,14 @@ TER-Server
 
 enum ScriptedTexts
 {
-	SAY_AGGRO = 3,
-	SAY_BERSERK = 4,
-	SAY_DEATH = 11,
-	SAY_INTRO_1 = 1,
-	SAY_INTRO_2 = 2,
-	SAY_KILL = 8,
-	SAY_TWILIGHT = 6,
-	SAY_UNSTABLE = 7,
+    SAY_AGGRO       = 3,
+    SAY_BERSERK     = 4,
+    SAY_DEATH       = 11,
+    SAY_INTRO_1     = 1,
+    SAY_INTRO_2     = 2,
+    SAY_KILL        = 8,
+    SAY_TWILIGHT    = 6,
+    SAY_UNSTABLE    = 7,
 };
 
 enum Spells
@@ -148,11 +148,16 @@ enum Actions
 	ACTION_TWILIGHT_ERUPTION = 1,
 };
 
-// 55294  (spawned from script 56259)
 class boss_ultraxion : public CreatureScript
 {
 public:
-	boss_ultraxion() : CreatureScript("boss_ultraxion") {}
+	boss_ultraxion() : CreatureScript("boss_ultraxion")
+	{}
+
+	CreatureAI* GetAI(Creature* pCreature) const
+	{
+		return new boss_ultraxionAI(pCreature);
+	}
 
 	struct boss_ultraxionAI : public BossAI
 	{
@@ -279,17 +284,17 @@ public:
 			if (!playerList.isEmpty())
 			{
 				for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
-					if (Player* pPlayer = itr->getSource())
-					{
-						if (Aura const* aur = pPlayer->GetAura(SPELL_ULTRAXION_ACHIEVEMENT_AURA))
-							if (aur->GetStackAmount() > 1)
-								return false;
-					}
+				if (Player* pPlayer = itr->getSource())
+				{
+					if (Aura const* aur = pPlayer->GetAura(SPELL_ULTRAXION_ACHIEVEMENT_AURA))
+					if (aur->GetStackAmount() > 1)
+						return false;
+				}
 			}
 			return true;
 		}
 
-		void DoAction(int32 action)
+		void DoAction(const int32 action)
 		{
 			if (action == ACTION_TWILIGHT_ERUPTION)
 			{
@@ -358,13 +363,13 @@ public:
 			Unit * portal = me->FindNearestCreature(NPC_PORTAL_WYRMREST_BASE, 20.0f);
 
 			if (!portal)
-				portal = me->SummonCreature(NPC_PORTAL_WYRMREST_BASE, me->GetPositionX(), me->GetPositionY() + 2, me->GetPositionZ() + 3, 1.5f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE*IN_MILLISECONDS);
-
+				portal = me->SummonCreature(NPC_PORTAL_WYRMREST_BASE, me->GetPositionX(), me->GetPositionY()+2, me->GetPositionZ() + 3, 1.5f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE*IN_MILLISECONDS);
+ 
 
 			Unit * secondportal = me->FindNearestCreature(NPC_PORTAL_ETERNITY, 20.0f);
 
 			if (!secondportal)
-				portal = me->SummonCreature(NPC_PORTAL_ETERNITY, me->GetPositionX(), me->GetPositionY() - 2, me->GetPositionZ() + 3, 1.5f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE*IN_MILLISECONDS);
+				portal = me->SummonCreature(NPC_PORTAL_ETERNITY, me->GetPositionX(), me->GetPositionY()-2, me->GetPositionZ() + 3, 1.5f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE*IN_MILLISECONDS);
 
 			me->DespawnOrUnsummon(3000);
 		}
@@ -375,7 +380,7 @@ public:
 				Talk(SAY_KILL);
 		}
 
-		void UpdateAI(uint32 diff)
+		void UpdateAI(const uint32 diff)
 		{
 			if (!UpdateVictim() && !phase)
 				return;
@@ -409,13 +414,13 @@ public:
 					break;
 				case EVENT_MOVE:
 				{
-					me->SetVisible(true);
-					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE);
-					me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-					me->SetSpeed(MOVE_FLIGHT, 1.0f);
-					Talk(SAY_INTRO_1);
-					events.ScheduleEvent(EVENT_TALK_1, 13000);
-					break;
+								   me->SetVisible(true);
+								   me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_NOT_SELECTABLE);
+								   me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+								   me->SetSpeed(MOVE_FLIGHT, 1.0f);
+								   Talk(SAY_INTRO_1);
+								   events.ScheduleEvent(EVENT_TALK_1, 13000);
+								   break;
 				}
 				case EVENT_TALK_1:
 					Talk(SAY_INTRO_2);
@@ -552,8 +557,8 @@ public:
 			std::list<GameObject*> gameobjects;
 			me->GetGameObjectListWithEntryInGrid(gameobjects, entry, 300.0f);
 			if (!gameobjects.empty())
-				for (std::list<GameObject*>::iterator itr = gameobjects.begin(); itr != gameobjects.end(); ++itr)
-					(*itr)->Delete();
+			for (std::list<GameObject*>::iterator itr = gameobjects.begin(); itr != gameobjects.end(); ++itr)
+				(*itr)->Delete();
 		}
 
 		void RemoveEncounterAuras()
@@ -570,18 +575,13 @@ public:
 			instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LAST_DEFENDER_OF_AZEROTH_WARRIOR);
 		}
 	};
-
-	CreatureAI* GetAI(Creature* pCreature) const
-	{
-		return GetDragonSoulAI<boss_ultraxionAI>(pCreature);
-	}
-
 };
 
 class npc_trall_vs_ultraxion : public CreatureScript
 {
 public:
-	npc_trall_vs_ultraxion() : CreatureScript("npc_trall_vs_ultraxion") { }
+	npc_trall_vs_ultraxion() : CreatureScript("npc_trall_vs_ultraxion")
+	{}
 
 	bool OnGossipHello(Player* player, Creature* creature)
 	{
@@ -632,7 +632,8 @@ public:
 class npc_nozdormu : public CreatureScript
 {
 public:
-	npc_nozdormu() : CreatureScript("npc_nozdormu") { }
+	npc_nozdormu() : CreatureScript("npc_nozdormu")
+	{}
 
 	bool OnGossipHello(Player* player, Creature* creature)
 	{
@@ -674,7 +675,8 @@ public:
 class npc_ysera : public CreatureScript
 {
 public:
-	npc_ysera() : CreatureScript("npc_ysera") { }
+	npc_ysera() : CreatureScript("npc_ysera")
+	{}
 
 	bool OnGossipHello(Player* player, Creature* creature)
 	{
@@ -716,7 +718,8 @@ public:
 class npc_alexstrasza : public CreatureScript
 {
 public:
-	npc_alexstrasza() : CreatureScript("npc_alexstrasza") { }
+	npc_alexstrasza() : CreatureScript("npc_alexstrasza")
+	{}
 
 	bool OnGossipHello(Player* player, Creature* creature)
 	{
@@ -758,7 +761,8 @@ public:
 class npc_aspect_of_magic : public CreatureScript
 {
 public:
-	npc_aspect_of_magic() : CreatureScript("npc_aspect_of_magic") { }
+	npc_aspect_of_magic() : CreatureScript("npc_aspect_of_magic")
+	{}
 
 	bool OnGossipHello(Player* player, Creature* creature)
 	{
@@ -800,7 +804,8 @@ public:
 class spell_ultraxion_twilight_instability : public SpellScriptLoader
 {
 public:
-	spell_ultraxion_twilight_instability() : SpellScriptLoader("spell_ultraxion_twilight_instability") { }
+	spell_ultraxion_twilight_instability() : SpellScriptLoader("spell_ultraxion_twilight_instability")
+	{}
 
 	class spell_ultraxion_twilight_instability_SpellScript : public SpellScript
 	{
@@ -889,8 +894,8 @@ public:
 			}
 
 			if (targets.size() < min_players)
-				if (Creature* pUltraxion = GetCaster()->ToCreature())
-					pUltraxion->AI()->DoAction(ACTION_TWILIGHT_ERUPTION);
+			if (Creature* pUltraxion = GetCaster()->ToCreature())
+				pUltraxion->AI()->DoAction(ACTION_TWILIGHT_ERUPTION);
 		}
 
 		void FilterTargetsDarkness(std::list<WorldObject*>& targets)
@@ -950,7 +955,8 @@ public:
 class spell_ultraxion_fading_light : public SpellScriptLoader
 {
 public:
-	spell_ultraxion_fading_light() : SpellScriptLoader("spell_ultraxion_fading_light") { }
+	spell_ultraxion_fading_light() : SpellScriptLoader("spell_ultraxion_fading_light")
+	{}
 
 	class spell_ultraxion_fading_light_AuraScript : public AuraScript
 	{
@@ -1003,8 +1009,8 @@ public:
 
 			targets.remove_if(DPSCheck());
 			if (Creature* pUltraxion = GetCaster()->ToCreature())
-				if (Unit* pTarget = pUltraxion->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 0.0f, true))
-					targets.remove(pTarget);
+			if (Unit* pTarget = pUltraxion->AI()->SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 0.0f, true))
+				targets.remove(pTarget);
 
 			uint32 min_players = 1;
 			switch (GetCaster()->GetMap()->GetDifficulty())
@@ -1071,7 +1077,8 @@ public:
 class spell_ultraxion_last_defender_of_azeroth : public SpellScriptLoader
 {
 public:
-	spell_ultraxion_last_defender_of_azeroth() : SpellScriptLoader("spell_ultraxion_last_defender_of_azeroth") { }
+	spell_ultraxion_last_defender_of_azeroth() : SpellScriptLoader("spell_ultraxion_last_defender_of_azeroth")
+	{}
 
 	class spell_ultraxion_last_defender_of_azeroth_SpellScript : public SpellScript
 	{
@@ -1133,7 +1140,8 @@ public:
 class spell_ultraxion_last_defender_of_azeroth_dummy : public SpellScriptLoader
 {
 public:
-	spell_ultraxion_last_defender_of_azeroth_dummy() : SpellScriptLoader("spell_ultraxion_last_defender_of_azeroth_dummy") { }
+	spell_ultraxion_last_defender_of_azeroth_dummy() : SpellScriptLoader("spell_ultraxion_last_defender_of_azeroth_dummy")
+	{}
 
 	class spell_ultraxion_last_defender_of_azeroth_dummy_SpellScript : public SpellScript
 	{
@@ -1179,7 +1187,8 @@ public:
 class spell_ultraxion_heroic_will : public SpellScriptLoader
 {
 public:
-	spell_ultraxion_heroic_will() : SpellScriptLoader("spell_ultraxion_heroic_will") { }
+	spell_ultraxion_heroic_will() : SpellScriptLoader("spell_ultraxion_heroic_will")
+	{}
 
 	class spell_ultraxion_heroic_will_AuraScript : public AuraScript
 	{
@@ -1206,7 +1215,8 @@ public:
 class spell_ultraxion_time_loop : public SpellScriptLoader
 {
 public:
-	spell_ultraxion_time_loop() : SpellScriptLoader("spell_ultraxion_time_loop") { }
+	spell_ultraxion_time_loop() : SpellScriptLoader("spell_ultraxion_time_loop")
+	{}
 
 	class spell_ultraxion_time_loop_AuraScript : public AuraScript
 	{
@@ -1258,7 +1268,8 @@ typedef boss_ultraxion::boss_ultraxionAI UltraxionAI;
 class achievement_minutes_to_midnight : public AchievementCriteriaScript
 {
 public:
-	achievement_minutes_to_midnight() : AchievementCriteriaScript("achievement_minutes_to_midnight") { }
+	achievement_minutes_to_midnight() : AchievementCriteriaScript("achievement_minutes_to_midnight")
+	{}
 
 	bool OnCheck(Player* source, Unit* target)
 	{

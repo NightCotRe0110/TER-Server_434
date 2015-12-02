@@ -325,7 +325,7 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
         //Make sure that we are still on the right waypoint
         if (CurrentWP->id != pointId)
         {
-         //   sLog->outError(LOG_FILTER_GENERAL, "TSCR ERROR: EscortAI reached waypoint out of order %u, expected %u, creature entry %u", pointId, CurrentWP->id, me->GetEntry());
+            sLog->outError(LOG_FILTER_GENERAL, "TSCR ERROR: EscortAI reached waypoint out of order %u, expected %u, creature entry %u", pointId, CurrentWP->id, me->GetEntry());
             return;
         }
 
@@ -416,13 +416,13 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
 {
     if (me->GetVictim())
     {
-     //   sLog->outError(LOG_FILTER_GENERAL, "TSCR ERROR: EscortAI (script: %s, creature entry: %u) attempts to Start while in combat", me->GetScriptName().c_str(), me->GetEntry());
+        sLog->outError(LOG_FILTER_GENERAL, "TSCR ERROR: EscortAI (script: %s, creature entry: %u) attempts to Start while in combat", me->GetScriptName().c_str(), me->GetEntry());
         return;
     }
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
-     //   sLog->outError(LOG_FILTER_TSCR, "EscortAI (script: %s, creature entry: %u) attempts to Start while already escorting", me->GetScriptName().c_str(), me->GetEntry());
+        sLog->outError(LOG_FILTER_TSCR, "EscortAI (script: %s, creature entry: %u) attempts to Start while already escorting", me->GetScriptName().c_str(), me->GetEntry());
         return;
     }
 
@@ -435,8 +435,8 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
 
     if (WaypointList.empty())
     {
-    //    sLog->outError(LOG_FILTER_TSCR, "EscortAI (script: %s, creature entry: %u) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).",
-     //       me->GetScriptName().c_str(), me->GetEntry(), quest ? quest->GetQuestId() : 0);
+        sLog->outError(LOG_FILTER_TSCR, "EscortAI (script: %s, creature entry: %u) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).",
+            me->GetScriptName().c_str(), me->GetEntry(), quest ? quest->GetQuestId() : 0);
         return;
     }
 

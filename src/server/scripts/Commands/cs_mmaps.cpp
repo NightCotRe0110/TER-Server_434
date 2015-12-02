@@ -74,7 +74,7 @@ public:
         path.SetUseStraightPath(useStraightPath);
         bool result = path.CalculatePath(x, y, z);
 
-		PointsArray const& pointPath = path.GetPath();
+        PointsArray pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
         handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : "SmoothPath");
         handler->PSendSysMessage("Result: %s - Length: "SIZEFMTD" - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());

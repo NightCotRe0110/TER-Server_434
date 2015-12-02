@@ -43,8 +43,8 @@ class ScriptRegistry
             {
                 if (it->second == script)
                 {
-                //    sLog->outError(LOG_FILTER_TSCR, "Script '%s' has same memory pointer as '%s'.",
-                //        script->GetName().c_str(), it->second->GetName().c_str());
+                    sLog->outError(LOG_FILTER_TSCR, "Script '%s' has same memory pointer as '%s'.",
+                        script->GetName().c_str(), it->second->GetName().c_str());
 
                     return;
                 }
@@ -89,9 +89,8 @@ class ScriptRegistry
                 {
                     // The script uses a script name from database, but isn't assigned to anything.
                     if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
-					{ }
-						//   sLog->outError(LOG_FILTER_SQL, "Script named '%s' does not have a script name assigned in database.",
-                     //       script->GetName().c_str());
+                        sLog->outError(LOG_FILTER_SQL, "Script named '%s' does not have a script name assigned in database.",
+                            script->GetName().c_str());
                 }
             }
             else
@@ -388,7 +387,7 @@ void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scri
 {
     SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
 
-	for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
         SpellScriptLoader* tmpscript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
         if (!tmpscript)
@@ -409,7 +408,7 @@ void ScriptMgr::CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& script
 {
     SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
 
-	for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
         SpellScriptLoader* tmpscript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
         if (!tmpscript)
@@ -431,7 +430,7 @@ void ScriptMgr::CreateSpellScriptLoaders(uint32 spellId, std::vector<std::pair<S
     SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
     scriptVector.reserve(std::distance(bounds.first, bounds.second));
 
-	for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
         SpellScriptLoader* tmpscript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
         if (!tmpscript)
@@ -555,14 +554,14 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
 }
 
 #define SCR_MAP_BGN(M, V, I, E, C, T) \
-    if (V->GetEntry() && V->GetEntry()->T()) \
+    if (V->GetEntry()->T()) \
     { \
         FOR_SCRIPTS(M, I, E) \
         { \
             MapEntry const* C = I->second->GetEntry(); \
             if (!C) \
                 continue; \
-           if (C->MapID == V->GetId()) \
+            if (entry->MapID == V->GetId()) \
             {
 
 #define SCR_MAP_END \
@@ -867,9 +866,9 @@ void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
 }
 
 void ScriptMgr::Creature_SelectLevel(const CreatureTemplate *cinfo, Creature* creature)
-{
-    FOREACH_SCRIPT(AllCreatureScript)->Creature_SelectLevel(cinfo, creature);
-}
+ {
+	FOREACH_SCRIPT(AllCreatureScript)->Creature_SelectLevel(cinfo, creature);
+	}
 
 bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
 {
@@ -1189,20 +1188,18 @@ void ScriptMgr::OnShutdown()
 }
 
 void ScriptMgr::SetInitialWorldSettings()
-{
-    FOREACH_SCRIPT(WorldScript)->SetInitialWorldSettings();
-}
-
+ {
+	FOREACH_SCRIPT(WorldScript)->SetInitialWorldSettings();
+	}
 float ScriptMgr::VAS_Script_Hooks()
-{
-    float VAS_Script_Hook_Version = 1.03f;
-
+ {
+	float VAS_Script_Hook_Version = 1.03f;
 	sLog->outDebug(LOG_FILTER_WORLDSERVER, "------------------------------------------------------------");
 	sLog->outDebug(LOG_FILTER_WORLDSERVER, "     Battle-Dangeons {VAS} Script Balanse : TER-Server");
 	sLog->outDebug(LOG_FILTER_WORLDSERVER, "--------------------------------------------------------------");
 
-    return VAS_Script_Hook_Version;
-}
+	return VAS_Script_Hook_Version;
+	}
 
 bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target)
 {
@@ -1215,11 +1212,11 @@ bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target)
 
 //Called From Unit::DealDamage
 uint32 ScriptMgr::DealDamage(Unit* AttackerUnit, Unit *pVictim, uint32 damage, DamageEffectType damagetype)
-{
-    FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
-        damage = itr->second->DealDamage(AttackerUnit, pVictim, damage, damagetype);
-    return damage;
-}
+ {
+FOR_SCRIPTS_RET(UnitScript, itr, end, damage)
+ damage = itr->second->DealDamage(AttackerUnit, pVictim, damage, damagetype);
+	return damage;
+	}
 
 // Player
 void ScriptMgr::OnPVPKill(Player* killer, Player* killed)
@@ -1472,9 +1469,9 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
 }
 
 void ScriptMgr::ModifyHealRecieved(Unit* target, Unit* attacker, uint32& damage)
-{
-    FOREACH_SCRIPT(UnitScript)->ModifyHealRecieved(target, attacker, damage);
-}
+ {
+	FOREACH_SCRIPT(UnitScript)->ModifyHealRecieved(target, attacker, damage);
+	}
 
 SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
@@ -1483,10 +1480,10 @@ SpellScriptLoader::SpellScriptLoader(const char* name)
 }
 
 AllMapScript::AllMapScript(const char* name)
-    : ScriptObject(name)
-{
-    ScriptRegistry<AllMapScript>::AddScript(this);
-}
+ : ScriptObject(name)
+ {
+	ScriptRegistry<AllMapScript>::AddScript(this);
+	}
 
 ServerScript::ServerScript(const char* name)
     : ScriptObject(name)
@@ -1517,24 +1514,22 @@ WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<Map>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsWorldMap())
-	{ }
-     //   sLog->outError(LOG_FILTER_TSCR, "WorldMapScript for map %u is invalid.", mapId);
+        sLog->outError(LOG_FILTER_TSCR, "WorldMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<WorldMapScript>::AddScript(this);
 }
 
 AllCreatureScript::AllCreatureScript(const char* name)
-: ScriptObject(name)
-{
-    ScriptRegistry<AllCreatureScript>::AddScript(this);
-}
+ : ScriptObject(name)
+ {
+ScriptRegistry<AllCreatureScript>::AddScript(this);
+	}
 
 InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<InstanceMap>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsDungeon())
-	{ }
-     //   sLog->outError(LOG_FILTER_TSCR, "InstanceMapScript for map %u is invalid.", mapId);
+        sLog->outError(LOG_FILTER_TSCR, "InstanceMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<InstanceMapScript>::AddScript(this);
 }
@@ -1543,8 +1538,7 @@ BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<BattlegroundMap>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsBattleground())
-	{ }
-     //   sLog->outError(LOG_FILTER_TSCR, "BattlegroundMapScript for map %u is invalid.", mapId);
+        sLog->outError(LOG_FILTER_TSCR, "BattlegroundMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<BattlegroundMapScript>::AddScript(this);
 }

@@ -15,11 +15,9 @@ TER-Server
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary
 {
-		uint8 Targets;                                          // set of enum SelectTarget
-		uint8 Effects;                                          // set of enum SelectEffect
-}
-
-extern* SpellSummary;
+    uint8 Targets;                                          // set of enum SelectTarget
+    uint8 Effects;                                          // set of enum SelectEffect
+} extern* SpellSummary;
 
 void SummonList::DoZoneInCombat(uint32 entry)
 {
@@ -103,7 +101,7 @@ void ScriptedAI::AttackStartNoMove(Unit* who)
     if (!who)
         return;
 
-	if (me->Attack(who, true))
+    if (me->Attack(who, false))
         DoStartNoMovement(who);
 }
 
@@ -160,7 +158,7 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
 
     if (!sSoundEntriesStore.LookupEntry(soundId))
     {
-   //     sLog->outError(LOG_FILTER_TSCR, "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, source->GetTypeId(), source->GetGUIDLow());
+        sLog->outError(LOG_FILTER_TSCR, "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, source->GetTypeId(), source->GetGUIDLow());
         return;
     }
 
@@ -253,7 +251,7 @@ void ScriptedAI::DoResetThreat()
 {
     if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
     {
-    //    sLog->outError(LOG_FILTER_TSCR, "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
+        sLog->outError(LOG_FILTER_TSCR, "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
         return;
     }
 
@@ -301,9 +299,8 @@ void ScriptedAI::DoTeleportPlayer(Unit* unit, float x, float y, float z, float o
     if (Player* player = unit->ToPlayer())
         player->TeleportTo(unit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
     else
-	{ }
-     //   sLog->outError(LOG_FILTER_TSCR, "Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.",
-     //       me->GetGUID(), me->GetEntry(), unit->GetTypeId(), unit->GetGUID(), x, y, z, o);
+        sLog->outError(LOG_FILTER_TSCR, "Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.",
+            me->GetGUID(), me->GetEntry(), unit->GetTypeId(), unit->GetGUID(), x, y, z, o);
 }
 
 void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
@@ -445,6 +442,15 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
     return true;
 }
 
+void Scripted_NoMovementAI::AttackStart(Unit* target)
+{
+    if (!target)
+        return;
+
+    if (me->Attack(target, true))
+        DoStartNoMovement(target);
+}
+
 // BossAI - for instanced bosses
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
     instance(creature->GetInstanceScript()),
@@ -475,41 +481,6 @@ void BossAI::_JustDied()
         instance->SetBossState(_bossId, DONE);
         instance->SaveToDB();
     }
-	/*
-	     Award Points
-	     For 4.3.4 version:
-	     BurningCrusadeRaid     = 10  JusticePoints / boss
-	     LichKingHeroics        = 16  JusticePoints / boss
-	     LichKingRaid           = 23  JusticePoints / boss
-	     CataclysmHeroics       = 75  JusticePoints / boss
-	     CataclysmRaid 10man    = 75  ValorPoints   / boss
-		 CataclysmRaid 10man    = 105 ValorPoints   / boss
-	     */
-	if (Map* map = instance->instance)
-		 {
-		Map::PlayerList const &PlayerList = map->GetPlayers();
-		if (!PlayerList.isEmpty())
-			 {
-			for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-				 {
-				if (Player* player = i->getSource())
-					 {
-					if (map->GetEntry()->Expansion() == 1 && map->GetEntry()->IsRaid())
-						 player->ModifyCurrency(395, 10);
-					else if (map->GetEntry()->Expansion() == 2 && !map->IsRaid() && map->IsHeroic())
-						 player->ModifyCurrency(395, 16);
-					else if (map->GetEntry()->Expansion() == 2 && map->IsRaid())
-						 player->ModifyCurrency(395, 23);
-					else if (map->GetEntry()->Expansion() == 3 && !map->IsRaid() && map->IsHeroic())
-						 player->ModifyCurrency(395, 75);
-					else if (map->GetEntry()->Expansion() == 3 && map->IsRaid() && !Is25ManRaid())
-						 player->ModifyCurrency(396, 75);
-					else if (map->GetEntry()->Expansion() == 3 && Is25ManRaid())
-						 player->ModifyCurrency(396, 105);
-					}
-				}
-			}
-		}
 }
 
 void BossAI::_EnterCombat()
@@ -550,35 +521,35 @@ bool BossAI::CheckBoundary(Unit* who)
         switch (itr->first)
         {
             case BOUNDARY_N:
-				if (who->GetPositionX() > itr->second)
+                if (me->GetPositionX() > itr->second)
                     return false;
                 break;
             case BOUNDARY_S:
-				if (who->GetPositionX() < itr->second)
+                if (me->GetPositionX() < itr->second)
                     return false;
                 break;
             case BOUNDARY_E:
-				if (who->GetPositionY() < itr->second)
+                if (me->GetPositionY() < itr->second)
                     return false;
                 break;
             case BOUNDARY_W:
-				if (who->GetPositionY() > itr->second)
+                if (me->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_NW:
-				if (who->GetPositionX() + who->GetPositionY() > itr->second)
+                if (me->GetPositionX() + me->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_SE:
-				if (who->GetPositionX() + who->GetPositionY() < itr->second)
+                if (me->GetPositionX() + me->GetPositionY() < itr->second)
                     return false;
                 break;
             case BOUNDARY_NE:
-				if (who->GetPositionX() - who->GetPositionY() > itr->second)
+                if (me->GetPositionX() - me->GetPositionY() > itr->second)
                     return false;
                 break;
             case BOUNDARY_SW:
-				if (who->GetPositionX() - who->GetPositionY() < itr->second)
+                if (me->GetPositionX() - me->GetPositionY() < itr->second)
                     return false;
                 break;
             default:

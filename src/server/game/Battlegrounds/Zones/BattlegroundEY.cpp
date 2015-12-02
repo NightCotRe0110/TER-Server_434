@@ -336,7 +336,7 @@ void BattlegroundEY::AddPlayer(Player* player)
     m_PlayersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 
     PlayerScores[player->GetGUID()] = sc;
-    sc->BgTeam = player->GetTeam();
+	sc->BgTeam = player->GetTeam();
     sc->TalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 }
 

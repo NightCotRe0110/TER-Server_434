@@ -400,7 +400,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
     uint32 count;
     recvData >> count; // quest count, max=25
 
-	if (count >= sWorld->getIntConfig(CONFIG_QUESTS_9999))
+    if (count >= MAX_QUEST_LOG_SIZE)
     {
         recvData.rfinish();
         return;
@@ -418,7 +418,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
 
         uint16 questSlot = _player->FindQuestSlot(questId);
 
-		if (questSlot != sWorld->getIntConfig(CONFIG_QUESTS_9999))
+        if (questSlot != MAX_QUEST_LOG_SIZE)
             questOk =_player->GetQuestSlotQuestId(questSlot) == questId;
 
         if (questOk)

@@ -241,9 +241,9 @@ class mob_nadox_eggs : public CreatureScript
 public:
     mob_nadox_eggs() : CreatureScript("mob_nadox_eggs") { }
 
-	struct mob_nadox_eggsAI : public ScriptedAI
+    struct mob_nadox_eggsAI : public Scripted_NoMovementAI
     {
-		mob_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
+        mob_nadox_eggsAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             creature->UpdateAllStats();

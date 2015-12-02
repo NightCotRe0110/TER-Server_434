@@ -780,10 +780,9 @@ public:
         {
             // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
             // TODO: All visual, spells etc
-			for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end();)
+            for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
                 Creature* creature = instance->GetCreature(*itr);
-				++itr;
                 if (creature && creature->isAlive())
                     creature->CastSpell(creature, SPELL_ARCANE_LIGHTNING, true);  // Who should cast the spell?
             }

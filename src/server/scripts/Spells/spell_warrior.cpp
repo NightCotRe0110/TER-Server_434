@@ -41,6 +41,8 @@ enum WarriorSpells
     SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
     SPELL_PRIEST_RENEWED_HOPE                       = 63944,
     SPELL_GEN_DAMAGE_REDUCTION_AURA                 = 68066,
+	SPELL_WARRIOR_GLYPH_OF_HERIC_THROW				= 58357,
+	SPELL_WARRIOR_WEAKENDED_ARMOR					= 58567,
 };
 
 enum WarriorSpellIcons
@@ -78,15 +80,14 @@ class spell_warr_heroic_strike : public SpellScriptLoader
         }
 };
 
-// Bloodthirst
-// Spell Id: 23881
+/// Updated 4.3.4
 class spell_warr_bloodthirst : public SpellScriptLoader
- {
+{
     public:
         spell_warr_bloodthirst() : SpellScriptLoader("spell_warr_bloodthirst") { }
 
-		class spell_warr_bloodthirst_SpellScript : public SpellScript
-	 {
+        class spell_warr_bloodthirst_SpellScript : public SpellScript
+        {
             PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
 
             void HandleDamage(SpellEffIndex /*effIndex*/)
@@ -116,9 +117,37 @@ class spell_warr_bloodthirst : public SpellScriptLoader
             }
         };
 
-		SpellScript* GetSpellScript() const
-			{
+        SpellScript* GetSpellScript() const 
+        {
             return new spell_warr_bloodthirst_SpellScript();
+        }
+};
+
+/// Updated 4.3.4
+class spell_warr_bloodthirst_heal : public SpellScriptLoader
+{
+    public:
+        spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
+
+        class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODTHIRST_DAMAGE))
+                    SetHitHeal(GetCaster()->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_1].CalcValue(GetCaster())) / 1000);
+            }
+
+            void Register() 
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const 
+        {
+            return new spell_warr_bloodthirst_heal_SpellScript();
         }
 };
 
@@ -657,8 +686,11 @@ class spell_warr_victory_rush : public SpellScriptLoader
                 int32 value = GetHitHeal();
                 if (AuraEffect const* const aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_IMPENDING_VICTORY, EFFECT_0))
                 {
-                    value = aurEff->GetAmount();
-                    SetHitHeal(caster->CountPctFromMaxHealth(value));
+					if (Player* p = caster->ToPlayer()){
+						p->UpdateSpellCritChance(SPELL_SCHOOL_HOLY);
+						value = aurEff->GetAmount();
+						SetHitHeal(caster->CountPctFromMaxHealth(value));
+					}
                 }
             }
         }
@@ -1320,10 +1352,50 @@ public:
 	}
 };
 
+/*#########
+# spell_warr_glyph_of_heroic_throw - 57755
+# #########*/
+
+class spell_warr_glyph_of_heroic_throw : public SpellScriptLoader
+{
+public:
+	spell_warr_glyph_of_heroic_throw() : SpellScriptLoader("spell_warr_glyph_of_heroic_throw") { }
+
+	class spell_warr_glyph_of_heroic_throw_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_warr_glyph_of_heroic_throw_SpellScript);
+
+		void HandleOnHit()
+		{
+			if (Player* _player = GetCaster()->ToPlayer())
+			{
+				if (Unit* target = GetHitUnit())
+				{
+					if (_player->HasAura(SPELL_WARRIOR_GLYPH_OF_HERIC_THROW))
+					{
+						_player->CastSpell(target, SPELL_WARRIOR_WEAKENDED_ARMOR, true);
+					}
+				}
+			}
+		}
+
+		void Register()
+		{
+			OnHit += SpellHitFn(spell_warr_glyph_of_heroic_throw_SpellScript::HandleOnHit);
+		}
+	};
+
+	SpellScript* GetSpellScript() const
+	{
+		return new spell_warr_glyph_of_heroic_throw_SpellScript();
+	}
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_heroic_strike();
     new spell_warr_bloodthirst();
+	new spell_warr_bloodthirst_heal();
     new spell_warr_charge();
     new spell_warr_concussion_blow();
     new spell_warr_deep_wounds();
@@ -1355,4 +1427,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_sword_and_board();
     new spell_warr_intercept_triggered();
+	new spell_warr_glyph_of_heroic_throw(); 
 }

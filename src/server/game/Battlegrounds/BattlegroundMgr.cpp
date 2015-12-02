@@ -285,7 +285,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             data->WriteBit(bgGuid[7]);
             data->WriteBit(bgGuid[1]);
             data->WriteBit(playerGuid[5]);
-            data->WriteBit(player->GetTeam() == HORDE ? 0 : 1);
+			data->WriteBit(player->GetTeam() == HORDE ? 0 : 1);
             data->WriteBit(bgGuid[0]);
             data->WriteBit(playerGuid[1]);
             data->WriteBit(bgGuid[3]);
@@ -1145,7 +1145,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     data->WriteBit(guidBytes[3]);
     data->WriteBit(0);                                      // unk
     data->WriteBit(guidBytes[5]);
-	data->WriteBit(player->getLevel() != 10 ? 1 : 0);       // hide battleground list window, show only in level 10
+    data->WriteBit(0);                                      // unk
 
     data->FlushBits();
 
@@ -1176,7 +1176,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     {
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
-        uint32 team = player->GetTeam();
+		uint32 team = player->GetTeam();
 
         bg->GetTeamStartLoc(team, x, y, z, O);
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);

@@ -1993,105 +1993,6 @@ public:
    }
 };
 
-class npc_shadowy_apparition : public CreatureScript
-{
-public:
-    npc_shadowy_apparition() : CreatureScript("npc_shadowy_apparition") { }
-
-    struct npc_shadowy_apparitionAI : ScriptedAI
-    {
-        npc_shadowy_apparitionAI(Creature* creature) : ScriptedAI(creature) {}
-
-        Unit* victim;
-        bool init;
-        uint64 targetGuid;
-
-        void Reset()
-        {
-            init = false;
-            me->SetMaxHealth(5);
-            me->setPowerType(POWER_MANA);
-            Unit* owner = me->GetOwner();
-            if (!owner)
-            {
-                me->DespawnOrUnsummon();
-                return;
-            }
-            owner->CastSpell(me, 87213, true);
-            me->CastSpell(me, 87427, false);
-            targetGuid = owner->GetProcTargetGuid();
-        }
-
-        void DamageTaken(Unit* /*doneBy*/, uint32& damage)
-        {
-            me->CastSpell(me, 87529, false);
-            me->DespawnOrUnsummon();
-        }
-
-        void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
-        void EnterEvadeMode() {}
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            if (!targetGuid)
-                return;
-
-            if (Unit* owner = me->GetOwner())
-            {
-                if (victim = ObjectAccessor::FindUnit(targetGuid))
-                {
-                    if (!init)
-                    {
-                        me->SetInCombatWith(victim);
-                        me->Attack(victim, false);
-                        me->GetMotionMaster()->MoveChase(victim);
-                        init = true;
-                    }
-                }
-            }
-            else
-            {
-                me->DespawnOrUnsummon();
-                return;
-            }
-
-            if (!me->IsWalking())
-            {
-                me->SetWalk(true);
-                me->UpdateSpeed(MOVE_WALK, true);
-            }
-
-            if (!victim || !victim->isAlive())
-            {
-                me->DespawnOrUnsummon();
-                return;
-            }
-
-            if (!me->isInCombat())
-            {
-                me->SetInCombatWith(victim);
-                me->Attack(victim, false);
-            }
-
-            if (me->GetDistance(victim) <= 2.0f)
-            {
-                me->CastSpell(victim, 87532, false, NULL, NULL, me->GetOwnerGUID());
-                me->CastSpell(me, 87529, false);
-                me->DespawnOrUnsummon();
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_shadowy_apparitionAI(creature);
-    }
-};
-
 class npc_ebon_gargoyle : public CreatureScript
 {
 public:
@@ -2340,52 +2241,52 @@ class npc_consecration : public CreatureScript
         }
 };
 
-class npc_fungal_growth_one : public CreatureScript
-{
-    public:
-        npc_fungal_growth_one() : CreatureScript("npc_fungal_growth_one") { }
+//class npc_fungal_growth_one : public CreatureScript
+//{
+//    public:
+//        npc_fungal_growth_one() : CreatureScript("npc_fungal_growth_one") { }
+//
+//        struct npc_fungal_growth_oneAI : public PassiveAI
+//        {
+//            npc_fungal_growth_oneAI(Creature* creature) : PassiveAI(creature)
+//            {
+//                DoCast(me, 94339, false);
+//                me->AddAura(81289, me);
+//                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+//            }
+//
+//            void EnterEvadeMode() {}
+//        };
+//
+//        CreatureAI* GetAI(Creature* creature) const
+//        {
+//            return new npc_fungal_growth_oneAI(creature);
+//        }
+//};
 
-        struct npc_fungal_growth_oneAI : public PassiveAI
-        {
-            npc_fungal_growth_oneAI(Creature* creature) : PassiveAI(creature)
-            {
-                DoCast(me, 94339, false);
-                me->AddAura(81289, me);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-            }
-
-            void EnterEvadeMode() {}
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_fungal_growth_oneAI(creature);
-        }
-};
-
-
-class npc_fungal_growth_two : public CreatureScript
-{
-    public:
-        npc_fungal_growth_two() : CreatureScript("npc_fungal_growth_two") { }
-
-        struct npc_fungal_growth_twoAI : public PassiveAI
-        {
-            npc_fungal_growth_twoAI(Creature* creature) : PassiveAI(creature)
-            {
-                DoCast(me, 94339, false);
-                me->AddAura(81282, me);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-            }
-
-            void EnterEvadeMode() {}
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_fungal_growth_twoAI(creature);
-        }
-};
+//
+//class npc_fungal_growth_two : public CreatureScript
+//{
+//    public:
+//        npc_fungal_growth_two() : CreatureScript("npc_fungal_growth_two") { }
+//
+//        struct npc_fungal_growth_twoAI : public PassiveAI
+//        {
+//            npc_fungal_growth_twoAI(Creature* creature) : PassiveAI(creature)
+//            {
+//                DoCast(me, 94339, false);
+//                me->AddAura(81282, me);
+//                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+//            }
+//
+//            void EnterEvadeMode() {}
+//        };
+//
+//        CreatureAI* GetAI(Creature* creature) const
+//        {
+//            return new npc_fungal_growth_twoAI(creature);
+//        }
+//};
 
 enum eTrainingDummy
 {
@@ -3569,55 +3470,6 @@ public:
         }
 };
 
-/*######
-## npc_dancing_rune_weapon
-######*/
-class npc_dancing_rune_weapon : public CreatureScript
-{
-public:
-	npc_dancing_rune_weapon() : CreatureScript("npc_dancing_rune_weapon") { }
-	struct npc_dancing_rune_weaponAI : PetAI
-	{
-		npc_dancing_rune_weaponAI(Creature* creature) : PetAI(creature) {}
-
-		void InitializeAI()
-		{
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-			me->SetReactState(REACT_AGGRESSIVE);
-
-			if (Unit* owner = me->GetOwner())
-			{
-				float minDamage = CalculatePct(owner->GetFloatValue(UNIT_FIELD_MINDAMAGE), 50);
-				float maxDamage = CalculatePct(owner->GetFloatValue(UNIT_FIELD_MAXDAMAGE), 50);
-				me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, minDamage);
-				me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxDamage);
-			}
-		}
-		void UpdateAI(uint32 const /*diff*/)
-		{
-			if (Unit* owner = me->GetOwner())
-			{
-				Unit* ownerVictim = owner->GetVictim();
-				Unit* meVictim = me->GetVictim();
-
-				// Rune Weapon's target switching only when DK switches
-				if (ownerVictim != meVictim)
-				{
-					meVictim = ownerVictim;
-					me->Attack(meVictim, true);
-					me->GetMotionMaster()->MoveChase(meVictim);
-				}
-			}
-			DoMeleeAttackIfReady();
-		}
-	};
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_dancing_rune_weaponAI(creature);
-	}
-};
-
 class npc_t12_fiery_imp : public CreatureScript
 {
 public:
@@ -3699,6 +3551,344 @@ public:
     }
 };
 
+/*######
+## npc_dancing_rune_weapon
+######*/
+class npc_dancing_rune_weapon : public CreatureScript
+{
+public:
+	npc_dancing_rune_weapon() : CreatureScript("npc_dancing_rune_weapon") { }
+	struct npc_dancing_rune_weaponAI : PetAI
+	{
+		npc_dancing_rune_weaponAI(Creature* creature) : PetAI(creature) {}
+
+		void InitializeAI()
+		{
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+			me->SetReactState(REACT_AGGRESSIVE);
+
+			if (Unit* owner = me->GetOwner())
+			{
+				float minDamage = CalculatePct(owner->GetFloatValue(UNIT_FIELD_MINDAMAGE), 50);
+				float maxDamage = CalculatePct(owner->GetFloatValue(UNIT_FIELD_MAXDAMAGE), 50);
+				me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, minDamage);
+				me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxDamage);
+			}
+		}
+		void UpdateAI(uint32 const /*diff*/)
+		{
+			if (Unit* owner = me->GetOwner())
+			{
+				Unit* ownerVictim = owner->GetVictim();
+				Unit* meVictim = me->GetVictim();
+
+				// Rune Weapon's target switching only when DK switches
+				if (ownerVictim != meVictim)
+				{
+					meVictim = ownerVictim;
+					me->Attack(meVictim, true);
+					me->GetMotionMaster()->MoveChase(meVictim);
+				}
+			}
+			DoMeleeAttackIfReady();
+		}
+	};
+	CreatureAI* GetAI(Creature* creature) const
+	{
+		return new npc_dancing_rune_weaponAI(creature);
+	}
+};
+
+class npc_shadowy_apparition : public CreatureScript
+
+	 {
+
+	public:
+
+		npc_shadowy_apparition() : CreatureScript("npc_shadowy_apparition")
+
+			 {
+
+			}
+
+		
+
+			struct npc_shadowy_apparitionAI : public ScriptedAI
+
+			 {
+
+			npc_shadowy_apparitionAI(Creature* c) : ScriptedAI(c) {}
+
+			
+
+				uint64 targetGuid;
+
+			
+
+				void Reset()
+
+				 {
+
+				Unit* owner = me->GetOwner();
+
+				if (!owner)
+
+					 return;
+
+				
+
+				me->SetWalk(true);
+
+				owner->CastSpell(me, 87213, false);
+
+				me->CastSpell(me, 87427, true);
+
+				
+
+					if (me->GetCharmInfo())
+
+					 {
+
+					me->GetCharmInfo()->SetIsAtStay(true);
+
+					me->GetCharmInfo()->SetIsFollowing(false);
+
+					me->GetCharmInfo()->SetIsReturning(false);
+
+					}
+
+				}
+
+			
+
+				void MoveInLineOfSight(Unit* who)
+
+				 {
+
+				if (who->GetGUID() == targetGuid && me->GetDistance(who) <= 1.0f)
+
+					 {
+
+					me->CastCustomSpell(who, 87532, NULL, NULL, NULL, true, 0, 0, me->GetOwnerGUID());
+
+					me->CastSpell(me, 87529, true);
+
+					me->DisappearAndDie();
+
+					}
+
+				}
+
+			
+
+				void UpdateAI(uint32 diff)
+
+				 {
+
+				if (!UpdateVictim())
+
+					 {
+
+					Unit* owner = me->GetOwner();
+
+					
+
+						if (!owner)
+
+					 return;
+
+					
+
+						if (Unit* target = owner->getAttackerForHelper())
+
+						 {
+
+						me->Attack(target, false);
+
+						me->AddThreat(target, 100.0f);
+
+						me->GetMotionMaster()->MoveChase(target, 0.0f, 0.0f);
+
+						targetGuid = target->GetGUID();
+
+						}
+
+					}
+
+				}
+
+			};
+
+		
+
+			CreatureAI* GetAI(Creature* creature) const
+
+			 {
+
+			return new npc_shadowy_apparitionAI(creature);
+
+			}
+
+		};
+
+
+
+// Power Word Barrier
+
+class npc_power_word_barrier : public CreatureScript
+
+{
+
+	public:
+
+		npc_power_word_barrier() : CreatureScript("npc_power_word_barrier") { }
+
+		
+
+			struct npc_power_word_barrierAI : public ScriptedAI
+
+			 {
+
+			npc_power_word_barrierAI(Creature *creature) : ScriptedAI(creature) {}
+
+			
+
+			bool checker;
+
+			uint32 cron; // Duration
+
+			
+
+				void Reset()
+
+				 {
+
+				checker = false;
+
+				cron = 10000;
+
+				DoCast(me, 81781);
+
+				}
+
+			
+
+				void InitializeAI()
+
+				 {
+
+				ScriptedAI::InitializeAI();
+
+				Unit* owner = me->GetOwner();
+
+				if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+
+					 return;
+
+				
+
+					me->SetReactState(REACT_PASSIVE);
+
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+				me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+				}
+
+			
+
+				void BarrierChecker(Unit* who)
+
+				 {
+
+				if (who->isAlive() && !who->HasAura(81782))
+
+					 {
+
+					me->CastSpell(who, 81782, true);
+
+					}
+
+				
+
+					if (who->isAlive() && who->HasAura(81782))
+
+					 {
+
+					if (AuraEffect const* aur = who->GetAuraEffect(81782, 0))
+
+						 aur->GetBase()->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+
+					}
+
+				}
+
+			
+
+				void UpdateAI(uint32 diff)
+
+				 {
+
+				if (cron <= diff)
+
+					 {
+
+					if (!checker)
+
+						 {
+
+						checker = true;
+
+						cron = 10000;   //10 seconds
+
+						}
+
+					else
+
+						 me->DisappearAndDie();
+
+					}
+
+				else
+
+					 cron -= diff;
+
+				
+
+										           //Check friendly entities
+
+					std::list<Unit*> targets;
+
+				Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 7.0f);
+
+				Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>searcher(me, targets, u_check);
+
+				
+
+					me->VisitNearbyObject(7.0f, searcher);
+
+				for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+
+					BarrierChecker(*iter);
+
+			}
+
+			};
+
+		
+
+			CreatureAI* GetAI(Creature* creature) const
+
+			 {
+
+			return new npc_power_word_barrierAI(creature);
+
+			}
+
+		};
+
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -3736,12 +3926,14 @@ void AddSC_npcs_special()
     new npc_mage_orb();
     new npc_hand_of_guldan();
     new npc_mushroom();
-    new npc_fungal_growth_one();
-    new npc_fungal_growth_two();
+    //new npc_fungal_growth_one();
+    //new npc_fungal_growth_two();
     new npc_consecration();
     new npc_melee_guardian();
     new npc_Tentacle_of_the_Old_Ones();
     new npc_remove_phase_auras();
-    new npc_dancing_rune_weapon();
 	new npc_t12_fiery_imp();
+	new npc_dancing_rune_weapon();
+	//new npc_shadowy_apparition();
+    new npc_power_word_barrier();
 }

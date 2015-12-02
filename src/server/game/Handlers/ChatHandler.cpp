@@ -78,18 +78,29 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             return;
     }
 
-    if (sWorld->getBoolConfig(BATTLEGROUND_CROSSFACTION_ENABLED) && lang != LANG_ADDON)
-    {
-        switch (type)
-        {
-        case CHAT_MSG_BATTLEGROUND:
-        case CHAT_MSG_BATTLEGROUND_LEADER:
-            lang = LANG_UNIVERSAL;
-        default:
-            break;
-        }
-    }
+	if (sWorld->getBoolConfig(BATTLEGROUND_CROSSFACTION_ENABLED) && lang != LANG_ADDON)
 
+		 {
+
+		switch (type)
+
+			{
+
+			case CHAT_MSG_BATTLEGROUND:
+
+				case CHAT_MSG_BATTLEGROUND_LEADER:
+
+					lang = LANG_UNIVERSAL;
+
+					default:
+
+						break;
+
+						}
+
+		}
+
+	
     if (type >= MAX_CHAT_MSG_TYPE)
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "CHAT: Wrong message type received: %u", type);
@@ -176,10 +187,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 lang = LANG_UNIVERSAL;
             else
             {
-				Unit::AuraEffectList const& ModLangAuras = sender->GetAuraEffectsByType(SPELL_AURA_MOD_LANGUAGE);
-				if (!ModLangAuras.empty())
-					 lang = ModLangAuras.front()->GetMiscValue();
-				else if (HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
+                // send in universal language in two side iteration allowed mode
+                if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT))
                     lang = LANG_UNIVERSAL;
                 else
                 {
@@ -202,6 +211,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                             break;
                     }
                 }
+
+                // but overwrite it by SPELL_AURA_MOD_LANGUAGE auras (only single case used)
+                Unit::AuraEffectList const& ModLangAuras = sender->GetAuraEffectsByType(SPELL_AURA_MOD_LANGUAGE);
+                if (!ModLangAuras.empty())
+                    lang = ModLangAuras.front()->GetMiscValue();
             }
 
             if (!sender->CanSpeak())
@@ -300,10 +314,13 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
 
-            if (!GetPlayer()->isGameMaster())
-                if (GetPlayer()->SendBattleGroundChat(type, msg))
-                    return;
+			if (!GetPlayer()->isGameMaster())
 
+				 if (GetPlayer()->SendBattleGroundChat(type, msg))
+
+				 return;
+
+			
             if (type == CHAT_MSG_SAY)
                 sender->Say(msg, lang);
             else if (type == CHAT_MSG_EMOTE)
@@ -326,20 +343,35 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             Player* receiver = sObjectAccessor->FindPlayerByName(to);
-			if (!receiver || (!HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) &&
-				!receiver->isAcceptWhispers() && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
-			{
-                SendPlayerNotFoundNotice(to);
-                return;
+            bool senderIsPlayer = AccountMgr::IsPlayerAccount(GetSecurity());
+            bool receiverIsPlayer = AccountMgr::IsPlayerAccount(receiver ? receiver->GetSession()->GetSecurity() : SEC_PLAYER);
+            if (!receiver || (senderIsPlayer && !receiverIsPlayer && !receiver->isAcceptWhispers() && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
+            {
+				std::ostringstream nx;
+				nx << "" << to << "";
+				QueryResult result = CharacterDatabase.PQuery("SELECT name FROM characters_fake WHERE online=2 AND name = '%s'", nx.str().c_str());
+
+                // PFake Player By Lizard.tiny
+                if ( result && sWorld->getBoolConfig(CONFIG_FAKE_WHO_LIST)) 
+                {
+				std::ostringstream ss;
+				ss << "|cffF17AEFTo [" << to << "]: " << msg << "";
+				ChatHandler(sender->GetSession()).PSendSysMessage(ss.str().c_str());
+                    return;
+                }
+                else 
+                { 
+                    SendPlayerNotFoundNotice(to);
+                    return;
+				}
             }
 
-			if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) &&
-				!receiver->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
-
-			{
-			SendWrongFactionNotice();
-				return;
-				}
+            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && senderIsPlayer && receiverIsPlayer)
+                if (GetPlayer()->GetTeam() != receiver->GetTeam())
+                {
+                    SendWrongFactionNotice();
+                    return;
+                }
 
             if (GetPlayer()->HasAura(1852) && !receiver->isGameMaster())
             {
@@ -348,8 +380,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             // If player is a Gamemaster and doesn't accept whisper, we auto-whitelist every player that the Gamemaster is talking to
-			if (HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) && !sender->isAcceptWhispers() && !sender->IsInWhisperWhiteList(receiver->GetGUID()))
-				sender->AddWhisperWhiteList(receiver->GetGUID());
+            if (!senderIsPlayer && !sender->isAcceptWhispers() && !sender->IsInWhisperWhiteList(receiver->GetGUID()))
+                sender->AddWhisperWhiteList(receiver->GetGUID());
 
             GetPlayer()->Whisper(msg, lang, receiver->GetGUID());
         } break;
@@ -451,7 +483,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         } break;
         case CHAT_MSG_CHANNEL:
         {
-			if (!HasPermission(RBAC_PERM_SKIP_CHECK_CHAT_CHANNEL_REQ))
+            if (AccountMgr::IsPlayerAccount(GetSecurity()))
             {
                 if (_player->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
                 {

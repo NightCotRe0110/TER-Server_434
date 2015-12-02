@@ -323,7 +323,7 @@ class npc_maelstrom_trall : public CreatureScript
 					{
 					    player->CLOSE_GOSSIP_MENU();
 						instance->SetData(DATA_ATTACK_DEATHWING, IN_PROGRESS);
-						creature->SummonCreature(NPC_DEATHWING_RAGE, -11903.9f, 11989.1f, -113.204f, 2.16421f, TEMPSUMMON_TIMED_DESPAWN, 12000000);
+						creature->SummonCreature(NPC_DEATHWING_1, -11903.9f, 11989.1f, -113.204f, 2.16421f, TEMPSUMMON_TIMED_DESPAWN, 12000000);
 						creature->SummonCreature(57694, -11967.1f, 11958.8f, -49.9822f, 2.16421f, TEMPSUMMON_CORPSE_DESPAWN, 6000000);
 						creature->SummonCreature(57686, -11852.1f, 12036.4f, -49.9821f, 2.16421f, TEMPSUMMON_CORPSE_DESPAWN, 6000000);
 						creature->SummonCreature(57696, -11913.8f, 11926.5f, -60.3749f, 2.16421f, TEMPSUMMON_CORPSE_DESPAWN, 6000000);
@@ -657,7 +657,7 @@ class npc_wing_tentacle_two : public CreatureScript
 		};
 };
 
-void AddSC_boss_deathwing()
+void AddSC_boss_madness_of_deathwing()
 {
     new boss_deathwing();
     new npc_maelstrom_trall();

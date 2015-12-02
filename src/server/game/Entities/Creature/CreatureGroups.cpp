@@ -70,7 +70,7 @@ void FormationMgr::LoadCreatureFormations()
 
     if (!result)
     {
-      //  sLog->outError(LOG_FILTER_SERVER_LOADING, ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
         return;
     }
 
@@ -103,14 +103,14 @@ void FormationMgr::LoadCreatureFormations()
         {
             if (!sObjectMgr->GetCreatureData(group_member->leaderGUID))
             {
-          //      sLog->outError(LOG_FILTER_SQL, "creature_formations table leader guid %u incorrect (not exist)", group_member->leaderGUID);
+                sLog->outError(LOG_FILTER_SQL, "creature_formations table leader guid %u incorrect (not exist)", group_member->leaderGUID);
                 delete group_member;
                 continue;
             }
 
             if (!sObjectMgr->GetCreatureData(memberGUID))
             {
-         //       sLog->outError(LOG_FILTER_SQL, "creature_formations table member guid %u incorrect (not exist)", memberGUID);
+                sLog->outError(LOG_FILTER_SQL, "creature_formations table member guid %u incorrect (not exist)", memberGUID);
                 delete group_member;
                 continue;
             }

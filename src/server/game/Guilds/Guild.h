@@ -237,10 +237,12 @@ struct GuildChallengeReward
     uint32 GoldRewardLowLevel;
 };
 
-GuildChallengeReward const challengeRewards[GUILD_CHALLENGE_MAX + 1] = {{       0,    0, 0,   0},       //NULL
-                                                                        {  1000,  250, 7, 125},       //GUILD_CHALLENGE_DUNGEON
-                                                                        { 10000, 1000, 1, 500},       //GUILD_CHALLENGE_RAID
-                                                                        { 15000,  500, 3, 250}};      //GUILD_CHALLENGE_RATED_BATTLGROUND
+GuildChallengeReward const challengeRewards[GUILD_CHALLENGE_MAX + 1] = {
+{       0,    0, 0,   0},       //NULL
+{  1000, 250, 7, 125},       //GUILD_CHALLENGE_DUNGEON
+{ 10000, 1000, 1, 500},       //GUILD_CHALLENGE_RAID
+{ 15000, 500, 3, 250}  };      //GUILD_CHALLENGE_RATED_BATTLGROUND
+
 
 
 enum GuildEventLogTypes
@@ -865,7 +867,7 @@ public:
     std::string const& GetName() const { return m_name; }
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
-	bool SetName(std::string const& name);
+
     // Handle client commands
     void HandleRoster(WorldSession* session = NULL);
     void HandleQuery(WorldSession* session);

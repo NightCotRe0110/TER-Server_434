@@ -852,61 +852,116 @@ class spell_warl_fel_synergy : public SpellScriptLoader
 class spell_warl_haunt : public SpellScriptLoader
 {
 public:
+
 	spell_warl_haunt() : SpellScriptLoader("spell_warl_haunt") { }
 
-	class spell_warl_haunt_SpellScript : public SpellScript
-	{
+	
+
+		class spell_warl_haunt_SpellScript : public SpellScript
+
+		{
+
 		PrepareSpellScript(spell_warl_haunt_SpellScript);
 
-		void HandleOnHit()
-		{
+		
+
+			void HandleOnHit()
+
+			 {
+
 			if (Aura* aura = GetHitAura())
-				if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
-					aurEff->SetAmount(CalculatePct(aurEff->GetAmount(), GetHitDamage()));
+
+				 if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
+
+				aurEff->SetAmount(CalculatePct(aurEff->GetAmount(), GetHitDamage()));
+
 		}
 
-		void Register() override
-		{
+		
+
+			void Register() override
+
+			 {
+
 			OnHit += SpellHitFn(spell_warl_haunt_SpellScript::HandleOnHit);
-		}
-	};
 
-	class spell_warl_haunt_AuraScript : public AuraScript
-	{
+			}
+
+		};
+
+	
+
+		class spell_warl_haunt_AuraScript : public AuraScript
+
+		 {
+
 		PrepareAuraScript(spell_warl_haunt_AuraScript);
 
-		bool Validate(SpellInfo const* /*spellInfo*/) override
-		{
-			if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_HAUNT_HEAL))
-				return false;
-			return true;
-		}
+		
 
-		void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-		{
-			if (Unit* caster = GetCaster())
+			bool Validate(SpellInfo const* /*spellInfo*/) override
+
 			{
-				int32 amount = aurEff->GetAmount();
-				GetTarget()->CastCustomSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, &amount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+
+			if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_HAUNT_HEAL))
+
+				 return false;
+
+			return true;
+
 			}
-		}
 
-		void Register() override
-		{
+		
+
+			void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+
+			 {
+
+			if (Unit* caster = GetCaster())
+
+				 {
+
+				int32 amount = aurEff->GetAmount();
+
+				GetTarget()->CastCustomSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, &amount, NULL, NULL, true, NULL, aurEff, GetCasterGUID());
+
+				}
+
+			}
+
+		
+
+			void Register() override
+
+			 {
+
 			OnEffectRemove += AuraEffectApplyFn(spell_warl_haunt_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-		}
-	};
 
-	SpellScript* GetSpellScript() const override
-	{
+			}
+
+		};
+
+	
+
+		SpellScript* GetSpellScript() const override
+
+		 {
+
 		return new spell_warl_haunt_SpellScript();
-	}
 
-	AuraScript* GetAuraScript() const override
-	{
+		}
+
+	
+
+		AuraScript* GetAuraScript() const override
+
+		 {
+
 		return new spell_warl_haunt_AuraScript();
-	}
+
+		}
 };
+
 // 755 - Health Funnel
 /// Updated 4.3.4
 class spell_warl_health_funnel : public SpellScriptLoader

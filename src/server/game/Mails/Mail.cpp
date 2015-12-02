@@ -185,9 +185,9 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
      // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else
 		if (m_COD)   
-			expire_delay = sWorld->getIntConfig(CONFIG_MAIL_TRAU) * DAY;  //Наложеная почта
+			expire_delay = sWorld->getIntConfig(CONFIG_MAIL_TRAU) * DAY;  //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         else
-			expire_delay = pSender && pSender->isGameMaster() ? sWorld->getIntConfig(CONFIG_MAIL_PLAYER) * DAY : sWorld->getIntConfig(CONFIG_MAIL_GM) * DAY;    //Гм и игрок
+			expire_delay = pSender && pSender->isGameMaster() ? sWorld->getIntConfig(CONFIG_MAIL_PLAYER) * DAY : sWorld->getIntConfig(CONFIG_MAIL_GM) * DAY;    //пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
 
     time_t expire_time = deliver_time + expire_delay;
 

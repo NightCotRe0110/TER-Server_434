@@ -5,9 +5,6 @@ TER-Server
 #include "TCSoap.h"
 #include "soapH.h"
 #include "soapStub.h"
-#include "World.h"
-#include "AccountMgr.h"
-#include "Log.h"
 
 void TCSoapRunnable::run()
 {

@@ -228,6 +228,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         level_max = STRONG_MAX_LEVEL;
 
     uint32 team = _player->GetTeam();
+    uint32 security = GetSecurity();
+    bool allowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
     uint32 gmLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
     uint32 displaycount = 0;
 
@@ -239,40 +241,42 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
-		Player* target = itr->second;
-		     // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
-		if (target->GetTeam() != team && !HasPermission(RBAC_PERM_TWO_SIDE_WHO_LIST))
-			 continue;
+        if (AccountMgr::IsPlayerAccount(security))
+        {
+            // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
+            if (itr->second->GetTeam() != team && !allowTwoSideWhoList)
+                continue;
 
-			// player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
-			if (!HasPermission(RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) && target->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList))
-				 continue;
+            // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
+            if ((itr->second->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList)))
+                continue;
+        }
 
-			// do not process players which are not in world
-			if (!target->IsInWorld())
+        //do not process players which are not in world
+        if (!(itr->second->IsInWorld()))
             continue;
 
         // check if target is globally visible for player
-			if (!target->IsVisibleGloballyFor(_player))
+        if (!(itr->second->IsVisibleGloballyFor(_player)))
             continue;
 
         // check if target's level is in level range
-			uint8 lvl = target->getLevel();
+        uint8 lvl = itr->second->getLevel();
         if (lvl < level_min || lvl > level_max)
             continue;
 
         // check if class matches classmask
-		uint8 class_ = target->getClass();
+        uint32 class_ = itr->second->getClass();
         if (!(classmask & (1 << class_)))
             continue;
 
         // check if race matches racemask
-		uint32 race = target->getRace();
+        uint32 race = itr->second->getRace();
         if (!(racemask & (1 << race)))
             continue;
 
-		uint32 pzoneid = target->GetZoneId();
-		uint8 gender = target->getGender();
+        uint32 pzoneid = itr->second->GetZoneId();
+        uint8 gender = itr->second->getGender();
 
         bool z_show = true;
         for (uint32 i = 0; i < zones_count; ++i)
@@ -288,7 +292,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         if (!z_show)
             continue;
 
-		std::string pname = target->GetName();
+        std::string pname = itr->second->GetName();
         std::wstring wpname;
         if (!Utf8toWStr(pname, wpname))
             continue;
@@ -297,7 +301,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         if (!(wplayer_name.empty() || wpname.find(wplayer_name) != std::wstring::npos))
             continue;
 
-		std::string gname = sGuildMgr->GetGuildNameById(target->GetGuildId());
+        std::string gname = sGuildMgr->GetGuildNameById(itr->second->GetGuildId());
         std::wstring wgname;
         if (!Utf8toWStr(gname, wgname))
             continue;
@@ -307,7 +311,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             continue;
 
         std::string aname;
-		if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(pzoneid))
+        if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(itr->second->GetZoneId()))
             aname = areaEntry->area_name[GetSessionDbcLocale()];
 
         bool s_show = true;
@@ -344,7 +348,40 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         ++displaycount;
     }
 
-    data.put(0, displaycount);                            // insert right count, count displayed
+	
+    if (sWorld->getBoolConfig(CONFIG_FAKE_WHO_LIST) && displaycount < 49) 
+    { 
+        // PFake Player By Lizard.tiny                          0,   1,    2,   3,    4,   5 ,    6
+        QueryResult result = CharacterDatabase.Query("SELECT name,race,class,level,zone,gender,guild FROM characters_fake WHERE online>1 AND level > 3"); 
+        if (result)
+        {
+            do
+            {
+                Field *fields = result->Fetch();
+
+                std::string pname = fields[0].GetString();  // player name
+                std::string gname = fields[6].GetString();  // guild name 
+                uint32 lvl = fields[3].GetUInt32();         // player level
+                uint32 class_ = fields[2].GetUInt32();      // player class
+                uint32 race = fields[1].GetUInt32();        // player race
+                uint32 pzoneid = fields[4].GetUInt32();     // player zone id
+                uint8 gender = fields[5].GetUInt8();        // player gender
+
+                data << pname;                              // player name
+                data << gname;                              // guild name
+                data << uint32(lvl);                        // player level
+                data << uint32(class_);                     // player class
+                data << uint32(race);                       // player race
+                data << uint8(gender);                      // player gender
+                data << uint32(pzoneid);                    // player zone id
+
+                if ((++matchcount) == sWorld->getIntConfig(CONFIG_MAX_WHO))
+                    break;
+            } while (result->NextRow());
+        }
+    }
+
+    data.put(0, matchcount);
     data.put(4, matchcount);                              // insert right count, count of matches
 
     SendPacket(&data);
@@ -359,8 +396,8 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         DoLootRelease(lguid);
 
     bool instantLogout = (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) && !GetPlayer()->isInCombat()) ||
-		GetPlayer()->isInFlight() || HasPermission(RBAC_PERM_INSTANT_LOGOUT);
-	                                                 
+                         GetPlayer()->isInFlight() || GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT));
+
     bool canLogoutInCombat = GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
     uint32 reason = 0;
     if (GetPlayer()->isInCombat() && !canLogoutInCombat)
@@ -450,13 +487,13 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
 
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
     {
-		if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
+        if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.endTimer != 0)
             GetPlayer()->UpdatePvP(true, true);
     }
     else
     {
-		if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-			 GetPlayer()->pvpInfo.EndTimer = time(NULL);     // start toggle-off
+        if (!GetPlayer()->pvpInfo.inHostileArea && GetPlayer()->IsPvP())
+            GetPlayer()->pvpInfo.endTimer = time(NULL);     // start toggle-off
     }
 
     //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
@@ -554,14 +591,14 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
         team = Player::TeamForRace(fields[1].GetUInt8());
         friendAccountId = fields[2].GetUInt32();
 
-		if (HasPermission(RBAC_PERM_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmID)))
-		{
+        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmID)))
+        {
             if (friendGuid)
             {
                 if (friendGuid == GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;
-				else if (GetPlayer()->GetTeam() != team && !HasPermission(RBAC_PERM_TWO_SIDE_ADD_FRIEND))
-					friendResult = FRIEND_ENEMY;
+                else if (GetPlayer()->GetTeam() != team && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && AccountMgr::IsPlayerAccount(GetSecurity()))
+                    friendResult = FRIEND_ENEMY;
                 else if (GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
                     friendResult = FRIEND_ALREADY;
                 else
@@ -1292,7 +1329,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_WORLD_TELEPORT: Player = %s, Time = %u, map = %u, x = %f, y = %f, z = %f, o = %f",
         GetPlayer()->GetName().c_str(), time, mapid, PositionX, PositionY, PositionZ, Orientation);
 
-	if (HasPermission(RBAC_PERM_OPCODE_WORLD_TELEPORT))
+    if (AccountMgr::IsAdminAccount(GetSecurity()))
         GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
@@ -1304,7 +1341,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     std::string charname;
     recvData >> charname;
 
-	if (!HasPermission(RBAC_PERM_OPCODE_WHOIS))
+    if (!AccountMgr::IsAdminAccount(GetSecurity()))
     {
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
         return;
@@ -1465,32 +1502,44 @@ void WorldSession::HandleSetTitleOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
 {
-    Battleground* bg = _player->GetBattleground();
-    if (bg)
-    {
-        if (_player->ShouldForgetBGPlayers() && bg)
-        {
-            _player->DoForgetPlayersInBG(bg);
-            _player->SetForgetBGPlayers(false);
-        }
-    }
-    else if (_player->ShouldForgetInListPlayers())
-    {
-        _player->DoForgetPlayersInList();
-        _player->SetForgetInListPlayers(false);
-    }
+	Battleground* bg = _player->GetBattleground();
 
+	if (bg)
+
+		{
+
+		if (_player->ShouldForgetBGPlayers() && bg)
+
+			 {
+
+			_player->DoForgetPlayersInBG(bg);
+
+			_player->SetForgetBGPlayers(false);
+
+			}
+
+		}
+
+	else if (_player->ShouldForgetInListPlayers())
+
+		 {
+
+		_player->DoForgetPlayersInList();
+
+		_player->SetForgetInListPlayers(false);
+
+		}
+
+	
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESP");
 
-	uint32 clientCounter, clientTicks;
-	recvData >> clientCounter >> clientTicks;
-	uint32 playerCounter = _player->m_timeSyncQueue.front();
-	int32 tickDiff = abs(int32(playerCounter - clientCounter));
+    uint32 counter, clientTicks;
+    recvData >> counter >> clientTicks;
 
-	if (tickDiff > 1)
+    if (counter != _player->m_timeSyncQueue.front())
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Wrong time sync counter from player %s (cheater?)", _player->GetName().c_str());
 
-	sLog->outDebug(LOG_FILTER_NETWORKIO, "Time sync received: counter %u, client ticks %u, time since last sync %u", clientCounter, clientTicks, clientTicks - _player->m_timeSyncClient);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Time sync received: counter %u, client ticks %u, time since last sync %u", counter, clientTicks, clientTicks - _player->m_timeSyncClient);
 
     uint32 ourTicks = clientTicks + (getMSTime() - _player->m_timeSyncServer);
 
@@ -1846,14 +1895,6 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
     uint32 type, count;
     recvPacket >> type;
 
-	DB2StorageBase const* store = GetDB2Storage(type);
-	if (!store)
-		 {
-		sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
-		recvPacket.rfinish();
-		return;
-		}
-
     count = recvPacket.ReadBits(23);
 
     ObjectGuid* guids = new ObjectGuid[count];
@@ -1882,31 +1923,61 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
         recvPacket >> entry;
         recvPacket.ReadByteSeq(guids[i][2]);
 
-		if (!store->HasRecord(entry))
+        switch (type)
         {
-			WorldPacket data(SMSG_DB_REPLY, 4 * 4);
-			data << -int32(entry);
-			data << uint32(store->GetHash());
-			data << uint32(time(NULL));
-			data << uint32(0);
-			SendPacket(&data);
-			continue;
+            case DB2_HASH_ITEM:
+                SendItemDb2Reply(entry);
+                break;
+            case DB2_HASH_ITEM_SPARSE:
+                SendItemSparseDb2Reply(entry);
+                break;
+            case DB2_HASH_KEYCHAIN:
+                SendKeyChainDb2Reply(entry);
+                break; 
+            default:
+            {
+                WorldPacket data(SMSG_DB_REPLY, 4 * 4);
+                data << -int32(entry);
+                data << uint32(type);
+                data << uint32(time(NULL));
+                data << uint32(0);
+                SendPacket(&data);
+
+                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u, entry %u", type, entry);
+                recvPacket.rfinish();
+                break;
             } 
-		WorldPacket data(SMSG_DB_REPLY);
-		data << int32(entry);
-		data << uint32(store->GetHash());
-		data << uint32(sObjectMgr->GetHotfixDate(entry, store->GetHash()));
+        }
+    }
 
-		size_t sizePos = data.wpos();
-		data << uint32(0);              // size of next block
-		store->WriteRecord(entry, data);
-		data.put<uint32>(sizePos, data.wpos() - sizePos - 4);
+    delete[] guids;
+}
 
-		SendPacket(&data);
-		
-	}
+void WorldSession::SendKeyChainDb2Reply(uint32 entry)
+{
+    WorldPacket data(SMSG_DB_REPLY, 44);
+    KeyChainEntry const* keyChain = sKeyChainStore.LookupEntry(entry);
+    if (!keyChain)
+    {
+        data << -int32(entry);      // entry
+        data << uint32(DB2_HASH_KEYCHAIN);
+        data << uint32(time(NULL)); // hotfix date
+        data << uint32(0);          // size of next block
+        return;
+    }
 
-	delete[] guids;
+    data << uint32(entry);
+    data << uint32(DB2_HASH_KEYCHAIN);
+    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_HASH_KEYCHAIN));
+
+    ByteBuffer buff;
+    buff << uint32(entry);
+    buff.append(keyChain->Key, KEYCHAIN_SIZE);
+
+    data << uint32(buff.size());
+    data.append(buff);
+
+    SendPacket(&data);
 } 
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)

@@ -5,11 +5,17 @@ TER-Server
 #ifndef _TCSOAP_H
 #define _TCSOAP_H
 
-#include "Define.h"
+#include "Common.h"
+#include "World.h"
+#include "AccountMgr.h"
+#include "Log.h"
+
+#include "soapH.h"
+#include "soapStub.h"
+#include "stdsoap2.h"
 
 #include <ace/Semaphore.h>
 #include <ace/Task.h>
-#include <Threading.h>
 
 class TCSoapRunnable: public ACE_Based::Runnable
 {

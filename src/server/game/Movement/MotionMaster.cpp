@@ -393,6 +393,8 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
 {
     sLog->outDebug(LOG_FILTER_GENERAL, "Unit (GUID: %u) jump to point (X: %f Y: %f Z: %f)", _owner->GetGUIDLow(), x, y, z);
 
+	if (speedXY <= 0.1f)
+		return;
     float moveTimeHalf = speedZ / Movement::gravity;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
     Movement::MoveSplineInit init(_owner);
@@ -480,16 +482,15 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id,
     }
 }
 
-void MotionMaster::MoveCharge(PathGenerator const& path)
+void MotionMaster::MoveCharge(PathGenerator path, float speed, uint32 id)
 {
     Vector3 dest = path.GetActualEndPosition();
 
-	MoveCharge(dest.x, dest.y, dest.z, SPEED_CHARGE, EVENT_CHARGE_PREPATH);
+    MoveCharge(dest.x, dest.y, dest.z, speed, id);
 
-	// Charge movement is not started when using EVENT_CHARGE_PREPATH
     Movement::MoveSplineInit init(_owner);
     init.MovebyPath(path.GetPath());
-	init.SetVelocity(SPEED_CHARGE);
+    init.SetVelocity(speed);
     init.Launch();
 }
 

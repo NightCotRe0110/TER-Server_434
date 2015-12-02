@@ -27,12 +27,6 @@ CalendarMgr::CalendarMgr()
 
 CalendarMgr::~CalendarMgr()
 {
-	for (CalendarEventStore::iterator itr = _events.begin(); itr != _events.end(); ++itr)
-		 delete *itr;
-	
-		for (CalendarEventInviteStore::iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
-		 for (CalendarInviteStore::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-		 delete *itr2;
 }
 
 void CalendarMgr::LoadFromDB()
@@ -146,7 +140,7 @@ void CalendarMgr::RemoveEvent(uint64 eventId, uint64 remover)
     PreparedStatement* stmt;
     MailDraft mail(calendarEvent->BuildCalendarMailSubject(remover), calendarEvent->BuildCalendarMailBody());
 
-	CalendarInviteStore::iterator itr = _invites[eventId].begin();
+    std::vector<CalendarInvite*>::iterator itr = _invites[eventId].begin();
     while (itr != _invites[eventId].end())
     {
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_INVITE);
@@ -180,7 +174,7 @@ void CalendarMgr::RemoveInvite(uint64 inviteId, uint64 eventId, uint64 /*remover
     if (!calendarEvent)
         return;
 
-	CalendarInviteStore::iterator itr = _invites[eventId].begin();
+    std::vector<CalendarInvite*>::iterator itr = _invites[eventId].begin();
     for (; itr != _invites[eventId].end(); ++itr)
         if ((*itr)->GetInviteId() == inviteId)
             break;
@@ -247,9 +241,9 @@ void CalendarMgr::RemoveAllPlayerEventsAndInvites(uint64 guid)
         if ((*itr)->GetCreatorGUID() == guid)
             RemoveEvent((*itr)->GetEventId(), 0); // don't send mail if removing a character
 
-	CalendarInviteStore playerInvites = GetPlayerInvites(guid);
-	for (CalendarInviteStore::const_iterator itr = playerInvites.begin(); itr != playerInvites.end(); ++itr)
-		RemoveInvite((*itr)->GetInviteId(), (*itr)->GetEventId(), guid);
+    std::vector<CalendarInvite*> playerInvites = GetPlayerInvites(guid);
+    for (std::vector<CalendarInvite*>::const_iterator itr = playerInvites.begin(); itr != playerInvites.end(); ++itr)
+        RemoveInvite((*itr)->GetInviteId(), (*itr)->GetEventId(), guid);
 }
 
 void CalendarMgr::RemovePlayerGuildEventsAndSignups(uint64 guid, uint32 guildId)
@@ -258,14 +252,14 @@ void CalendarMgr::RemovePlayerGuildEventsAndSignups(uint64 guid, uint32 guildId)
         if ((*itr)->GetCreatorGUID() == guid && ((*itr)->IsGuildEvent() || (*itr)->IsGuildAnnouncement()))
             RemoveEvent((*itr)->GetEventId(), guid);
 
-	CalendarInviteStore playerInvites = GetPlayerInvites(guid);
-	for (CalendarInviteStore::const_iterator itr = playerInvites.begin(); itr != playerInvites.end(); ++itr)
-		if (CalendarEvent* calendarEvent = GetEvent((*itr)->GetEventId()))
+    std::vector<CalendarInvite*> playerInvites = GetPlayerInvites(guid);
+    for (std::vector<CalendarInvite*>::const_iterator itr = playerInvites.begin(); itr != playerInvites.end(); ++itr)
+        if (CalendarEvent* calendarEvent = GetEvent((*itr)->GetEventId()))
             if (calendarEvent->IsGuildEvent() && calendarEvent->GetGuildId() == guildId)
                 RemoveInvite((*itr)->GetInviteId(), (*itr)->GetEventId(), guid);
 }
 
-CalendarEvent* CalendarMgr::GetEvent(uint64 eventId) const
+CalendarEvent* CalendarMgr::GetEvent(uint64 eventId)
 {
     for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end(); ++itr)
         if ((*itr)->GetEventId() == eventId)
@@ -275,11 +269,11 @@ CalendarEvent* CalendarMgr::GetEvent(uint64 eventId) const
     return NULL;
 }
 
-CalendarInvite* CalendarMgr::GetInvite(uint64 inviteId) const
+CalendarInvite* CalendarMgr::GetInvite(uint64 inviteId)
 {
-	for (CalendarEventInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
-		 for (CalendarInviteStore::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-		if ((*itr2)->GetInviteId() == inviteId)
+    for (CalendarInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
+        for (std::vector<CalendarInvite*>::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+            if ((*itr2)->GetInviteId() == inviteId)
                 return *itr2;
 
     sLog->outDebug(LOG_FILTER_CALENDAR, "CalendarMgr::GetInvite: [" UI64FMTD "] not found!", inviteId);
@@ -298,9 +292,12 @@ uint64 CalendarMgr::GetFreeEventId()
 {
     if (_freeEventIds.empty())
         return ++_maxEventId;
-	uint64 eventId = _freeEventIds.front();
-	_freeEventIds.pop_front();
-	return eventId;
+    else
+    {
+        uint64 eventId = _freeEventIds.front();
+        _freeEventIds.pop_front();
+        return eventId;
+    }
 }
 
 void CalendarMgr::FreeInviteId(uint64 id)
@@ -315,18 +312,21 @@ uint64 CalendarMgr::GetFreeInviteId()
 {
     if (_freeInviteIds.empty())
         return ++_maxInviteId;
-	uint64 inviteId = _freeInviteIds.front();
-	_freeInviteIds.pop_front();
-	return inviteId;
+    else
+    {
+        uint64 inviteId = _freeInviteIds.front();
+        _freeInviteIds.pop_front();
+        return inviteId;
+    }
 }
 
 CalendarEventStore CalendarMgr::GetPlayerEvents(uint64 guid)
 {
     CalendarEventStore events;
 
-	for (CalendarEventInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
-		 for (CalendarInviteStore::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-		if ((*itr2)->GetInviteeGUID() == guid)
+    for (CalendarInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
+        for (std::vector<CalendarInvite*>::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+            if ((*itr2)->GetInviteeGUID() == guid)
                 events.insert(GetEvent(itr->first));
 
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -337,18 +337,18 @@ CalendarEventStore CalendarMgr::GetPlayerEvents(uint64 guid)
     return events;
 }
 
-CalendarInviteStore const& CalendarMgr::GetEventInvites(uint64 eventId)
+std::vector<CalendarInvite*> CalendarMgr::GetEventInvites(uint64 eventId)
 {
     return _invites[eventId];
 }
 
-CalendarInviteStore CalendarMgr::GetPlayerInvites(uint64 guid)
+std::vector<CalendarInvite*> CalendarMgr::GetPlayerInvites(uint64 guid)
 {
-	CalendarInviteStore invites;
+    std::vector<CalendarInvite*> invites;
 
-	for (CalendarEventInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
-		 for (CalendarInviteStore::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-		if ((*itr2)->GetInviteeGUID() == guid)
+    for (CalendarInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
+        for (std::vector<CalendarInvite*>::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+            if ((*itr2)->GetInviteeGUID() == guid)
                 invites.push_back(*itr2);
 
     return invites;
@@ -356,22 +356,14 @@ CalendarInviteStore CalendarMgr::GetPlayerInvites(uint64 guid)
 
 uint32 CalendarMgr::GetPlayerNumPending(uint64 guid)
 {
-	CalendarInviteStore const& invites = GetPlayerInvites(guid);
+    std::vector<CalendarInvite*> const& invites = GetPlayerInvites(guid);
 
     uint32 pendingNum = 0;
-	for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
-		 {
-		switch ((*itr)->GetStatus())
-			 {
-		case CALENDAR_STATUS_INVITED:
-				case CALENDAR_STATUS_TENTATIVE:
-					case CALENDAR_STATUS_NOT_SIGNED_UP:
-						++pendingNum;
-						break;
-						default:
-							break;
-							}
-		}
+    for (std::vector<CalendarInvite*>::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+        // correct?
+        if ((*itr)->GetStatus() == CALENDAR_STATUS_INVITED || (*itr)->GetStatus() == CALENDAR_STATUS_TENTATIVE || (*itr)->GetStatus() == CALENDAR_STATUS_NOT_SIGNED_UP)
+            ++pendingNum;
+
     return pendingNum;
 }
 
@@ -530,7 +522,7 @@ void CalendarMgr::SendCalendarEvent(uint64 guid, CalendarEvent const& calendarEv
     if (!player)
         return;
 
-	CalendarInviteStore const& eventInviteeList = _invites[calendarEvent.GetEventId()];
+    std::vector<CalendarInvite*> const& eventInviteeList = _invites[calendarEvent.GetEventId()];
 
     WorldPacket data(SMSG_CALENDAR_SEND_EVENT, 60 + eventInviteeList.size() * 32);
     data << uint8(sendType);
@@ -550,8 +542,8 @@ void CalendarMgr::SendCalendarEvent(uint64 guid, CalendarEvent const& calendarEv
     data << uint64(guild ? guild->GetGUID() : 0);
 
     data << uint32(eventInviteeList.size());
-	for (CalendarInviteStore::const_iterator itr = eventInviteeList.begin(); itr != eventInviteeList.end(); ++itr)
-	{
+    for (std::vector<CalendarInvite*>::const_iterator itr = eventInviteeList.begin(); itr != eventInviteeList.end(); ++itr)
+    {
         CalendarInvite const* calendarInvite = (*itr);
         uint64 inviteeGuid = calendarInvite->GetInviteeGUID();
         Player* invitee = ObjectAccessor::FindPlayer(inviteeGuid);
@@ -628,9 +620,9 @@ void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket packet, CalendarEven
             guild->BroadcastPacket(&packet);
 
     // Send packet to all invitees if event is non-guild, in other case only to non-guild invitees (packet was broadcasted for them)
-	CalendarInviteStore invites = _invites[calendarEvent.GetEventId()];
-	for (CalendarInviteStore::iterator itr = invites.begin(); itr != invites.end(); ++itr)
-		if (Player* player = ObjectAccessor::FindPlayer((*itr)->GetInviteeGUID()))
+    std::vector<CalendarInvite*> invites = _invites[calendarEvent.GetEventId()];
+    for (std::vector<CalendarInvite*>::iterator itr = invites.begin(); itr != invites.end(); ++itr)
+        if (Player* player = ObjectAccessor::FindPlayer((*itr)->GetInviteeGUID()))
             if (!calendarEvent.IsGuildEvent() || (calendarEvent.IsGuildEvent() && player->GetGuildId() != calendarEvent.GetGuildId()))
                 player->SendDirectMessage(&packet);
 }

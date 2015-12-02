@@ -203,12 +203,10 @@ class npc_iron_roots : public CreatureScript
     public:
         npc_iron_roots() : CreatureScript("npc_iron_roots") { }
 
-		struct npc_iron_rootsAI : public ScriptedAI
+        struct npc_iron_rootsAI : public Scripted_NoMovementAI
         {
-			npc_iron_rootsAI(Creature* creature) : ScriptedAI(creature)
+            npc_iron_rootsAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-				SetCombatMovement(false);
-
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
                 me->setFaction(14);
@@ -1326,11 +1324,10 @@ class npc_sun_beam : public CreatureScript
     public:
         npc_sun_beam() : CreatureScript("npc_sun_beam") { }
 
-		struct npc_sun_beamAI : public ScriptedAI
+        struct npc_sun_beamAI : public Scripted_NoMovementAI
         {
-			npc_sun_beamAI(Creature* creature) : ScriptedAI(creature)
+            npc_sun_beamAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-				SetCombatMovement(false);
                 me->SetReactState(REACT_PASSIVE);
                 DoCastAOE(SPELL_FREYA_UNSTABLE_ENERGY_VISUAL, true);
                 DoCast(SPELL_FREYA_UNSTABLE_ENERGY);
@@ -1348,11 +1345,10 @@ class npc_healthy_spore : public CreatureScript
     public:
         npc_healthy_spore() : CreatureScript("npc_healthy_spore") { }
 
-		struct npc_healthy_sporeAI : public ScriptedAI
+        struct npc_healthy_sporeAI : public Scripted_NoMovementAI
         {
-			npc_healthy_sporeAI(Creature* creature) : ScriptedAI(creature)
+            npc_healthy_sporeAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-				SetCombatMovement(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me, SPELL_HEALTHY_SPORE_VISUAL);
@@ -1388,12 +1384,10 @@ class npc_eonars_gift : public CreatureScript
     public:
         npc_eonars_gift() : CreatureScript("npc_eonars_gift") { }
 
-		struct npc_eonars_giftAI : public ScriptedAI
+        struct npc_eonars_giftAI : public Scripted_NoMovementAI
         {
-			npc_eonars_giftAI(Creature* creature) : ScriptedAI(creature)
+            npc_eonars_giftAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-				SetCombatMovement(false);
-
                 lifeBindersGiftTimer = 12000;
                 DoCast(me, SPELL_GROW);
                 DoCast(me, SPELL_PHEROMONES, true);
@@ -1428,11 +1422,10 @@ class npc_nature_bomb : public CreatureScript
     public:
         npc_nature_bomb() : CreatureScript("npc_nature_bomb") { }
 
-		struct npc_nature_bombAI : public ScriptedAI
+        struct npc_nature_bombAI : public Scripted_NoMovementAI
         {
-			npc_nature_bombAI(Creature* creature) : ScriptedAI(creature)
+            npc_nature_bombAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-				SetCombatMovement(false);
                 bombTimer = urand(8000, 10000);
                 DoCast(SPELL_OBJECT_BOMB);
             }
@@ -1469,12 +1462,10 @@ class npc_unstable_sun_beam : public CreatureScript
     public:
         npc_unstable_sun_beam() : CreatureScript("npc_unstable_sun_beam") { }
 
-		struct npc_unstable_sun_beamAI : public ScriptedAI
+        struct npc_unstable_sun_beamAI : public Scripted_NoMovementAI
         {
-			npc_unstable_sun_beamAI(Creature* creature) : ScriptedAI(creature)
+            npc_unstable_sun_beamAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-				SetCombatMovement(false);
-
                 despawnTimer = urand(7000, 12000);
                 instance = me->GetInstanceScript();
                 DoCast(me, SPELL_PHOTOSYNTHESIS);

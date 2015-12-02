@@ -651,11 +651,10 @@ class npc_frost_freeze_trap : public CreatureScript
     public:
         npc_frost_freeze_trap() : CreatureScript("npc_frost_freeze_trap") { }
 
-		struct npc_frost_freeze_trapAI : public ScriptedAI
+        struct npc_frost_freeze_trapAI: public Scripted_NoMovementAI
         {
-			npc_frost_freeze_trapAI(Creature* creature) : ScriptedAI(creature)
+            npc_frost_freeze_trapAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-				SetCombatMovement(false);
             }
 
             void DoAction(int32 const action)

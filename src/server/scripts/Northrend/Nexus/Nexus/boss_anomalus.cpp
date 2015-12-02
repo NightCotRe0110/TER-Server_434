@@ -177,12 +177,11 @@ class mob_chaotic_rift : public CreatureScript
     public:
         mob_chaotic_rift() : CreatureScript("mob_chaotic_rift") { }
 
-		struct mob_chaotic_riftAI : public ScriptedAI
+        struct mob_chaotic_riftAI : public Scripted_NoMovementAI
         {
-			mob_chaotic_riftAI(Creature* creature) : ScriptedAI(creature)
+            mob_chaotic_riftAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 instance = me->GetInstanceScript();
-				SetCombatMovement(false);
             }
 
             InstanceScript* instance;

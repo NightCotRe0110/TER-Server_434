@@ -235,6 +235,7 @@ struct GameObjectTemplate
             uint32 transportPhysics;                        //5
             uint32 mapID;                                   //6
             uint32 worldState1;                             //7
+			uint32 canBeStopped;                            //8
         } moTransport;
         //16 GAMEOBJECT_TYPE_DUELFLAG - empty
         //17 GAMEOBJECT_TYPE_FISHINGNODE - empty
@@ -416,18 +417,6 @@ struct GameObjectTemplate
         }
     }
 
-	bool IsUsableMounted() const
-		 {
-		switch (type)
-			{
-			case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted;
-			case GAMEOBJECT_TYPE_TEXT: return text.allowMounted;
-			case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted;
-			case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted;
-			default: return false;
-			}
-		}
-	
     uint32 GetLockId() const
     {
         switch (type)
@@ -635,7 +624,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectData const* GetGOData() const { return m_goData; }
         GameObjectValue const* GetGOValue() const { return &m_goValue; }
-		void ActivateAnimation(uint32 anim);
 
         bool IsTransport() const;
         bool IsDynTransport() const;
@@ -708,7 +696,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void Refresh();
         void Delete();
         void getFishLoot(Loot* loot, Player* loot_owner);
-        void getFishLootJunk(Loot* loot, Player* loot_owner);
         GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
         GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }
@@ -788,6 +775,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         void CastSpell(Unit* target, uint32 spell);
         void SendCustomAnim(uint32 anim);
+        void ActivateAnimation(uint32 anim);
         bool IsInRange(float x, float y, float z, float radius, bool is3D = true) const;
 
         void ModifyHealth(int32 change, Unit* attackerOrHealer = NULL, uint32 spellId = 0);

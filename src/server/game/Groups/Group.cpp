@@ -673,7 +673,7 @@ void Group::ChangeLeader(uint64 guid)
     if (!newLeader)
         return;
 
-	sScriptMgr->OnGroupChangeLeader(this, guid, m_leaderGuid);
+    sScriptMgr->OnGroupChangeLeader(this, m_leaderGuid, guid);
 
     if (!isBGGroup() && !isBFGroup())
     {

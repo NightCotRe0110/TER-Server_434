@@ -2,7 +2,6 @@
 TER-Server
  */
 
-#include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
@@ -64,8 +63,7 @@ public:
             { "creature_loot_template",       SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
             { "creature_onkill_reward",       SEC_ADMINISTRATOR, true,  &HandleReloadOnKillRewardCommand,               "", NULL },
             { "creature_questrelation",       SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestRelationsCommand,     "", NULL },
-			{ "creature_summon_groups",       SEC_ADMINISTRATOR, true,  &HandleReloadCreatureSummonGroupsCommand, "", NULL },
-			{ "creature_template",            SEC_ADMINISTRATOR, true,  &HandleReloadCreatureTemplateCommand, "", NULL },
+            { "creature_template",            SEC_ADMINISTRATOR, true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
             //{ "db_script_string",             SEC_ADMINISTRATOR, true,  &HandleReloadDbScriptStringCommand,            "", NULL },
             { "disables",                     SEC_ADMINISTRATOR, true,  &HandleReloadDisablesCommand,                   "", NULL },
             { "disenchant_loot_template",     SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesDisenchantCommand,    "", NULL },
@@ -105,8 +103,7 @@ public:
             { "prospecting_loot_template",    SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesProspectingCommand,   "", NULL },
             { "quest_poi",                    SEC_ADMINISTRATOR, true,  &HandleReloadQuestPOICommand,                   "", NULL },
             { "quest_template",               SEC_ADMINISTRATOR, true,  &HandleReloadQuestTemplateCommand,              "", NULL },
-			{ "rbac",                         SEC_ADMINISTRATOR, true, &HandleReloadRBACCommand, "", NULL },
-			{ "reference_loot_template", SEC_ADMINISTRATOR, true, &HandleReloadLootTemplatesReferenceCommand, "", NULL },
+            { "reference_loot_template",      SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesReferenceCommand,     "", NULL },
             { "reserved_name",                SEC_ADMINISTRATOR, true,  &HandleReloadReservedNameCommand,               "", NULL },
             { "reputation_reward_rate",       SEC_ADMINISTRATOR, true,  &HandleReloadReputationRewardRateCommand,       "", NULL },
             { "reputation_spillover_template", SEC_ADMINISTRATOR, true,  &HandleReloadReputationRewardRateCommand,       "", NULL },
@@ -173,8 +170,6 @@ public:
         HandleReloadReservedNameCommand(handler, "");
         HandleReloadTrinityStringCommand(handler, "");
         HandleReloadGameTeleCommand(handler, "");
-
-		HandleReloadCreatureSummonGroupsCommand(handler, "");
 
         HandleReloadVehicleAccessoryCommand(handler, "");
         HandleReloadVehicleTemplateAccessoryCommand(handler, "");
@@ -370,15 +365,6 @@ public:
         handler->SendGlobalGMSysMessage("DB table `creature_onkill_reward` reloaded.");
         return true;
     }
-
-	static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler, const char* /*args*/)
-		 {
-		sLog->outInfo(LOG_FILTER_GENERAL, "Reloading creature summon groups...");
-		sObjectMgr->LoadTempSummons();
-		handler->SendGlobalGMSysMessage("DB table `creature_summon_groups` reloaded.");
-		return true;
-		}
-
 
     static bool HandleReloadCreatureTemplateCommand(ChatHandler* handler, const char* args)
     {
@@ -704,9 +690,9 @@ public:
 
     static bool HandleReloadTrinityStringCommand(ChatHandler* handler, const char* /*args*/)
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "перезагрузка ter_string таблицы!");
+        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading ter_string Table!");
         sObjectMgr->LoadTrinityStrings();
-        handler->SendGlobalGMSysMessage("“аблица `ter_string` перезагружена.");
+        handler->SendGlobalGMSysMessage("DB table `ter_string` reloaded.");
         return true;
     }
 
@@ -1200,15 +1186,6 @@ public:
         handler->SendGlobalGMSysMessage("PerformanceLog config reloaded");
         return true;
     }
-
-	static bool HandleReloadRBACCommand(ChatHandler* handler, const char* /*args*/)
-		{
-		sLog->outInfo(LOG_FILTER_GENERAL, "Reloading RBAC tables...");
-		sAccountMgr->LoadRBAC();
-	sWorld->ReloadRBAC();
-		handler->SendGlobalGMSysMessage("RBAC data reloaded.");
-		return true;
-		}
 };
 
 void AddSC_reload_commandscript()

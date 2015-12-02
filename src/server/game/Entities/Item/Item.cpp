@@ -644,10 +644,10 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
     {
         // pretend the item never existed
 		if (forplayer)
-			{
+	{
 			RemoveFromUpdateQueueOf(forplayer);
 			forplayer->DeleteRefundReference(GetGUIDLow());
-			}
+}
         delete this;
         return;
     }
@@ -658,8 +658,10 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
             uState = state;
 
 		if (forplayer)
+
 		AddToUpdateQueueOf(forplayer);
 
+        AddToUpdateQueueOf(forplayer);
     }
     else
     {
@@ -682,13 +684,12 @@ void Item::AddToUpdateQueueOf(Player* player)
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
-	
-	if (player->m_itemUpdateQueueBlocked)
+
+    if (player->m_itemUpdateQueueBlocked)
         return;
 
     player->m_itemUpdateQueue.push_back(this);
     uQueuePos = player->m_itemUpdateQueue.size()-1;
-	
 }
 
 void Item::RemoveFromUpdateQueueOf(Player* player)
@@ -703,13 +704,12 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
-	
+
     if (player->m_itemUpdateQueueBlocked)
         return;
 
     player->m_itemUpdateQueue[uQueuePos] = NULL;
     uQueuePos = -1;
-	
 }
 
 uint8 Item::GetBagSlot() const

@@ -5,7 +5,7 @@ TER-Server
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
-#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if PLATFORM == PLATFORM_WINDOWS
 
 #include <dbghelp.h>
 

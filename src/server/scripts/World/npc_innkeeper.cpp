@@ -14,10 +14,14 @@ TER-Server
 #define SPELL_TREAT             24715
 
 #define LOCALE_TRICK_OR_TREAT_0 "Trick or Treat!"
-#define LOCALE_TRICK_OR_TREAT_1 "Конфета или Жизнь!"
+#define LOCALE_TRICK_OR_TREAT_2 "Des bonbons ou des blagues!"
+#define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
+#define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
+#define LOCALE_TRICK_OR_TREAT_8 "Конфета или Жизнь!"
 
 #define LOCALE_INNKEEPER_0 "Make this inn my home."
-#define LOCALE_INNKEEPER_1 "Я хочу остановиться в этой таверне."
+#define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
+#define LOCALE_INNKEEPER_8 "Я хочу остановиться в этой таверне."
 
 class npc_innkeeper : public CreatureScript
 {
@@ -31,7 +35,10 @@ public:
             const char* localizedEntry;
             switch (player->GetSession()->GetSessionDbcLocale())
             {
-                case LOCALE_ruRU: localizedEntry = LOCALE_TRICK_OR_TREAT_1; break;
+                case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
+                case LOCALE_deDE: localizedEntry = LOCALE_TRICK_OR_TREAT_3; break;
+                case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
+				case LOCALE_ruRU: localizedEntry = LOCALE_TRICK_OR_TREAT_8; break;
                 case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
             }
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID);
@@ -48,7 +55,8 @@ public:
             const char* localizedEntry;
             switch (player->GetSession()->GetSessionDbcLocale())
             {
-                case LOCALE_ruRU: localizedEntry = LOCALE_INNKEEPER_1; break;
+                case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
+				case LOCALE_ruRU: localizedEntry = LOCALE_INNKEEPER_8; break;
                 case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
             }
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);

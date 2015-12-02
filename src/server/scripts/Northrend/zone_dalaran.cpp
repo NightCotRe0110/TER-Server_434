@@ -34,9 +34,9 @@ class npc_mageguard_dalaran : public CreatureScript
 public:
     npc_mageguard_dalaran() : CreatureScript("npc_mageguard_dalaran") { }
 
-	struct npc_mageguard_dalaranAI : public ScriptedAI
+    struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
     {
-		npc_mageguard_dalaranAI(Creature* creature) : ScriptedAI(creature)
+        npc_mageguard_dalaranAI(Creature* creature) : Scripted_NoMovementAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
@@ -118,8 +118,8 @@ enum eArchmageVargoth
     ITEM_FAMILAR_PET             = 44738
 };
 
-#define GOSSIP_TEXT_FAMILIAR_WELCOME "У меня есть книги, которые могут вас заинтересовать. Хотели бы вы взглянуть?"
-#define GOSSIP_TEXT_FAMILIAR_THANKS  "Спасибо Вам! Я обязательно сообщу вам, если найду что-то еще."
+#define GOSSIP_TEXT_FAMILIAR_WELCOME "I have a book that might interest you. Would you like to take a look?"
+#define GOSSIP_TEXT_FAMILIAR_THANKS  "Thank you! I will be sure to notify you if I find anything else."
 
 class npc_archmage_vargoth: public CreatureScript
 {
@@ -169,7 +169,7 @@ enum eHiraSnowdawn
     SPELL_COLD_WEATHER_FLYING       = 54197
 };
 
-#define GOSSIP_TEXT_TRAIN_HIRA "Я ищу учителя чтоб оседлать коня."
+#define GOSSIP_TEXT_TRAIN_HIRA "I seek training to ride a steed."
 
 class npc_hira_snowdawn: public CreatureScript
 {

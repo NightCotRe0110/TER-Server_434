@@ -42,6 +42,7 @@ public:
     std::vector<GuildReward> const& GetGuildRewards() const { return GuildRewards; }
 
     void ResetTimes(bool week);
+	void ResetDailyXPCap();
 protected:
     uint32 NextGuildId;
     GuildContainer GuildStore;

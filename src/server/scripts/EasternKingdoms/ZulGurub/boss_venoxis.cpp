@@ -1,4 +1,5 @@
 /*
+ * Script modified by Mastergku/Stronhold WoWSource
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -16,6 +17,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+//TODO: script spell 96515: SPELL_POOL_ACRID
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "MoveSplineInit.h"
@@ -60,6 +62,9 @@ enum Events
     EVENT_SET_BLOODVENOM_PLAYER                 = 11,
     EVENT_CHANGE_BLOODVENOM_PLAYER              = 12,
     EVENT_CHECK_ROOM_POSITION                   = 13,
+	EVENT_THIRD_PHASE = 14,
+	EVENT_BLOODVENOM = 15,
+	EVENT_REMOVE_BLOODVENOM = 16,
     // Bloodvenom
     EVENT_MOVE_PLAYER                           = 1,
     EVENT_PAUSE                                 = 2,
@@ -159,8 +164,37 @@ class boss_venoxis : public CreatureScript
                     ++bloodvenomGUID;
                 }
             }
+			void eventsPhaseTwo(){
+				events.ScheduleEvent(EVENT_POOL_OF_ACRID_TEARS, urand(3000, 7000));
+				events.ScheduleEvent(EVENT_BREATH_OF_HETHISS, urand(4000, 8000));
+				events.ScheduleEvent(EVENT_TRANSFORM_REMOVAL_PRIMER, 30000);
+				events.ScheduleEvent(EVENT_CHECK_ROOM_POSITION, 1000);
+			}
 
-            void JustReachedHome()
+			void eventsPhaseOne(){
+				me->CastSpell((Unit*)NULL, SPELL_WORD_HETHISS, false);
+				events.ScheduleEvent(EVENT_BLESSING_OF_THE_SNAKE_GOD, 30000);
+				events.ScheduleEvent(EVENT_WHISPERS_OF_HETHISS, urand(5000, 10000));
+				events.ScheduleEvent(EVENT_TOXIC_LINK, 10000);
+			}
+
+			void cancelEventsPhaseTwo(){
+				events.CancelEvent(EVENT_POOL_OF_ACRID_TEARS);
+				events.CancelEvent(EVENT_BREATH_OF_HETHISS);
+				events.CancelEvent(EVENT_TRANSFORM_REMOVAL_PRIMER);
+				events.CancelEvent(EVENT_CHECK_ROOM_POSITION);
+			}
+
+			void cancelEventsPhaseOne(){
+				events.CancelEvent(EVENT_VENOMOUS_EFFUSION);
+				events.CancelEvent(EVENT_BLESSING_OF_THE_SNAKE_GOD);
+				events.CancelEvent(EVENT_WHISPERS_OF_HETHISS);
+				events.CancelEvent(EVENT_TOXIC_LINK);
+			}
+
+		
+
+            void scheduleThirdPhase()
             {
                 if (!me->isInCombat())
                 {
@@ -184,6 +218,7 @@ class boss_venoxis : public CreatureScript
                     Talk(EMOTE_BLOODVENOM);
                     me->CastSpell((Unit*)NULL, SPELL_BLOODVENOM_TRIGGERED, false);
                     events.ScheduleEvent(EVENT_VENOM_WITHDRAWAL, 15000);
+					events.ScheduleEvent(EVENT_VENOMOUS_EFFUSION, 1000);
                     events.ScheduleEvent(EVENT_SET_BLOODVENOM_PLAYER, 4000);
                 }
             }
@@ -234,11 +269,7 @@ class boss_venoxis : public CreatureScript
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-                me->CastSpell((Unit*)NULL, SPELL_WORD_HETHISS, false);
-                events.ScheduleEvent(EVENT_VENOMOUS_EFFUSION, 1000);
-                events.ScheduleEvent(EVENT_BLESSING_OF_THE_SNAKE_GOD, 30000);
-                events.ScheduleEvent(EVENT_WHISPERS_OF_HETHISS, urand(5000, 10000));
-                events.ScheduleEvent(EVENT_TOXIC_LINK, 10000);
+				eventsPhaseOne();
 //                events.ScheduleEvent(EVENT_CHECK_ROOM_POSITION, 1000);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
@@ -319,16 +350,14 @@ class boss_venoxis : public CreatureScript
                             Talk(SAY_TRANSFROM);
                             me->CastSpell(me, SPELL_REMOVE_DODGE_PARRY, false);
                             me->CastSpell(me, SPELL_BLESSING_SNAKEGOD, false);
-                            events.Reset();
-                            events.ScheduleEvent(EVENT_POOL_OF_ACRID_TEARS, urand(3000, 7000));
-                            events.ScheduleEvent(EVENT_BREATH_OF_HETHISS, urand(4000, 8000));
-                            events.ScheduleEvent(EVENT_TRANSFORM_REMOVAL_PRIMER, 30000);
-                            events.ScheduleEvent(EVENT_CHECK_ROOM_POSITION, 1000);
+							cancelEventsPhaseOne();
+							eventsPhaseTwo();
+           
                             break;
                         case EVENT_POOL_OF_ACRID_TEARS:
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
-                                    me->CastSpell(target, SPELL_POOL_ACRID, false);
+                                    //me->CastSpell(target, SPELL_POOL_ACRID, false);
 
                                 events.ScheduleEvent(EVENT_POOL_OF_ACRID_TEARS, urand(3000, 7000));
                             }
@@ -355,9 +384,15 @@ class boss_venoxis : public CreatureScript
                             me->CastSpell(me, SPELL_TRANSFOR_REMOVE, false);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
-                            me->GetMotionMaster()->MoveTargetedHome();
-                            events.Reset();
+							me->GetMotionMaster()->MovePoint(0, -12023.7f, -1701.66f, 39.31f);
+							events.ScheduleEvent(EVENT_THIRD_PHASE, 3000);
+							cancelEventsPhaseTwo();
+                            //me->GetMotionMaster()->MoveTargetedHome();
+                            //events.Reset();
                             break;
+						case EVENT_THIRD_PHASE :
+							scheduleThirdPhase();
+							break;
                         case EVENT_VENOM_WITHDRAWAL:
                             {
                                 for (SummonList::iterator itr = summons.begin(); itr != summons.end(); )
@@ -378,11 +413,7 @@ class boss_venoxis : public CreatureScript
                                 me->RemoveAura(SPELL_REMOVE_DODGE_PARRY);
                                 me->CastSpell(me, SPELL_VENOM_WITHDRAWAL, false);
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                events.ScheduleEvent(EVENT_VENOMOUS_EFFUSION, 11000);
-                                events.ScheduleEvent(EVENT_BLESSING_OF_THE_SNAKE_GOD, 40000);
-                                events.ScheduleEvent(EVENT_WHISPERS_OF_HETHISS, urand(15000, 20000));
-                                events.ScheduleEvent(EVENT_TOXIC_LINK, urand(12000, 15000));
-                                events.ScheduleEvent(EVENT_CHECK_ROOM_POSITION, 1000);
+								eventsPhaseOne();
                             }
                             break;
                         case EVENT_SET_BLOODVENOM_PLAYER:
@@ -421,6 +452,7 @@ class npc_venoxis_bloodvenom : public CreatureScript
             void InitializeAI()
             {
                 events.ScheduleEvent(EVENT_MOVE_PLAYER, 300);
+				events.ScheduleEvent(EVENT_BLOODVENOM, 4000);
             }
 
             void SetGUID(uint64 guid, int32 /*type*/)
@@ -430,20 +462,28 @@ class npc_venoxis_bloodvenom : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+				printf("Update AI \r\n");
                 events.Update(diff);
 
                 if (events.ExecuteEvent() == EVENT_MOVE_PLAYER)
                 {
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, FollowTargetGUID))
+                    if (Unit* target = me->FindNearestPlayer(300.0f))
                         if (me->GetExactDist(target) >= 1.0f)
                         {
-                            Movement::MoveSplineInit init(me);
-                            init.MoveTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-                            init.Launch();
+                            me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                         }
 
                     events.ScheduleEvent(EVENT_MOVE_PLAYER, 300);
                 }
+				if (events.ExecuteEvent() == EVENT_BLOODVENOM){
+					me->AddAura(97099, me);
+					events.ScheduleEvent(EVENT_REMOVE_BLOODVENOM, 300);
+					events.ScheduleEvent(EVENT_BLOODVENOM, 4000);
+				}
+				if (events.ExecuteEvent() == EVENT_REMOVE_BLOODVENOM){
+					me->RemoveAllAuras();
+				}
+				
             }
         };
 };
@@ -622,12 +662,80 @@ class spell_venom_withdrawal : public SpellScriptLoader
             return new spell_venom_withdrawal_SpellScript();
         }
 };
+/*
+class spell_pool_of_acrid_tears : public SpellScriptLoader
+{
+public:
+	spell_pool_of_acrid_tears() : SpellScriptLoader("spell_pool_of_acrid_tears") { }
+
+	class spell_pool_of_acrid_tears_AuraScript : public AuraScript
+	{
+		PrepareAuraScript(spell_pool_of_acrid_tears_AuraScript);
+
+		bool Validate(SpellInfo const* /*spellInfo*//*)
+		{
+			if (!sSpellMgr->GetSpellInfo(SPELL_POOL_ACRID))
+				return false;
+			return true;
+		}
+
+		void HandleEffectPeriodic(AuraEffect const* aurEff)
+		{
+			std::list<Creature*> MinionList;
+			GetTarget()->GetAllMinionsByEntry(MinionList, GetSpellInfo()->Effects[EFFECT_0].MiscValue);
+			for (std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
+			{
+				TempSummon* pool = (*itr)->ToTempSummon();
+				if (GetMaxDuration() - (int32)pool->GetTimer() >= sSpellMgr->GetSpellInfo(SPELL_POOL_ACRID)->GetDuration())
+					GetTarget()->CastSpell(pool->GetPositionX(), pool->GetPositionY(), pool->GetPositionZ(), SPELL_POOL_ACRID, true);
+			}
+		}
+
+		void Apply(AuraEffect const* /*aurEff*//*, AuraEffectHandleModes /*mode*//*)
+		{
+			std::list<Creature*> MinionList;
+			GetTarget()->GetAllMinionsByEntry(MinionList, GetSpellInfo()->Effects[EFFECT_0].MiscValue);
+			TempSummon* pool = NULL;
+
+			// Get the last summoned RoF, save it and despawn older ones
+			for (std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); itr++)
+			{
+				TempSummon* summon = (*itr)->ToTempSummon();
+
+				if (pool && summon)
+				{
+					if (summon->GetTimer() > pool->GetTimer())
+					{
+						pool->DespawnOrUnsummon();
+						pool = summon;
+					}
+					else
+						summon->DespawnOrUnsummon();
+				}
+				else if (summon)
+					pool = summon;
+			}
+		}
+
+		void Register()
+		{
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_pool_of_acrid_tears_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+			OnEffectApply += AuraEffectApplyFn(spell_pool_of_acrid_tears_AuraScript::Apply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+		}
+	};
+
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_pool_of_acrid_tears_AuraScript();
+	}
+};*/
 
 void AddSC_boss_venoxis()
 {
     new boss_venoxis();
     new npc_venoxis_bloodvenom();
 
+	//new spell_pool_of_acrid_tears();
     new spell_venomous_effusion_summon();
     new spell_toxic_link_selector();
     new spell_toxic_link_visual();

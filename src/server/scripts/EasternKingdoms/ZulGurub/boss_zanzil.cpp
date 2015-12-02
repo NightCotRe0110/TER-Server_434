@@ -233,7 +233,7 @@ class boss_zanzil : public CreatureScript
         struct boss_zanzilAI : public BossAI
         {
             boss_zanzilAI(Creature* creature) : BossAI(creature, DATA_ZANZIL) { }
-
+			Unit* whoAttack;
             uint64 GasGUID[22];
             uint64 ZombieGUID[56];
             uint64 BerserkerGUID[3];
@@ -241,9 +241,6 @@ class boss_zanzil : public CreatureScript
 
             void InitializeAI()
             {
-                for (int i = 0; i < ID_GREEN_CAULDRON; ++i)
-                    if (Creature* gas = me->SummonCreature(52062, GasSP[i]))
-                        GasGUID[i] = gas->GetGUID();
 
                 static uint32 GasSpell[4]=
                 {
@@ -252,13 +249,6 @@ class boss_zanzil : public CreatureScript
                     96867,
                     97180,
                 };
-
-                for (int i = ID_GREEN_CAULDRON; i <= ID_GREEN_GAS; ++i)
-                    if (Creature* gas = me->SummonCreature(52062, GasSP[i]))
-                    {
-                        GasGUID[i] = gas->GetGUID();
-                        gas->CastSpell(gas, GasSpell[i - ID_GREEN_CAULDRON], false);
-                    }
 
                 memset(&ZombieGUID, 0, sizeof(ZombieGUID));
                 memset(&BerserkerGUID, 0, sizeof(BerserkerGUID));
@@ -274,11 +264,12 @@ class boss_zanzil : public CreatureScript
                 me->SetReactState(REACT_AGGRESSIVE);
                 events.ScheduleEvent(EVENT_DRAIN_BLUE_CAULDRON, 1000);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+				summons.DespawnAll();
 
                 if (GameObject* forcefield = me->FindNearestGameObject(GO_ZANZIL_DOOR, 550.0f))
                     me->RemoveGameObject(forcefield, true);
 
-                for (int i = 0; i < 56; ++i)
+            /*    for (int i = 0; i < 56; ++i)
                     if (!ZombieGUID[i])
                         if (Creature* zombie = me->SummonCreature(52055, ZombieSP[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
                             ZombieGUID[i] = zombie->GetGUID();
@@ -286,8 +277,10 @@ class boss_zanzil : public CreatureScript
                 for (int i = 0; i < 3; ++i)
                     if (!BerserkerGUID[i])
                         if (Creature* berserker = me->SummonCreature(52054, BerserkerSP[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
-                            BerserkerGUID[i] = berserker->GetGUID();
+                            BerserkerGUID[i] = berserker->GetGUID();*/
             }
+
+		
 
             void EnterEvadeMode()
             {
@@ -349,6 +342,17 @@ class boss_zanzil : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
+				printf("Recien summoneado \r\n");
+				if (Unit* target = me->SelectNearestTarget()){
+					printf("Target adquired \r\n");
+					if (target && target->IsInWorld()){
+						printf("Esta en el mundo \r\n");
+						summoned->AddThreat(target, 100.0f);
+						summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+						summoned->SetReactState(REACT_AGGRESSIVE);
+
+					}
+				}
                 switch (summoned->GetEntry())
                 {
                     case 52062:
@@ -359,6 +363,16 @@ class boss_zanzil : public CreatureScript
 
                 summons.Summon(summoned);
             }
+
+			void MoveInLineOfSight(Unit* who)
+			{
+				if (!who){
+					whoAttack = who;
+					return;
+				}
+
+				ScriptedAI::MoveInLineOfSight(who);
+			}
 
             void DoAction(int32 const action)
             {
@@ -461,7 +475,7 @@ class boss_zanzil : public CreatureScript
                             break;
                         case EVENT_GRAVEYARD_GAS:
                             Talk(EMOTE_ZANZIL_GRAVEYARD_GAS);
-                            me->CastSpell(me, SPELL_ZANZILS_GRAVEYARD_GAS, false);
+                        //    me->CastSpell(me, SPELL_ZANZILS_GRAVEYARD_GAS, false);
                             me->m_Events.AddEvent(new GasEvent(me), me->m_Events.CalculateTime(2*IN_MILLISECONDS));
                             break;
                         case EVENT_REMOVE_GAS:
@@ -496,11 +510,12 @@ class boss_zanzil : public CreatureScript
                                 }
                             }
                             break;
-                        case EVENT_RESPAWN_BERSERKER:
-                            {
-                                if (Creature* berserker = me->SummonCreature(52054, BerserkerSP[ResurrectionId], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
-                                    BerserkerGUID[ResurrectionId] = berserker->GetGUID();
-                            }
+						case EVENT_RESPAWN_BERSERKER:
+						{
+							if (Creature* berserker = me->SummonCreature(52054, BerserkerSP[ResurrectionId], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000)){
+								BerserkerGUID[ResurrectionId] = berserker->GetGUID();
+							}
+                        }
                             break;
                         case EVENT_RESURRECTION_ELIXIR_ZOMBIE:
                             Talk(EMOTE_ZANZIL_ZOMBIES);
@@ -532,8 +547,9 @@ class boss_zanzil : public CreatureScript
                         case EVENT_RESPAWN_ZOMBIE:
                             {
                                 for (int i = ResurrectionId * 14; i < ResurrectionId * 14 + 14; ++i)
-                                    if (Creature* zombie = me->SummonCreature(52055, ZombieSP[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
-                                        ZombieGUID[i] = zombie->GetGUID();
+								if (Creature* zombie = me->SummonCreature(52055, ZombieSP[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000)){
+									ZombieGUID[i] = zombie->GetGUID();
+								}
                             }
                             break;
                         case EVENT_TERRIBLE_TONIC:
@@ -644,6 +660,8 @@ class npc_zanzili_berserker : public CreatureScript
 
             void InitializeAI()
             {
+				//Unit* u = me->FindNearestPlayer(100.0f, true);
+				//me->go
             }
 
             void EnterEvadeMode()
@@ -670,6 +688,7 @@ class npc_zanzili_zombie : public CreatureScript
 
             void InitializeAI()
             {
+
             }
 
             void UpdateAI(uint32 const /*diff*/)

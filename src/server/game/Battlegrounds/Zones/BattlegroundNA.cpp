@@ -56,7 +56,7 @@ void BattlegroundNA::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     BattlegroundScore* sc = new BattlegroundScore;
     PlayerScores[player->GetGUID()] = sc;
-    sc->BgTeam = player->GetTeam();
+	sc->BgTeam = player->GetTeam();
     sc->TalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
     UpdateArenaWorldState();
 }

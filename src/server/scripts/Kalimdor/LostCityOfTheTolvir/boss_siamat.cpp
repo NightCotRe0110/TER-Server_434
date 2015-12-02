@@ -282,11 +282,10 @@ class npc_minion_of_siamat : public CreatureScript
     public:
         npc_minion_of_siamat() : CreatureScript("npc_minion_of_siamat") {}
 
-        struct npc_minion_of_siamatAI : public ScriptedAI
+        struct npc_minion_of_siamatAI : public Scripted_NoMovementAI
         {
-            npc_minion_of_siamatAI(Creature* creature) : ScriptedAI(creature) 
+            npc_minion_of_siamatAI(Creature* creature) : Scripted_NoMovementAI(creature) 
             {
-				SetCombatMovement(false);
                 instance = me->GetInstanceScript();
             }
 
@@ -399,12 +398,9 @@ class npc_cloud_burst : public CreatureScript
     public:
         npc_cloud_burst() : CreatureScript("npc_cloud_burst") {}
 
-        struct npc_cloud_burstAI : public ScriptedAI
+        struct npc_cloud_burstAI : public Scripted_NoMovementAI
         {
-            npc_cloud_burstAI(Creature* creature) : ScriptedAI(creature) 
-			{
-				SetCombatMovement(false);
-			}
+            npc_cloud_burstAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
 
             void IsSummonedBy(Unit* /*summoner*/)
             {

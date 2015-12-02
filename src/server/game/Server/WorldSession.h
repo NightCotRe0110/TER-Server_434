@@ -23,7 +23,6 @@ class LoginQueryHolder;
 class Object;
 class Player;
 class Quest;
-class RBACData;
 class SpellCastTargets;
 class Unit;
 class Warden;
@@ -231,7 +230,7 @@ private:
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, uint8 viplevel, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -255,11 +254,6 @@ class WorldSession
         void SendAuthResponse(uint8 code, bool queued, uint32 queuePos = 0);
         void SendClientCacheVersion(uint32 version);
 
-		RBACData* GetRBACData();
-		bool HasPermission(uint32 permissionId);
-		void LoadPermissions();
-		void InvalidateRBACData(); // Used to force LoadPermissions at next HasPermission check
-
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
@@ -271,6 +265,7 @@ class WorldSession
         std::string const& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player* player);
         uint8 Expansion() const { return m_expansion; }
+		uint8 GetVipLevel() const { return m_viplevel; }
 
         void InitWarden(BigNumber* k, std::string const& os);
 
@@ -303,8 +298,6 @@ class WorldSession
 
         //void SendTestCreatureQueryOpcode(uint32 entry, uint64 guid, uint32 testvalue);
         void SendNameQueryOpcode(uint64 guid);
-
-		bool CanOpenMailBox(uint64 guid);
 
         void SendTrainerList(uint64 guid);
         void SendTrainerList(uint64 guid, std::string const& strTitle);
@@ -700,13 +693,15 @@ class WorldSession
         void HandleMailCreateTextItem(WorldPacket& recvData);
         void HandleQueryNextMailTime(WorldPacket& recvData);
         void HandleCancelChanneling(WorldPacket& recvData);
-		void SendShowMailBox(uint64 guid);
 
         void SendItemPageInfo(ItemTemplate* itemProto);
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
+        void SendItemDb2Reply(uint32 entry);
+        void SendItemSparseDb2Reply(uint32 entry);
+		void SendKeyChainDb2Reply(uint32 entry); 
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);
@@ -1063,6 +1058,7 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+		uint8 m_viplevel;
 
         typedef std::list<AddonInfo> AddonsList;
 
@@ -1088,7 +1084,6 @@ class WorldSession
         bool isRecruiter;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
 		time_t timeLastWhoCommand;
-		RBACData* _RBACData;
 		uint32 expireTime;
 		bool forceExit;
         z_stream_s* _compressionStream;

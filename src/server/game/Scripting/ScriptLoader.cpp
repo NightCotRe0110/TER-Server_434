@@ -5,7 +5,6 @@ TER-Server
 #include "ScriptLoader.h"
 #include "AnticheatMgr.h"
 
-
 //---------------------//
 //       Custom       //
 //--------------------//
@@ -13,6 +12,11 @@ TER-Server
 //Vas AutoBalance
 void AddSC_VAS_AutoBalance();
 
+//TER-Server_Guild-1
+//void AddSC_gon_playerscripts();
+
+// 1v1 Arena
+//void AddSC_npc_1v1arena();
 
 void AddSC_gm_login();
 //---------------------//
@@ -51,14 +55,12 @@ void AddSC_anticheat_commandscript();
 void AddSC_account_commandscript();
 void AddSC_ahbot_commandscript();
 void AddSC_achievement_commandscript();
-void AddSC_arena_commandscript();
 void AddSC_ban_commandscript();
 void AddSC_bf_commandscript();
 void AddSC_cast_commandscript();
 void AddSC_character_commandscript();
 void AddSC_cheat_commandscript();
 void AddSC_debug_commandscript();
-void AddSC_deserter_commandscript();
 void AddSC_disable_commandscript();
 void AddSC_event_commandscript();
 void AddSC_gm_commandscript();
@@ -77,7 +79,6 @@ void AddSC_mmaps_commandscript();
 void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
-void AddSC_rbac_commandscript();
 void AddSC_reload_commandscript();
 void AddSC_reset_commandscript();
 void AddSC_server_commandscript();
@@ -446,7 +447,6 @@ void AddSC_dragon_soul_teleport_and_transport();
 void AddSC_boss_unsleeping();
 void AddSC_boss_warmaster_blackhorn();
 void AddSC_boss_warlord();
-void AddSC_boss_deathwing_spine();
 void AddSC_boss_ultraxion();
 void AddSC_boss_morchok();
 void AddSC_boss_hagara();
@@ -799,7 +799,6 @@ void AddScripts()
     AddOutlandScripts();
     AddMaelstromScripts();
     AddNorthrendScripts();
-	AddEventScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
@@ -841,14 +840,12 @@ void AddCommandScripts()
     AddSC_account_commandscript();
 	AddSC_ahbot_commandscript();
     AddSC_achievement_commandscript();
-	AddSC_arena_commandscript();
     AddSC_ban_commandscript();
     AddSC_bf_commandscript();
     AddSC_cast_commandscript();
     AddSC_character_commandscript();
     AddSC_cheat_commandscript();
     AddSC_debug_commandscript();
-	AddSC_deserter_commandscript();
     AddSC_disable_commandscript();
     AddSC_event_commandscript();
     AddSC_gm_commandscript();
@@ -867,7 +864,6 @@ void AddCommandScripts()
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
     AddSC_quest_commandscript();
-	AddSC_rbac_commandscript();
     AddSC_reload_commandscript();
     AddSC_reset_commandscript();
     AddSC_server_commandscript();
@@ -1239,10 +1235,9 @@ void AddKalimdorScripts()
     AddSC_boss_perotharn();
     AddSC_well_of_eternity_teleport();	
 	
-    AddSC_instance_dragon_soul();   // Душа Дракона
+    AddSC_instance_dragon_soul();   // Dragon Soul
     AddSC_dragon_soul_teleport_and_transport();
     AddSC_boss_unsleeping();
-	AddSC_boss_deathwing_spine();
     AddSC_boss_warmaster_blackhorn();
     AddSC_boss_warlord();
     AddSC_boss_ultraxion();
@@ -1609,7 +1604,7 @@ void AddBattlegroundScripts()
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
 // Start Guild
- void AddSC_gon_playerscripts();
+ //void AddSC_gon_playerscripts();
  // 1v1 Arena
  void AddSC_npc_1v1arena();
 #endif
@@ -1620,7 +1615,7 @@ void AddCustomScripts()
 	 AddSC_VAS_AutoBalance();
 	 AddSC_gm_login();
 	 // Start Guild
-	 AddSC_gon_playerscripts();
+	 //AddSC_gon_playerscripts();
 	 // 1v1 Arena
 	 AddSC_npc_1v1arena();
 #endif

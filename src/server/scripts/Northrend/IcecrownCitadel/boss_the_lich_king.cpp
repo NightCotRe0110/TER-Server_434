@@ -838,8 +838,8 @@ class boss_the_lich_king : public CreatureScript
                 events.Update(diff);
 
                 // during Remorseless Winter phases The Lich King is channeling a spell, but we must continue casting other spells
-				if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.IsInPhase(PHASE_TRANSITION) || events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_FROSTMOURNE)))
-					return;
+                if ((me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_TRANSITION)) || events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_FROSTMOURNE))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -1083,7 +1083,6 @@ class boss_the_lich_king : public CreatureScript
             {
                 WorldPacket data(SMSG_PLAY_MUSIC, 4);
                 data << uint32(musicId);
-				data << uint64(me->GetGUID());
                 SendPacketToPlayers(&data);
             }
 
@@ -2147,8 +2146,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-					if (caster->GetAI())
-						 caster->GetAI()->SetData(DATA_PLAGUE_STACK, GetStackAmount());
+                    caster->GetAI()->SetData(DATA_PLAGUE_STACK, GetStackAmount());
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

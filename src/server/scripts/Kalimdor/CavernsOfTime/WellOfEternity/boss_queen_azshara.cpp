@@ -420,11 +420,10 @@ public:
         return new npc_queen_azshara_hammer_of_divinityAI(pCreature);
     }
 
-    struct npc_queen_azshara_hammer_of_divinityAI : public ScriptedAI
+    struct npc_queen_azshara_hammer_of_divinityAI : public Scripted_NoMovementAI
     {
-        npc_queen_azshara_hammer_of_divinityAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_queen_azshara_hammer_of_divinityAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-			SetCombatMovement(false);
             bDespawn = false;
             me->SetSpeed(MOVE_RUN, 0.1f, true);
             me->SetCanFly(true);

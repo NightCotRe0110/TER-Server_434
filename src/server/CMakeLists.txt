@@ -1,5 +1,5 @@
-
-if(CMAKE_COMPILER_IS_GNUCXX AND NOT MINGW)
+# TER-Server_S
+if(CMAKE_COMPILER_IS_GNUCXX)
   add_definitions(-fno-delete-null-pointer-checks)
 endif()
 

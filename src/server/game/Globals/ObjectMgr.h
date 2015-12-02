@@ -645,7 +645,7 @@ typedef UNORDERED_MAP<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
 struct HotfixInfo
 {
-	uint32 Type;
+    DB2Hash Type;
     uint32 Timestamp;
     uint32 Entry;
 };
@@ -781,7 +781,7 @@ class ObjectMgr
         AreaTriggerStruct const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id);
-		SpellScriptsBounds GetSpellScriptsBounds(uint32 spellId);
+        SpellScriptsBounds GetSpellScriptsBounds(uint32 spell_id);
 
         RepRewardRate const* GetRepRewardRate(uint32 factionId) const
         {
@@ -800,7 +800,7 @@ class ObjectMgr
             return NULL;
         }
 
-		int32 GetBaseReputationOf(FactionEntry const* factionEntry, uint8 race, uint8 playerClass);
+        int32 GetBaseReputationOff(FactionEntry const* factionEntry, uint8 race, uint8 playerClass);
 
         RepSpilloverTemplate const* GetRepSpilloverTemplate(uint32 factionId) const
         {
@@ -1222,24 +1222,21 @@ class ObjectMgr
                 value = data[loc_idx];
         }
 
-		CharacterConversionMap FactionChangeAchievements;
-		CharacterConversionMap FactionChangeItems;
-		CharacterConversionMap FactionChangeQuests;
-		CharacterConversionMap FactionChangeReputation;
-		CharacterConversionMap FactionChangeSpells;
-		CharacterConversionMap FactionChangeTitles;
-
+        CharacterConversionMap FactionChange_Achievements;
+        CharacterConversionMap FactionChange_Items;
+        CharacterConversionMap FactionChange_Spells;
+        CharacterConversionMap FactionChange_Reputation;
+        CharacterConversionMap FactionChange_Titles;
 
         void LoadFactionChangeAchievements();
         void LoadFactionChangeItems();
-		void LoadFactionChangeQuests();
+        void LoadFactionChangeSpells();
         void LoadFactionChangeReputations();
-		void LoadFactionChangeSpells();
         void LoadFactionChangeTitles();
 
         void LoadHotfixData();
         HotfixData const& GetHotfixData() const { return _hotfixData; }
-		time_t GetHotfixDate(uint32 entry, uint32 type) const
+        time_t GetHotfixDate(uint32 entry, DB2Hash type) const
         {
             time_t ret = 0;
             for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)

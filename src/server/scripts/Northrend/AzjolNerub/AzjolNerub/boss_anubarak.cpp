@@ -347,5 +347,5 @@ public:
 
 void AddSC_boss_anub_arak()
 {
-	new boss_anub_arak();
+    new boss_anub_arak;
 }

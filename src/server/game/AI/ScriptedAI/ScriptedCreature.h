@@ -316,6 +316,15 @@ struct ScriptedAI : public CreatureAI
         bool _isHeroic;
 };
 
+struct Scripted_NoMovementAI : public ScriptedAI
+{
+    Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
+    virtual ~Scripted_NoMovementAI() {}
+
+    //Called at each attack of me by any victim
+    void AttackStart(Unit* target);
+};
+
 class BossAI : public ScriptedAI
 {
     public:

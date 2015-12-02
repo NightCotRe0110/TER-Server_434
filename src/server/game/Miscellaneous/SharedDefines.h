@@ -29,8 +29,7 @@ enum LootModes
     LOOT_MODE_HARD_MODE_1              = 0x2,
     LOOT_MODE_HARD_MODE_2              = 0x4,
     LOOT_MODE_HARD_MODE_3              = 0x8,
-    LOOT_MODE_HARD_MODE_4              = 0x10,
-    LOOT_MODE_JUNK_FISH                = 0x8000
+    LOOT_MODE_HARD_MODE_4              = 0x10
 };
 
 enum Gender
@@ -294,8 +293,8 @@ enum SpellAttr0
     SPELL_ATTR0_CASTABLE_WHILE_SITTING           = 0x08000000, // 27 castable while sitting
     SPELL_ATTR0_CANT_USED_IN_COMBAT              = 0x10000000, // 28 Cannot be used in combat
     SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY    = 0x20000000, // 29 unaffected by invulnerability (hmm possible not...)
-	SPELL_ATTR0_HEARTBEAT_RESIST_CHECK           = 0x40000000, // 30 random chance the effect will end TODO: implement core support
-	SPELL_ATTR0_CANT_CANCEL                      = 0x80000000  // 31 positive aura can't be canceled
+    SPELL_ATTR0_BREAKABLE_BY_DAMAGE              = 0x40000000, // 30
+    SPELL_ATTR0_CANT_CANCEL                      = 0x80000000  // 31 positive aura can't be canceled
 };
 
 enum SpellAttr1
@@ -3428,12 +3427,7 @@ enum SummonType
 enum EventId
 {
     EVENT_CHARGE            = 1003,
-    EVENT_JUMP              = 1004,
-
-	/// Special charge event which is used for charge spells that have explicit targets
-	    /// and had a path already generated - using it in PointMovementGenerator will not
-	    /// create a new spline and launch it
-	EVENT_CHARGE_PREPATH = 1005
+    EVENT_JUMP              = 1004
 };
 
 enum ResponseCodes

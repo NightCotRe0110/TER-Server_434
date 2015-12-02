@@ -474,7 +474,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
             SetReactState(REACT_DEFENSIVE);*/;
         }
 
-        /// @todo Rename this to proper functions
+        ///// TODO RENAME THIS!!!!!
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
@@ -532,8 +532,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
 
-		uint8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
-		uint32 GetCurrentEquipmentId() { return m_equipmentId; }
+        uint8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
+        uint32 GetCurrentEquipmentId() { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }
         float GetSpellDamageMod(int32 Rank);
 
@@ -745,7 +745,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         MovementGeneratorType m_defaultMovementType;
         uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
         uint8 m_equipmentId;
-		uint8 m_originalEquipmentId;
+        uint8 m_originalEquipmentId;
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;

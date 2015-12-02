@@ -50,6 +50,8 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
                 setState(BG_RV_STATE_SWITCH_PILLARS);
                 break;
             case BG_RV_STATE_SWITCH_PILLARS:
+                for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+                    DoorOpen(i);
                 TogglePillarCollision();
                 setTimer(BG_RV_PILLAR_SWITCH_TIMER);
                 break;
@@ -85,7 +87,7 @@ void BattlegroundRV::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     BattlegroundScore* sc = new BattlegroundScore;
     PlayerScores[player->GetGUID()] = sc;
-    sc->BgTeam = player->GetTeam();
+	sc->BgTeam = player->GetTeam();
     sc->TalentTree = player->GetPrimaryTalentTree(player->GetActiveSpec());
 
     UpdateWorldState(BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
@@ -203,12 +205,7 @@ bool BattlegroundRV::SetupBattleground()
 void BattlegroundRV::TogglePillarCollision()
 {
     bool apply = GetPillarCollision();
-	// Toggle visual pillars, pulley, gear, and collision based on previous state
-	for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_GEAR_2; ++i)
-		 apply ? DoorOpen(i) : DoorClose(i);
-	
-		for (uint8 i = BG_RV_OBJECT_PILAR_2; i <= BG_RV_OBJECT_PULLEY_2; ++i)
-		 apply ? DoorClose(i) : DoorOpen(i);
+
     for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PILAR_COLLISION_4; ++i)
     {
         if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[i]))

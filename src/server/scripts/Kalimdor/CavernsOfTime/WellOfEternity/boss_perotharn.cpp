@@ -370,11 +370,10 @@ public:
         return new npc_perotharn_eye_of_perotharnAI(pCreature);
     }
 
-    struct npc_perotharn_eye_of_perotharnAI : public ScriptedAI
+    struct npc_perotharn_eye_of_perotharnAI : public Scripted_NoMovementAI
     {
-        npc_perotharn_eye_of_perotharnAI(Creature* pCreature) : ScriptedAI(pCreature)
+        npc_perotharn_eye_of_perotharnAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-			SetCombatMovement(false);
             me->SetReactState(REACT_PASSIVE);
             bDespawn = false;
         }

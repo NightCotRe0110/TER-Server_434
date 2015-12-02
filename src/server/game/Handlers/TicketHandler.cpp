@@ -142,14 +142,10 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     }
 
     GMTicketResponse response = GMTICKET_RESPONSE_CREATE_ERROR;
-	GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID());
-	
-		if (ticket && ticket->IsCompleted())
-		 sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());;
     // Player must not have ticket
-		if (!ticket || ticket->IsClosed())
+    if (!sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
     {
-		ticket = new GmTicket(GetPlayer(), recvData);
+        GmTicket* ticket = new GmTicket(GetPlayer(), recvData);
 
         uint32 count;
         std::list<uint32> times;

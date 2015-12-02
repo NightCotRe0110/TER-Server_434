@@ -176,7 +176,7 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
     if (!res)
     {
         ItemLocale const* il = sObjectMgr->GetItemLocale(_item->ItemId);
-        for (uint8 index = LOCALE_ruRU; index < TOTAL_LOCALES; ++index)
+        for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
         {
             if (FormatName(index, il, suffixStrings) == buffer)
             {
