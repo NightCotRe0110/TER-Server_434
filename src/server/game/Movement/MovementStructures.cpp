@@ -4466,6 +4466,48 @@ MovementStatusElements SplineMoveUnsetHover[] =
     MSEEnd,
 };
 
+MovementStatusElements const SplineMoveSetWaterWalk[] =
+{
+	MSEHasGuidByte6,
+		MSEHasGuidByte1,
+		MSEHasGuidByte4,
+		MSEHasGuidByte2,
+		MSEHasGuidByte3,
+		MSEHasGuidByte7,
+		MSEHasGuidByte5,
+		MSEHasGuidByte0,
+		MSEGuidByte0,
+		MSEGuidByte6,
+		MSEGuidByte3,
+		MSEGuidByte7,
+		MSEGuidByte4,
+		MSEGuidByte2,
+		MSEGuidByte5,
+		MSEGuidByte1,
+		MSEEnd,
+		};
+
+MovementStatusElements const SplineMoveSetLandWalk[] =
+{
+	MSEHasGuidByte5,
+		MSEHasGuidByte0,
+		MSEHasGuidByte4,
+		MSEHasGuidByte6,
+		MSEHasGuidByte7,
+		MSEHasGuidByte2,
+		MSEHasGuidByte3,
+		MSEHasGuidByte1,
+		MSEGuidByte5,
+		MSEGuidByte7,
+		MSEGuidByte3,
+		MSEGuidByte4,
+		MSEGuidByte1,
+		MSEGuidByte2,
+		MSEGuidByte0,
+		MSEGuidByte6,
+		MSEEnd,
+	};
+
 //4.3.4
 MovementStatusElements MovementHoverAck[] =
 {

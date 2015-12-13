@@ -19557,7 +19557,7 @@ void Unit::SendMovementWalkMode()
     if (HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
         Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_WALK_MODE, SMSG_MOVE_SET_WALK_MODE, &info, true).Send();
     else
-        Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_RUN_MODE, SMSG_MOVE_SET_RUN_MODE, &info, true).Send();
+		Movement::PacketSender(this, SMSG_SPLINE_MOVE_SET_RUN_MODE, SMSG_SPLINE_MOVE_SET_RUN_MODE, &info, true).Send();
 }
 
 void Unit::SendMovementCanFlyChange()
