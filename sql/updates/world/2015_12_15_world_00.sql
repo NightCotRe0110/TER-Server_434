@@ -237,12 +237,12 @@ UPDATE quest_template SET RewardCurrencyId1=416, RewardCurrencyCount1=10 WHERE i
 UPDATE creature SET phaseMask=2 WHERE id=52953;
 DELETE FROM creature WHERE id IN (52845,52858,52838,52669,52902);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zone`, `area`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-('NULL','52669','1','0','0','1','1','31626','0','4424.42','-2082.76','1210.75','5.60251','300','0','0','1','1','0','0','0','0'),
-('NULL','52838','1','0','0','1','1','31605','0','5125.25','-1758.53','1334.55','3.42085','300','0','0','1','1','0','0','0','0'),
-('NULL','52838','1','0','0','1','1','31605','0','4653','-2078.98','1231.42','3.44762','300','0','0','1','1','0','0','0','0'),
-('NULL','52845','1','0','0','1','1','35095','0','4417.44','-2081.68','1210.7','5.72578','300','0','0','1','1','0','0','0','0'),
-('NULL','52858','1','0','0','1','1','31605','0','4417.22','-2080.25','1210.4','5.68977','300','0','0','1','1','0','0','0','0'),
-('NULL','52902','1','0','0','1','1','38656','0','4411.39','-2071.62','1213.87','5.55015','300','0','0','1','1','0','0','0','0');
+('15462741','52669','1','0','0','1','1','31626','0','4424.42','-2082.76','1210.75','5.60251','300','0','0','1','1','0','0','0','0'),
+('15462742','52838','1','0','0','1','1','31605','0','5125.25','-1758.53','1334.55','3.42085','300','0','0','1','1','0','0','0','0'),
+('15462743','52838','1','0','0','1','1','31605','0','4653','-2078.98','1231.42','3.44762','300','0','0','1','1','0','0','0','0'),
+('15462744','52845','1','0','0','1','1','35095','0','4417.44','-2081.68','1210.7','5.72578','300','0','0','1','1','0','0','0','0'),
+('15462745','52858','1','0','0','1','1','31605','0','4417.22','-2080.25','1210.4','5.68977','300','0','0','1','1','0','0','0','0'),
+('15462746','52902','1','0','0','1','1','38656','0','4411.39','-2071.62','1213.87','5.55015','300','0','0','1','1','0','0','0','0');
 DELETE FROM creature WHERE id IN (52749,52383,52766,52649,52399);
 
 DELETE FROM gameobject WHERE id IN (301106,301104,208899);
@@ -1003,12 +1003,13 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('30455', 'sp
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('44457', 'spell_mage_living_bomb_tic');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('83853', 'spell_mage_combustion_tic');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (45477, 49184, 49020,49143);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (45477, 49184, 49020, 49143);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('45477', 'spell_dk_merciless_combat'); -- Icy toush
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('49184', 'spell_dk_merciless_combat'); -- Howling Blast
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('49020', 'spell_dk_merciless_combat'); -- Obliterate
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('49143', 'spell_dk_merciless_combat'); -- Frost Strike
 
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (58621, 635, 19750, 20473, 53563, 82326, 82327, 85673, 86452);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('58621', 'spell_dk_glyph_chains_of_ice');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('635', 'spell_pal_avenging_wrath_heal_bonus');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('19750', 'spell_pal_avenging_wrath_heal_bonus');
