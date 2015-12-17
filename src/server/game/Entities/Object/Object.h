@@ -480,6 +480,11 @@ struct Position
             pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation);
     }
 
+	Position GetPosition2() const
+	{
+		return *this;
+	}
+
     Position::PositionXYZStreamer PositionXYZStream()
     {
         return PositionXYZStreamer(*this);
@@ -664,6 +669,7 @@ class WorldObject : public Object, public WorldLocation
             GetNearPoint(NULL, x, y, z, size, distance2d, GetOrientation() + angle);
         }
         void MovePosition(Position &pos, float dist, float angle, bool limitZValue = true);
+		Position GetNearPositionTER(float dist, float angle);
         void MoveBlink(Position &pos, float dist, float angle);
         void GetNearPosition(Position &pos, float dist, float angle, bool limitZValue = true)
         {
@@ -860,6 +866,9 @@ class WorldObject : public Object, public WorldLocation
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
+		TempSummon* SummonCreature_TER(uint32 id, Position const &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
+		TempSummon* SummonCreature_TER(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0) const;
+
         TempSummon* SummonCreature(uint32 id, const Position &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0)
         {
@@ -891,6 +900,9 @@ class WorldObject : public Object, public WorldLocation
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
 
         Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+		std::list<Creature*> FindNearestCreatures(uint32 entry, float range) const;
+		std::vector<Creature*> FindNearestCreatures(uint32 entry, float range, bool alive) const;
+		Creature*   FindRandomCreatureInRange(uint32 entry, float range, bool alive);
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player*     FindNearestPlayer(float range, bool alive = true) const;

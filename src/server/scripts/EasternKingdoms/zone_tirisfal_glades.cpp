@@ -3,29 +3,6 @@
  * CATA_v500 & WOD_S
  */
 
-#include "ScriptMgr.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "World.h"
-#include "PassiveAI.h"
-#include "GameEventMgr.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "SpellAuras.h"
-#include "Pet.h"
-#include "CreatureTextMgr.h"
-#include "CombatAI.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "WorldSession.h"
-#include "GameObjectAI.h"
-#include "ObjectAccessor.h"
 #include "Vehicle.h"
 
 // npc_aradne 50372
@@ -176,7 +153,7 @@ public:
 				m_phase = 2;
 				break;
 			case 2:
-				if (Creature* npc = me->SummonCreature(50374, me->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 30000))
+				if (Creature* npc = me->SummonCreature_TER(50374, me->GetPosition2(), TEMPSUMMON_TIMED_DESPAWN, 30000))
 				{
 				}
 
@@ -394,9 +371,9 @@ public:
 			{
 			case 0: // Time: 07/03/2015 11:08:09.619
 				if (Creature* npc_trigger = me->FindNearestCreature(50373, 20.0f))
-					if (m_npc = me->SummonCreature(50414, npc_trigger->GetPosition(), TEMPSUMMON_TIMED_DESPAWN, 40000))
+					if (m_npc = me->SummonCreature_TER(50414, npc_trigger->GetPosition2(), TEMPSUMMON_TIMED_DESPAWN, 40000))
 					{
-						Position pos = me->GetNearPosition(1.5f, 1.72f);
+						Position pos = me->GetNearPositionTER(1.5f, 1.72f);
 						m_npc->GetMotionMaster()->MovePoint(0, pos, true);
 					}
 
@@ -467,7 +444,7 @@ public:
 				m_phase = 10;
 				break;
 			case 10: // Time: 07/03/2015 11:08:32.691 Number: 6043
-				if (m_npc && m_npc->IsAlive())
+				if (m_npc && m_npc->isAlive())
 					m_npc->GetMotionMaster()->MovePath(5041401, false);
 
 				m_timer = 45000;
@@ -534,8 +511,8 @@ public:
 						m_path = 0;
 						m_FoundGround = false;
 						m_ItemsFound = false;
-						m_OldPosition = m_player->GetPosition();
-						m_player_pos = m_player->GetPosition();
+						m_OldPosition = m_player->GetPosition2();
+						m_player_pos = m_player->GetPosition2();
 						m_player_area = m_player->GetAreaId();
 						Talk(0);
 					}
@@ -555,7 +532,7 @@ public:
 			if (who->GetGUID() != m_player->GetGUID())
 				return;
 
-			m_player_pos = who->GetPosition();
+			m_player_pos = who->GetPosition2();
 			m_player_area = who->GetAreaId();
 
 			if (m_modus == 1 && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
@@ -819,7 +796,7 @@ public:
 		float GetMovedPlayerDistance()
 		{
 			float dist = m_player->GetDistance(m_OldPosition);
-			m_OldPosition = m_player->GetPosition();
+			m_OldPosition = m_player->GetPosition2();
 			return dist;
 		}
 
@@ -868,7 +845,7 @@ public:
 		if (player->GetQuestStatus(24960) == QUEST_STATUS_INCOMPLETE)
 		{
 			uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (id == /*17567*/12486 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 49230) == 0)
+			if (id == 12486 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 49230) == 0)
 			{
 				player->PlayerTalkClass->SendCloseGossip();
 				CAST_AI(npc_marshal_redpath_49230AI, creature->AI())->StartAnim(player);
@@ -972,7 +949,7 @@ public:
 		if (player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
 		{
 			uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (id == 12488 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 49231) == 0)
+			if (id == 17570 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 49231) == 0)
 			{
 				player->PlayerTalkClass->SendCloseGossip();
 				CAST_AI(npc_valdred_moray_49231AI, creature->AI())->StartAnim(player);
@@ -1077,7 +1054,7 @@ public:
 		if (player->GetQuestStatus(QUEST_THE_WAKENING) == QUEST_STATUS_INCOMPLETE)
 		{
 			uint32 id = player->PlayerTalkClass->GetGossipMenu().GetMenuId();
-			if (id == /*17565*/12483 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 38895) == 0)
+			if (id == 17564 && player->GetReqKillOrCastCurrentCount(QUEST_THE_WAKENING, 38895) == 0)
 			{
 				player->PlayerTalkClass->SendCloseGossip();
 				CAST_AI(npc_lilian_voss_38895AI, creature->AI())->StartAnim(player);

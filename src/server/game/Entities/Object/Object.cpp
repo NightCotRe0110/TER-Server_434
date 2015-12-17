@@ -2595,6 +2595,39 @@ TempSummon* WorldObject::SummonCreature_OP(uint32 entry, const Position &pos, Te
     return NULL;
 }
 
+TempSummon* WorldObject::SummonCreature_TER(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, uint32 /*vehId*/) const
+{
+	if (Map* map = FindMap())
+	{
+		if (TempSummon* summon = map->SummonCreature(entry, pos, NULL, duration, isType(TYPEMASK_UNIT) ? (Unit*)this : NULL))
+		{
+			summon->SetTempSummonType(spwtype);
+			return summon;
+		}
+	}
+
+	return NULL;
+}
+
+TempSummon* WorldObject::SummonCreature_TER(uint32 id, float x, float y, float z, float ang /*= 0*/, TempSummonType spwtype /*= TEMPSUMMON_MANUAL_DESPAWN*/, uint32 despwtime /*= 0*/) const
+{
+	if (!x && !y && !z)
+	{
+		GetClosePoint(x, y, z, GetObjectSize());
+		ang = GetOrientation();
+	}
+	Position pos;
+	pos.Relocate(x, y, z, ang);
+	return SummonCreature(id, pos, spwtype, despwtime, 0);
+}
+
+Position WorldObject::GetNearPositionTER(float dist, float angle)
+{
+	Position pos = GetPosition2();
+	MovePosition(pos, dist, angle);
+	return pos;
+}
+
 TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, uint32 /*vehId*/) const
 {
     if (Map* map = FindMap())
@@ -2684,6 +2717,46 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(this, creature, checker);
     VisitNearbyObject(range, searcher);
     return creature;
+}
+
+std::list<Creature*> WorldObject::FindNearestCreatures(uint32 entry, float range) const
+{
+	std::list<Creature*> creatureList;
+	GetCreatureListWithEntryInGrid(creatureList, entry, range);
+	return creatureList;
+}
+
+std::vector<Creature*> WorldObject::FindNearestCreatures(uint32 entry, float range, bool alive) const
+{
+	std::list<Creature*> creatureList;
+	std::vector<Creature*> returnList;
+	GetCreatureListWithEntryInGrid(creatureList, entry, range);
+
+	for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+	{
+		if ((*itr)->isAlive() == alive)
+			returnList.push_back(*itr);
+	}
+	return returnList;
+}
+
+Creature* WorldObject::FindRandomCreatureInRange(uint32 entry, float range, bool alive)
+{
+	Creature* creature = NULL;
+	std::list<Creature*> creatureList = FindNearestCreatures(entry, range);
+	if (creatureList.empty())
+		return NULL;
+
+	int32 r1 = urand(0, creatureList.size() - 1);
+	int32 r2 = -1;
+	for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+	{
+		r2++;
+		if (r1 == r2)
+			return *itr;
+	}
+
+	return NULL;
 }
 
 GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
