@@ -376,7 +376,7 @@ INSERT INTO `pool_quest`(`entry`,`pool_entry`,`description`) VALUES
 --  phase3 beautification --
 DELETE FROM creature WHERE id IN (53080);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zone`, `area`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
-('NULL','53080','861','0','0','1','1','32487','0','987.644','375.648','38.6421','2.40855','300','0','0','387450','0','0','0','0','0');
+('15462747','53080','861','0','0','1','1','32487','0','987.644','375.648','38.6421','2.40855','300','0','0','387450','0','0','0','0','0');
 
 --  phase3 fixes --
 UPDATE quest_template SET RewardCurrencyId1=416, RewardCurrencyCount1=1 WHERE id IN (29247,29246,29248);
@@ -1022,8 +1022,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('86452', 'sp
 
 DELETE FROM item_script_names WHERE id=71949;
 INSERT INTO item_script_names (Id, ScriptName) VALUES (71949, 'item_tome_of_burning_jewels');
+DELETE FROM spell_script_names WHERE spell_id=45524;
 INSERT INTO spell_script_names VALUE (45524, 'spell_dk_chilblains');
+DELETE FROM spell_script_names WHERE spell_id=53;
 INSERT INTO spell_script_names VALUE (53,'spell_rogue_backstab');
+DELETE FROM spell_script_names WHERE spell_id=57755;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('57755', 'spell_warr_glyph_of_heroic_throw');
 UPDATE `creature_template` SET `ScriptName` = 'npc_Tentacle_of_the_Old_Ones' WHERE `entry` IN (57220, 58077, 58078);
 UPDATE creature_template SET ScriptName = 'npc_melee_guardian' WHERE entry = 46506;
