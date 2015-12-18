@@ -783,7 +783,7 @@ class npc_rageface: public CreatureScript
                                     RAID_MODE(SPELL_FACE_RAGE_10N, SPELL_FACE_RAGE_25N, SPELL_FACE_RAGE_10H,
                                             SPELL_FACE_RAGE_25H)))
                     {
-                        me->GetVictim()->RemoveAurasDueToSpell(SPELL_FACE_RAGE);
+						me->EnsureVictim()->RemoveAurasDueToSpell(SPELL_FACE_RAGE);
                         me->RemoveAurasDueToSpell(
                                 RAID_MODE(SPELL_FACE_RAGE_10N, SPELL_FACE_RAGE_25N, SPELL_FACE_RAGE_10H,
                                         SPELL_FACE_RAGE_25H));
@@ -795,7 +795,7 @@ class npc_rageface: public CreatureScript
                     if (me->GetVictim())
                         if (!me->HasAura(
                                 RAID_MODE(SPELL_FACE_RAGE_10N, SPELL_FACE_RAGE_25N, SPELL_FACE_RAGE_10H,
-                                        SPELL_FACE_RAGE_25H)) && me->GetVictim()->HasAura(SPELL_FACE_RAGE)
+								SPELL_FACE_RAGE_25H)) && me->EnsureVictim()->HasAura(SPELL_FACE_RAGE)
                                 && !me->HasAura(CRYSTAL_PRISON_EFFECT))
                         {
                             if (Unit *RageTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 500.0f, true, SPELL_RAGE))
@@ -809,7 +809,7 @@ class npc_rageface: public CreatureScript
                                 me->GetMotionMaster()->MoveChase(RageTarget);
                                 me->AI()->AttackStart(RageTarget);
                             }
-                            me->GetVictim()->RemoveAurasDueToSpell(SPELL_FACE_RAGE);
+							me->EnsureVictim()->RemoveAurasDueToSpell(SPELL_FACE_RAGE);
                         }
 
                     if (GetShannox() && !me->isInCombat())
@@ -829,7 +829,7 @@ class npc_rageface: public CreatureScript
                         {
                             case EVENT_CHANGE_TARGET:
                                 if(me->GetVictim())
-                                    if (!me->GetVictim()->HasAura(SPELL_RAGE) && !me->HasAura(RAID_MODE(SPELL_FACE_RAGE_10N, SPELL_FACE_RAGE_25N, SPELL_FACE_RAGE_10H, SPELL_FACE_RAGE_25H)))
+									if (!me->EnsureVictim()->HasAura(SPELL_RAGE) && !me->HasAura(RAID_MODE(SPELL_FACE_RAGE_10N, SPELL_FACE_RAGE_25N, SPELL_FACE_RAGE_10H, SPELL_FACE_RAGE_25H)))
                                         SelectNewTarget();
                                 events.ScheduleEvent(EVENT_CHANGE_TARGET, urand(9000, 15000));
                                 break;

@@ -1810,7 +1810,7 @@ class npc_living_meteor: public CreatureScript
                             if (me->IsWithinDistInMap(me->GetVictim(), 2.0f))
                             {
                                 DoCast(me, SPELL_IMPACT);
-                                me->GetVictim()->RemoveAurasDueToSpell(SPELL_FLAMING_FIXATE);
+								me->EnsureVictim()->RemoveAurasDueToSpell(SPELL_FLAMING_FIXATE);
                                 me->DespawnOrUnsummon();
                             }
 
@@ -1823,7 +1823,7 @@ class npc_living_meteor: public CreatureScript
                     {
                         if(me->GetVictim())
                         {
-                            me->GetVictim()->RemoveAurasDueToSpell(SPELL_FLAMING_FIXATE);
+							me->EnsureVictim()->RemoveAurasDueToSpell(SPELL_FLAMING_FIXATE);
                             me->AddThreat(me->GetVictim(), -1000.0f);
                         }
 

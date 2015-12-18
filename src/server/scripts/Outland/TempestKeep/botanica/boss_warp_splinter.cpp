@@ -114,7 +114,7 @@ class mob_warp_splinter_treant : public CreatureScript
                     return;
                 }
 
-                if (me->GetVictim()->GetGUID() !=  WarpGuid)
+				if (me->EnsureVictim()->GetGUID() != WarpGuid)
                     DoMeleeAttackIfReady();
             }
         };

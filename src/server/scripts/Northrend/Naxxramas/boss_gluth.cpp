@@ -130,7 +130,7 @@ public:
                 }
             }
 
-            if (me->GetVictim() && me->GetVictim()->GetEntry() == MOB_ZOMBIE)
+			if (me->GetVictim() && me->EnsureVictim()->GetEntry() == MOB_ZOMBIE)
             {
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {

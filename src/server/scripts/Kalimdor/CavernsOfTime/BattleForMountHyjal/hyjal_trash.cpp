@@ -1363,7 +1363,7 @@ public:
                 if (MoveTimer <= diff)
                 {
                     float x, y, z;
-                    me->GetVictim()->GetPosition(x, y, z);
+					me->EnsureVictim()->GetPosition(x, y, z);
                     me->GetMotionMaster()->MovePoint(0, x, y, z+Zpos);
                     Zpos -= 1.0f;
                     if (Zpos <= 0)

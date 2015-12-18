@@ -180,8 +180,8 @@ public:
 				//Attack
 				if (dmgCount < 2)
 					DoMeleeAttackIfReady();
-				else if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER) dmgCount = 0;
-				else if (me->GetVictim()->isPet()) dmgCount = 0;
+				else if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER) dmgCount = 0;
+				else if (me->EnsureVictim()->isPet()) dmgCount = 0;
 				else
 				{
 					if (tAnimate <= diff)
@@ -380,9 +380,9 @@ public:
 			if (dmgCount < 2)
 				DoMeleeAttackIfReady();
 			else
-			if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER) dmgCount = 0;
+				if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER) dmgCount = 0;
 			else
-			if (me->GetVictim()->isPet()) dmgCount = 0;
+				if (me->EnsureVictim()->isPet()) dmgCount = 0;
 			else
 			{
 				if (tAnimate <= diff)
@@ -495,10 +495,10 @@ public:
 			if (dmgCount < 2)
 				DoMeleeAttackIfReady();
 			else
-			if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+				if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER)
 				dmgCount = 0;
 			else
-			if (me->GetVictim()->isPet())
+				if (me->EnsureVictim()->isPet())
 				dmgCount = 0;
 			else
 			{
@@ -559,7 +559,7 @@ public:
 			if (!UpdateVictim())
 				return;
 
-			if (me->GetVictim()->GetEntry() == NPC_BLOODFANG_WORGEN)
+			if (me->EnsureVictim()->GetEntry() == NPC_BLOODFANG_WORGEN)
 				DoSpellAttackIfReady(SPELL_FROSTBOLT_VISUAL_ONLY); //Dummy spell, visual only to prevent getting agro (Blizz-like)
 			else
 				DoMeleeAttackIfReady();
@@ -710,9 +710,9 @@ public:
 			if (dmgCount < 2)
 				DoMeleeAttackIfReady();
 			else
-			if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER) dmgCount = 0;
+				if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER) dmgCount = 0;
 			else
-			if (me->GetVictim()->isPet()) dmgCount = 0;
+				if (me->EnsureVictim()->isPet()) dmgCount = 0;
 			else
 			{
 				if (tAnimate <= diff)
@@ -2529,12 +2529,12 @@ public:
 			}
 			else tEnrage -= diff;
 
-			if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+			if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER)
 				Miss = false;
-			else if (me->GetVictim()->isPet())
+			else if (me->EnsureVictim()->isPet())
 				Miss = false;
-			else if (me->GetVictim()->GetEntry() == NPC_NORTHGATE_REBEL_1)
-			if (me->GetVictim()->GetHealthPct() < 90)
+			else if (me->EnsureVictim()->GetEntry() == NPC_NORTHGATE_REBEL_1)
+				if (me->EnsureVictim()->GetHealthPct() < 90)
 				Miss = true;
 
 			if (Miss && tAnimate <= diff)
@@ -2940,9 +2940,9 @@ public:
 			if (!UpdateVictim())
 				return;
 
-			if (me->GetVictim()->GetTypeId() == TYPEID_UNIT)
+			if (me->EnsureVictim()->GetTypeId() == TYPEID_UNIT)
 			{
-				if (me->GetVictim()->GetHealthPct() < 90)
+				if (me->EnsureVictim()->GetHealthPct() < 90)
 					miss = true;
 				else
 					miss = false;
@@ -3115,9 +3115,9 @@ public:
 			if (!UpdateVictim())
 				return;
 
-			if (me->GetVictim() && me->GetVictim()->GetTypeId() == TYPEID_UNIT)
+			if (me->GetVictim() && me->EnsureVictim()->GetTypeId() == TYPEID_UNIT)
 			{
-				if (me->GetVictim()->GetHealthPct() < 90)
+				if (me->EnsureVictim()->GetHealthPct() < 90)
 					miss = true;
 				else
 					miss = false;
@@ -4336,9 +4336,9 @@ public:
 			if (!UpdateVictim())
 				return;
 
-			if (me->GetVictim()->GetTypeId() == TYPEID_UNIT)
+			if (me->EnsureVictim()->GetTypeId() == TYPEID_UNIT)
 			{
-				if (me->GetVictim()->GetHealthPct() < 90)
+				if (me->EnsureVictim()->GetHealthPct() < 90)
 					miss = true;
 				else
 					miss = false;
@@ -4413,9 +4413,9 @@ public:
 			if (!UpdateVictim())
 				return;
 
-			if (me->GetVictim()->GetTypeId() == TYPEID_UNIT)
+			if (me->EnsureVictim()->GetTypeId() == TYPEID_UNIT)
 			{
-				if (me->GetVictim()->GetHealthPct() < 90)
+				if (me->EnsureVictim()->GetHealthPct() < 90)
 					miss = true;
 				else
 					miss = false;

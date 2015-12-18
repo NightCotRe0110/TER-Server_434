@@ -359,7 +359,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                     {
                                         // both spells have SPELL_ATTR5_SINGLE_TARGET_SPELL, no manual removal needed
                                         _offtank->CastSpell(me->GetVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                        me->GetVictim()->CastSpell(_offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
+										me->EnsureVictim()->CastSpell(_offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
                                         DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
                                         if (Item* shadowsEdge = _offtank->GetWeaponForAttack(BASE_ATTACK, true))
                                             if (!_offtank->HasAura(SPELL_THIRST_QUENCHED) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE && !_offtank->HasAura(SPELL_GUSHING_WOUND))

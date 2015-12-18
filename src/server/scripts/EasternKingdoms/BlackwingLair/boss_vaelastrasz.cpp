@@ -240,7 +240,7 @@ public:
             {
                 // have the victim cast the spell on himself otherwise the third effect aura will be applied
                 // to Vael instead of the player
-                me->GetVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, 1);
+				me->EnsureVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, 1);
 
                 BurningAdrenalineTank_Timer = 45000;
             } else BurningAdrenalineTank_Timer -= diff;

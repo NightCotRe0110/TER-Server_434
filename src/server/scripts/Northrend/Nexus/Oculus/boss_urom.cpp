@@ -273,7 +273,7 @@ public:
                 if (arcaneExplosionTimer <= uiDiff)
                 {
                     Position pPos;
-                    me->GetVictim()->GetPosition(&pPos);
+					me->EnsureVictim()->GetPosition(&pPos);
 
                     me->NearTeleportTo(pPos.GetPositionX(), pPos.GetPositionY(), pPos.GetPositionZ(), pPos.GetOrientation());
                     me->GetMotionMaster()->MoveChase(me->GetVictim(), 0, 0);

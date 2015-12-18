@@ -98,7 +98,7 @@ public:
 
                 if (me->isInCombat() && me->GetVictim())
                 {
-                    if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+					if (me->EnsureVictim()->GetTypeId() == TYPEID_PLAYER)
                     {
                         Unit* victim = me->GetVictim();
                         if (CAST_PLR(victim)->GetTeam() == HORDE)

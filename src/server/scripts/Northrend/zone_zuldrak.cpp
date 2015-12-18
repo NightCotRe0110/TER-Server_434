@@ -959,7 +959,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->GetVictim()->GetPositionZ() >= 286.276f)
+			if (me->EnsureVictim()->GetPositionZ() >= 286.276f)
             {
                 std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
@@ -1226,7 +1226,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->GetVictim()->GetPositionZ() >= 286.276f)
+			if (me->EnsureVictim()->GetPositionZ() >= 286.276f)
             {
                 std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)

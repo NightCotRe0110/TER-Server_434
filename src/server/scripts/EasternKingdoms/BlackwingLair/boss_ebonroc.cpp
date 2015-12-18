@@ -68,7 +68,7 @@ public:
                 ShadowOfEbonroc_Timer = urand(25000, 350000);
             } else ShadowOfEbonroc_Timer -= diff;
 
-            if (me->GetVictim()->HasAura(SPELL_SHADOWOFEBONROC))
+			if (me->EnsureVictim()->HasAura(SPELL_SHADOWOFEBONROC))
             {
                 if (Heal_Timer <= diff)
                 {

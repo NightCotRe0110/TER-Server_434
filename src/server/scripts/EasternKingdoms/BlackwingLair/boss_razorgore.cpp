@@ -120,7 +120,7 @@ public:
             } else Conflagration_Timer -= diff;
 
             // Aura Check. If the gamer is affected by confliguration we attack a random gamer.
-            if (me->GetVictim() && me->GetVictim()->HasAura(SPELL_CONFLAGRATION))
+			if (me->GetVictim() && me->EnsureVictim()->HasAura(SPELL_CONFLAGRATION))
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     me->TauntApply(target);
 

@@ -549,16 +549,16 @@ public:
                             break;
 
                         case EVENT_TWILIGHT_SHIFT:
-                            if (!me->GetVictim()->HasAura(SPELL_TWILIGHT_SHIFT))
+							if (!me->EnsureVictim()->HasAura(SPELL_TWILIGHT_SHIFT))
                                 DoCast(me->GetVictim(), SPELL_TWILIGHT_SHIFT);
                             else
-                            if (Aura * aura = me->GetVictim()->GetAura(SPELL_TWILIGHT_SHIFT))
+								if (Aura * aura = me->EnsureVictim()->GetAura(SPELL_TWILIGHT_SHIFT))
                             {
                                 if (aura->GetStackAmount() < 5)
                                     DoCast(me->GetVictim(), SPELL_TWILIGHT_SHIFT);
                                 else
                                 {
-                                    me->GetVictim()->RemoveAura(SPELL_TWILIGHT_SHIFT);
+									me->EnsureVictim()->RemoveAura(SPELL_TWILIGHT_SHIFT);
                                     me->AddAura(SPELL_TWILIGHT_ZONE, me->GetVictim()); // Send target to Twilight Realm.
                                     me->AddAura(SPELL_TWILIGHT_REALM, me->GetVictim()); // Send target to Twilight Realm.
 
@@ -917,16 +917,16 @@ public:
                             break;
 
                         case EVENT_TWILIGHT_SHIFT:
-                            if (!me->GetVictim()->HasAura(SPELL_TWILIGHT_SHIFT))
+							if (!me->EnsureVictim()->HasAura(SPELL_TWILIGHT_SHIFT))
                                 DoCast(me->GetVictim(), SPELL_TWILIGHT_SHIFT);
                             else
-                            if (Aura * aura = me->GetVictim()->GetAura(SPELL_TWILIGHT_SHIFT))
+								if (Aura * aura = me->EnsureVictim()->GetAura(SPELL_TWILIGHT_SHIFT))
                             {
                                 if (aura->GetStackAmount() < 5)
                                     DoCast(me->GetVictim(), SPELL_TWILIGHT_SHIFT);
                                 else
                                 {
-                                    me->GetVictim()->RemoveAura(SPELL_TWILIGHT_SHIFT);
+									me->EnsureVictim()->RemoveAura(SPELL_TWILIGHT_SHIFT);
                                     me->AddAura(SPELL_TWILIGHT_ZONE, me->GetVictim()); // Send target to Twilight Realm.
                                     me->AddAura(SPELL_TWILIGHT_REALM, me->GetVictim()); // Send target to Twilight Realm.
 

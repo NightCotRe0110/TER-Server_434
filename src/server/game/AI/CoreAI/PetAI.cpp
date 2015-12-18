@@ -76,10 +76,10 @@ void PetAI::UpdateAI(const uint32 diff)
     else
         m_updateAlliesTimer -= diff;
 
-    if (me->GetVictim() && me->GetVictim()->isAlive())
+	if (me->GetVictim() && me->EnsureVictim()->isAlive())
     {
         // is only necessary to stop casting, the pet must not exit combat
-        if (me->GetVictim()->HasBreakableByDamageCrowdControlAura(me))
+		if (me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
         {
             me->InterruptNonMeleeSpells(false);
             return;
@@ -357,7 +357,7 @@ void PetAI::OwnerAttackedBy(Unit* attacker)
         return;
 
     // Prevent pet from disengaging from current target
-    if (me->GetVictim() && me->GetVictim()->isAlive())
+	if (me->GetVictim() && me->EnsureVictim()->isAlive())
         return;
 
     // Continue to evaluate and attack if necessary
@@ -368,17 +368,19 @@ void PetAI::OwnerAttacked(Unit* target)
 {
     // Called when owner attacks something. Allows defensive pets to know
     //  that they need to assist
-
     // Target might be NULL if called from spell with invalid cast targets
-    if (!target)
-        return;
+	if (!target)
+		return;
 
     // Passive pets don't do anything
-    if (!me->HasReactState(REACT_ASSIST))
-        return;
+	if (me->HasReactState(REACT_PASSIVE))
+		return;
+
+	if (me->GetVictim() && me->EnsureVictim()->isAlive())
+		return;
 
     // Continue to evaluate and attack if necessary
-    AttackStart(target);
+	AttackStart(target);
 }
 
 Unit* PetAI::SelectNextTarget(bool allowAutoSelect) const
@@ -657,7 +659,7 @@ void PetAI::AttackedBy(Unit* attacker)
         return;
 
     // Prevent pet from disengaging from current target
-    if (me->GetVictim() && me->GetVictim()->isAlive())
+	if (me->GetVictim() && me->EnsureVictim()->isAlive())
         return;
 
     // Continue to evaluate and attack if necessary
