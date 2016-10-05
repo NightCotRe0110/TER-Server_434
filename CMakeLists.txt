@@ -3,6 +3,13 @@ project(TER-Server_S)
 
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0005 OLD)
+if(POLICY CMP0043)
+  cmake_policy(SET CMP0043 OLD)
+endif()
+
+if(POLICY CMP0054)
+  cmake_policy(SET CMP0054 NEW)
+endif()
 
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)

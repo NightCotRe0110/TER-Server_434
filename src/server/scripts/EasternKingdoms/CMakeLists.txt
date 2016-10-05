@@ -8,6 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+if( ${CMAKE_PROJECT_NAME} STREQUAL "TER-Server_S")
 file(GLOB_RECURSE scripts_AlteracValley EasternKingdoms/AlteracValley/*.cpp EasternKingdoms/AlteracValley/*.h)
 file(GLOB_RECURSE scripts_BaradinHold EasternKingdoms/BaradinHold/*.cpp EasternKingdoms/BaradinHold/*.h)
 file(GLOB_RECURSE scripts_BastionOfTwilight EasternKingdoms/BastionOfTwilight/*.cpp EasternKingdoms/BastionOfTwilight/*.h)
@@ -100,5 +101,5 @@ set(scripts_STAT_SRCS
   ${scripts_Zones}
   
 )
-
+endif()
 message("  -> Prepared: Eastern Kingdoms")

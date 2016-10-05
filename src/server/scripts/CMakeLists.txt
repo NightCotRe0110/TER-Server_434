@@ -19,6 +19,7 @@ set(scripts_STAT_SRCS
 )
 
 if(SCRIPTS)
+if( ${CMAKE_PROJECT_NAME} STREQUAL "TER-Server_S")
   include(Custom/CMakeLists.txt)
   include(World/CMakeLists.txt)
   include(OutdoorPvP/CMakeLists.txt)
@@ -28,6 +29,7 @@ if(SCRIPTS)
   include(Outland/CMakeLists.txt)
   include(Northrend/CMakeLists.txt)
   include(Events/CMakeLists.txt)
+ endif()
 endif()
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")

@@ -582,6 +582,6 @@ void AddSC_espinaca_alamuerte()
 {
     new npc_tendones();
     new npc_tendones_2();
-	new npc_tendones_3();
+    new npc_tendones_3();
     new npc_tentaculo();
 }

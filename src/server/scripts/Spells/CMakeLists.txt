@@ -1,13 +1,5 @@
-# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
-#
-# This file is free software; as a special exception the author gives
-# unlimited permission to copy and/or distribute it, with or without
-# modifications, as long as this notice is preserved.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
+# TER-Server
+if( ${CMAKE_PROJECT_NAME} STREQUAL "TER-Server_S")
 file(GLOB_RECURSE scripts_Spells Spells/*.cpp Spells/*.h)
 source_group(Spells FILES ${scripts_Spells})
 
@@ -17,5 +9,5 @@ set(scripts_STAT_SRCS
   Spells/spell_holiday.cpp
   Spells/spell_guild.cpp
 )
-
+endif()
 message("  -> Prepared: Spells")

@@ -85,6 +85,27 @@ public:
 	}
 };
 
+class travel_to_wyrmrest_summit : public CreatureScript
+{
+public:
+	travel_to_wyrmrest_summit() : CreatureScript("travel_to_wyrmrest_summit") { }
+
+	bool OnGossipHello(Player* player, Creature* creature)
+	{
+		if (InstanceScript* instance = creature->GetInstanceScript())
+		{
+			if (instance->GetBossState(DATA_PORTALS_ON_OFF) == DONE)
+			{
+				player->TeleportTo(967, -13855.80f, -13670.82f, 264.95f, 1.614f);
+				player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
+			}
+		}
+
+		player->CLOSE_GOSSIP_MENU();
+		return true;
+	}
+};
+
 class travel_to_the_eye_of_eternity : public CreatureScript
 {
 public:

@@ -1,5 +1,5 @@
 # TER-Server_S
-option(SERVERS          "Build worldserver and authserver"                            1)
+option(SERVERS          "Build TER-Server_W and TER-Server_A"                         1)
 option(SCRIPTS          "Build core with scripts included"                            1)
 option(TOOLS            "Build map/vmap/mmap extraction/assembler tools"              1)
 option(USE_SCRIPTPCH    "Use precompiled headers when compiling scripts"              1)

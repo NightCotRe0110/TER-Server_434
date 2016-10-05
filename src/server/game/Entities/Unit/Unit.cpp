@@ -1604,15 +1604,40 @@ void Unit::HandleEmoteState(uint32 emote_id)
 
 void Unit::HandleEmote(uint32 emote_id)
 {
-    if (!emote_id)
-        HandleEmoteState(EMOTE_ONESHOT_NONE);
-    else if (EmotesEntry const* emoteEntry = sEmotesStore.LookupEntry(emote_id))
-    {
-        if (emoteEntry->EmoteType) // 1,2 states, 0 command
-            HandleEmoteState(emote_id);
-        else
-            HandleEmoteCommand(emote_id);
-    }
+	if (!emote_id)
+		HandleEmoteState(EMOTE_ONESHOT_NONE);
+	else
+	{
+		if (EmotesEntry const* emoteEntry = sEmotesStore.LookupEntry(emote_id))
+		{
+			if (emoteEntry->EmoteType) // 1, 2 Emote States, 0 ONESHOT animations play.
+			{
+				// If the creature already has this state return.
+				if (GetEmoteState() == emote_id && GetTypeId() == TYPEID_UNIT)
+					return;
+
+				if (GetTypeId() == TYPEID_PLAYER)
+				{
+					// When a player types in the same /read emote again, he cancels it. Acts like a toggle.
+					//	if (GetStoredEmoteState() && GetStoredEmoteState() == emote_id && emote_id == EMOTE_STATE_READ)
+					{
+						HandleEmoteState(EMOTE_ONESHOT_NONE);
+						SetStoredEmoteState(EMOTE_ONESHOT_NONE);
+					}
+					//else
+					{
+						HandleEmoteState(emote_id);
+						//	if (emote_id == EMOTE_STATE_READ || emote_id == EMOTE_STATE_DANCE)
+						SetStoredEmoteState(emote_id);
+					}
+				}
+				else
+					HandleEmoteState(emote_id);
+			}
+			else
+				HandleEmoteCommand(emote_id);
+		}
+	}
 }
 
 void Unit::HandleEmoteCommand(uint32 anim_id)
@@ -8638,6 +8663,12 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 /*damage*/, Aura* triggeredByAura
                     CastCustomSpell(this, 70845, &basepoints0, NULL, NULL, true);
                     break;
                 }
+				// Item - Warrior T12 DPS 2P Bonus
+				case 99234:
+				{
+					CastSpell(this, 99233, true);
+					break;
+				}
                 // Recklessness
                 case 1719:
                 {

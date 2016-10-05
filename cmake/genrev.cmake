@@ -50,8 +50,8 @@ if(NOT rev_info)
   # No valid ways available to find/set the revision/hash, so let's force some defaults
   message(STATUS "WARNING - Missing repository tags - you may need to pull tags with git fetch -t")
   message(STATUS "WARNING - Continuing anyway - note that the versionstring will be set to 2007-2016 r400-r500 (TER-Server)")
-  set(rev_date "2007-2016 r400-r500")
-  set(rev_hash "TER-Server")
+  set(rev_date "2007-2016 r500")
+  set(rev_hash "TER-Server_S")
 else()
   # Extract information required to build a proper versionstring 
   string(REGEX REPLACE init-|[0-9]+-g "" rev_hash ${rev_info})

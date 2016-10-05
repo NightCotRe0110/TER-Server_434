@@ -1,5 +1,6 @@
 #TER-Server
 
+if( ${CMAKE_PROJECT_NAME} STREQUAL "TER-Server_S")
 file(GLOB_RECURSE scripts_BlackfathomDeeps Kalimdor/BlackfathomDeeps/*.cpp Kalimdor/BlackfathomDeeps/*.h)
 file(GLOB_RECURSE scripts_CavernsOfTime_BattleForMountHyjal Kalimdor/CavernsOfTime/BattleForMountHyjal/*.cpp Kalimdor/CavernsOfTime/BattleForMountHyjal/*.h)
 file(GLOB_RECURSE scripts_CavernsOfTime_CullingOfStratholme Kalimdor/CavernsOfTime/CullingOfStratholme/*.cpp Kalimdor/CavernsOfTime/CullingOfStratholme/*.h)
@@ -70,5 +71,5 @@ set(scripts_STAT_SRCS
   ${scripts_ZulFarrak}
   ${scripts_Zones}
 )
-
+endif()
 message("  -> Prepared: Kalimdor")
